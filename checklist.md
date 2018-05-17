@@ -1,7 +1,7 @@
 # proteus checklist
 ## Todo
-  [ ] Set up virtual machine
-  [ ] Boot from GRUB
+[ ] Set up virtual machine
+[ ] Boot from GRUB
 
 ## CPU scheduling
   * FCFS
