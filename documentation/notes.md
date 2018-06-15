@@ -1,11 +1,11 @@
 # OS notes
 
 ## Hardware
-Raspberry Pi 2 Model B  
+Raspberry Pi 2 Model B \
 Uses Broadcom 2836 chip (architecture identical to BCM2835, except ARM1176JZF-S processor replaced with ARM Cortex-A7 processor)
 
 ## Development environment
-Development done on x86_64 Linux 4.16.13-2-ARCH  
+Development done on x86_64 Linux 4.16.13-2-ARCH \
 Set up GCC cross-compiler for arm-none-eabi (provides toolchain to target System V ABI)
 
 ## First steps: minimal kernel 
@@ -23,9 +23,9 @@ _start:
     cmp r1, #0
     bne halt
 ```
-`mrc` - move to register from coprocessor (LOOK UP)  
-`and r1, r1, #3` - and Rn, Rm, <val> <=> Rn := Rm & <val>  
-Then compare if r1 == 0.  
+`mrc` - move to register from coprocessor (LOOK UP) \
+`and Rn, Rm, <val>` - translates to Rn := Rm AND \<val\> \
+Then compare if r1 == 0. \
 This sends three of four processors to halt. Multi-core OS is hard.  
 
 #### Note about the `mrc` command
