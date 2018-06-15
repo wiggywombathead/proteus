@@ -1,6 +1,6 @@
 CC = arm-none-eabi-gcc	# use ARM cross compiler
-CPU = cortex-a7
-
+CPU = arm1176jzf-s
+#cortex-a7
 CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding
 CSRCFLAGS = -O2 -Wall -Wextra
 LFLAGS = -ffreestanding -O2 -nostdlib
@@ -14,7 +14,7 @@ KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 CSOURCES = $(wildcard $(COMMON_SRC)/*.c)
 ASOURCES = $(wildcard $(KERN_SRC)/*.s)
 
-OBJECTS = $(patsubst $(KERN_SRC)/%.c, $(OBJ_DIR)/%.o, $(KSOURCES))
+OBJECTS  = $(patsubst $(KERN_SRC)/%.c, $(OBJ_DIR)/%.o, $(KSOURCES))
 OBJECTS += $(patsubst $(COMMON_SRC)/%.c, $(OBJ_DIR)/%.o, $(CSOURCES))
 OBJECTS += $(patsubst $(KERN_SRC)/%.s, $(OBJ_DIR)/%.o, $(ASOURCES))
 

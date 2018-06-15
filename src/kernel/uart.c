@@ -1,5 +1,21 @@
 #include <kernel/uart.h>
 
+static inline void mmio_write(uint32_t reg, uint32_t data) {
+    *(volatile uint32_t *) reg = data;
+}
+
+static inline uint32_t mmio_read(uint32_t reg) {
+    return *(volatile uint32_t *) reg;
+}
+
+/* Loop in a way that compiler won't optimize */
+static inline void delay(int32_t count) {
+    asm volatile(
+            "__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n" :
+            "=r"(count): [count]"0"(count) : "cc"
+    );
+}
+
 void uart_init() {
 
     mmio_write(UART0_CR, 0x00000000);
@@ -23,22 +39,6 @@ void uart_init() {
             (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10));
 
     mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
-}
-
-static inline void mmio_write(uint32_t reg, uint32_t data) {
-    *(volatile uint32_t *) reg = data;
-}
-
-static inline uint32_t mmio_read(uint32_t reg) {
-    return *(volatile uint32_t *) reg;
-}
-
-/* Loop in a way that compiler won't optimize */
-static inline void delay(int32_t count) {
-    asm volatile(
-            "__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n" :
-            "=r"(count): [count]"0"(count) : "cc"
-    );
 }
 
 void uart_putc(unsigned char c) {

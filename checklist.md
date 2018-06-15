@@ -9,6 +9,7 @@
   * SRTF
   * Priority (preemptive and non)
   * Round Robin
+  * Lottery
 
 ## Disk scheculing
   * FCFS
