@@ -11,6 +11,7 @@
  */
 _start:
 
+    /* shutdown three cores */
     mrc p15, #0, r1, c0, c0, #5
     and r1, r1, #3
     cmp r1, #0
@@ -19,7 +20,7 @@ _start:
     /* setup the stack */
     mov sp, #0x8000
 
-    /* clear bss */
+    /* setup bss */
     ldr r4, =__bss_start
     ldr r9, =__bss_end
 
@@ -35,7 +36,7 @@ _start:
 
 2:
     cmp r4, r9
-    blo 1b
+    blo 1b;
 
     /* call kernel_main */
     ldr r3, =kernel_main

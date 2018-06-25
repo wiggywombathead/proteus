@@ -1,6 +1,6 @@
 CC = arm-none-eabi-gcc	# use ARM cross compiler
-CPU = arm1176jzf-s
-#cortex-a7
+CPU = cortex-a7
+
 CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding
 CSRCFLAGS = -O2 -Wall -Wextra
 LFLAGS = -ffreestanding -O2 -nostdlib

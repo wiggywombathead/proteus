@@ -22,14 +22,11 @@ void uart_init() {
 
     mmio_write(GPPUD, 0x00000000);
     delay(150);
-
     mmio_write(GPPUDCLK0, (1 << 14) | (1 << 15));
     delay(150);
-
     mmio_write(GPPUDCLK0, 0x00000000);
 
     mmio_write(UART0_ICR, 0x7ff);
-
     mmio_write(UART0_IBRD, 1);
     mmio_write(UART0_FBRD, 40);
 

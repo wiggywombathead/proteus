@@ -1,0 +1,7 @@
+# object files
+*.o
+*.img
+
+# reference/admin
+reference/*
+admin/*
