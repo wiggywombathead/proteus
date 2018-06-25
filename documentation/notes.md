@@ -136,28 +136,28 @@ to respond to any writes we make.
 `uart_init()` sets up the UART hardware for use, by setting some configuration
 flags.
 
-`mmio_write(UART0_CR, 0x00000000)` - disables all aspects of the UART hardware
-(the Control Register) \
-`mmio_write(GPPUD, 0x00000000)` - disables all GPIO pins \
-`mmio_write(GPPUDCLK0, (1 << 14) | (1 << 15))` - marks pins 14 and 15 for
+* `mmio_write(UART0_CR, 0x00000000)` disables all aspects of the UART hardware
+(the Control Register)
+* `mmio_write(GPPUD, 0x00000000)` disables all GPIO pins
+* `mmio_write(GPPUDCLK0, (1 << 14) | (1 << 15))` marks pins 14 and 15 for
 disabling, and `mmio_write(GPPUDCLK0, 0x00000000)` makes our changes take
-effect. \
-`mmio_write(UART0_ICR, 0x7ff)` - sets all flags in the Interrupt Clear Register,
-clearing all pending interrupts. \
-`mmio_write(UART0_IBRD, 1)` and `mmio_write(UART0_FBRD, 40)` - sets up the baud
+effect.
+* `mmio_write(UART0_ICR, 0x7ff)` sets all flags in the Interrupt Clear Register,
+clearing all pending interrupts.
+* `mmio_write(UART0_IBRD, 1)` and `mmio_write(UART0_FBRD, 40)` set up the baud
 rate of the connection, i.e. the bits that may be transmitted across the serial
 port per second. To set this, we must calculate the baud rate divisor, using
 IBRD = UART clock speed / (16 * desired baud rate) (page 183). UART clock
 speed = 3 MHz, desired baud rate = 115200. Since this formula does likely not
-yield a whole number, we then use FBRD = (fractional part * 64) + 0.5 \
-`mmio_write(UART0_LCRH, (1 << 4) | (1 << 5) | (1 << 6))` - sets bits 4, 5, and 6
+yield a whole number, we then use FBRD = (fractional part * 64) + 0.5
+* `mmio_write(UART0_LCRH, (1 << 4) | (1 << 5) | (1 << 6))` sets bits 4, 5, and 6
 of the Line Control Register. This enables FIFOs, and sets the word length (the
 number of data bits to be transmitted and received in a frame) to 8 bits, from
 page 184 of the Peripherals Manual.  `mmio_write(UART0_IMSC, (1 << 1) | (1 << 4)
 | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10))` - disables
 all interrupts by writing to the relevant bits in the Interrupt Mask Set Clear
-register. \
-`mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9))` - enables UART hardware,
+register.
+* `mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9))` enables UART hardware,
 as well as the ability to receive (bit 8) and transmit (bit 9) data.
 
 `uart_putc()` waits until the FIFO is no longer full (which we can tell by
