@@ -23,7 +23,6 @@ HEADERS = $(wildcard $(KERN_HEAD)/*.h)
 IMG = kernel.img
 
 build: $(OBJECTS) $(HEADERS)
-	echo $(OBJECTS)
 	$(CC) -T linker.ld -o $(IMG) $(LFLAGS) $(OBJECTS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c

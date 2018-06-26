@@ -5,7 +5,7 @@
 /* 
  * kernel entry point
  *  r0:  0x00000000
- *  r1:  0x00000c42
+ *  r1:  0x000012dc
  *  r2:  0x00000100 = start of atags
  *  r15: begins execution at 0x8000
  */

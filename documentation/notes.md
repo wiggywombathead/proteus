@@ -104,13 +104,30 @@ Finally, we load the address of the function `kernel_main` into register 3, and
 transfer execution to this (the address of the next instruction is stored in the
 Link Register (r14), address of `kernel_main` is stored in PC).
 
+Overall, this code initialises a minimum C environment, meaning we initialise
+the stack and zero out the BSS segment before calling the `kernel_main`
+function. We avoid using registers 0, 1, and 2 as they are used in the
+`kernel_main` call to pass parameters and hardware information at runtime.
+
+#### Note about freestanding vs. hosted environments
+Typical programs are written to run in a hosted environment, meaning it has
+access to the C standard library and other useful runtime features. By contrast,
+in OS dev, we use a freestanding environment (as we must create our own standard
+library to run on our operating system), meaning there is no C standard library,
+and may only use what we supply ourselves. Some header files are not part of the
+C standard library, but rather the compiler, meaning they are available in a
+freestanding environment such as this. In particular, headers available (minus a
+few special purpose ones from GCC) are: `<stddef.h>` `<stdint.h>`, `<float.h>`,
+`<limits.h>`, `<stdarg.h>`, and`<iso646.h>` 
+
+// TODO: here
+
 ### uart.c
 This sets up the hardware for basic I/O. For now, this is done using UART
 (Universal Asynchronous Receiver Transmitter), meaning text data is sent and
 received through serial ports. To do this in the final version requires a
-USB-to-TTL cable, but we can emulate this using the virtual machine for now.
-
-In this we use Memory Mapped I/O - the process of performing I/O by reading from
+USB-to-TTL cable, but we can emulate this using the virtual machine for now. In
+this we use Memory Mapped I/O - the process of performing I/O by reading from
 and writing to predefined memory addresses. 
 
 A peripheral is a device with a specific address from and to which it may read
@@ -123,10 +140,10 @@ to: these are at predefined offsets from the base address. A full list of all
 UART registers on the BCM2835/6 chip can be found on page 177 of the BCM2835 ARM
 Peripherals Manual. This also gives the UART base address of 0x7e201000, however
 on the Raspberry Pi 2, this is at 0x3f201000 instead. **N.B.** From the manual:
-``Physical addresses range from 0x20000000 to 0x20ffffff for peripherals. The
+"Physical addresses range from 0x20000000 to 0x20ffffff for peripherals. The
 bus addresses for peripherals are set up to map onto the peripheral bus address
 range starting at 0x7e000000. Thus a peripheral listed at 0x7ennnnnn will be
-available at physical address 0x20nnnnnn.''
+available at physical address 0x20nnnnnn."
 
 `mmio_write()` takes a 32-bit register and stores the 32-bit data into the
 register specified, while `mmio_read()` returns the data stored in that
@@ -171,8 +188,48 @@ Control is transferred to here from boot.s by the line `ldr r3, =kernel_main`.
 All this does is initialises the UART, prints a welcome string, and waits to
 receive and print some text from the keyboard. Notice the parameters for
 `kernel_main`: the convention in ARM is to pass the first three parameters of a
-function through registers 0, 1, and 2. When the bootloader loads the kernel, it
-also passes some information about the hardware in order to run it, called
-'atags'. A pointer to this information is passed in register 2 just before
-boot.s runs. Since register 2 contains the atags pointer, the third argument to
-`kernel_main` is the atags pointer.
+function through registers 0, 1, and 2. The bootloader passes arguments to the
+kernel via registers 0, 1, and 2, and boot.s makes sure to preserve these
+registers (no line of code touches them). Register 0 contains a code for the
+device from which the Raspberry Pi was booted (usually 0, but dependent on the
+board firmware). Register 1 contains the 'ARM Linux Machine Type', which for the
+Raspberry Pi 2 is 0x12dc, identifying the BCM2835 CPU (found [here]
+(http://www.arm.linux.org.uk/developer/machines/)). When the bootloader loads
+the kernel, it also passes some information about the hardware in order to run
+it, called 'atags'. A pointer to this information is passed in register 2 just
+before boot.s runs. Since register 2 contains the atags pointer, the third
+argument to `kernel_main` is the atags pointer.
+
+### linker.ld
+To create the full kernel we must link all compiled object files into one final
+program. For user-space programs, there are default scripts which do this, but
+we have to create one ourselves for our kernel.
+
+C program sections:
+* `.text` - executable code
+* `.rodata` - read-only data (global constants)
+* `.data` - global variables initialised at compile-time
+* `.bss` - uninitialised gloabal variables
+
+**N.B:** In linker scripts, `.` stands for current address.
+
+```assembly
+ENTRY(_start)
+```
+This declares that the symbol `_start` from boot.s as the entry point of our
+program.
+
+Next we set symbols `__start` and `__text_start` to be 0x8000, which is where
+the bootloader will put our kernel image. We then declare the `.text` section to
+start directly after this. The code from boot.s is located in the first part of
+this section, `.text.boot`. `KEEP` tells the linker to not try to optimise the
+code in `.text.boot`. The second part of the `.text` section is all `.text`
+sections from other objects, in any order.
+
+Next, `ALIGN` is used to set the current address to the next available page (the
+next largest address divisible by our page size, 4096). Then in much the same
+way we declare the `.rodata`, `.data`, and `.bss` sections.
+
+### Makefile
+/* Write Makefile notes */
+
