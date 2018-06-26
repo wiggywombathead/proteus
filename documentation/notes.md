@@ -231,5 +231,12 @@ next largest address divisible by our page size, 4096). Then in much the same
 way we declare the `.rodata`, `.data`, and `.bss` sections.
 
 ### Makefile
-/* Write Makefile notes */
+Only a few things to note. `CC = arm-none-eabi-gcc` uses the ARM cross-compiler
+(I installed it from Arch Linux's package manager, pacman). Since we are
+cross-compiling, we specify our target CPU, namely `cortex-a7` for the Raspberry
+Pi 2.
 
+* `-fpic` - generate position inedependent code, for use in a shared library
+* `-ffreestanding` - compile for freestanding, as opposed to hosted, environment
+
+For now, we use the target `run` to emulate the Raspberry Pi 2 on QEMU.
