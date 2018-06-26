@@ -118,9 +118,8 @@ and may only use what we supply ourselves. Some header files are not part of the
 C standard library, but rather the compiler, meaning they are available in a
 freestanding environment such as this. In particular, headers available (minus a
 few special purpose ones from GCC) are: `<stddef.h>` `<stdint.h>`, `<float.h>`,
-`<limits.h>`, `<stdarg.h>`, and`<iso646.h>` 
-
-// TODO: here
+`<limits.h>`, `<stdarg.h>`, and`<iso646.h>`. Note that these only supply us with
+some macros, and we still have to define all function we wish to use ourselves.
 
 ### uart.c
 This sets up the hardware for basic I/O. For now, this is done using UART
