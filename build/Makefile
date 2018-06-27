@@ -20,7 +20,7 @@ OBJECTS += $(patsubst $(KERN_SRC)/%.s, $(OBJ_DIR)/%.o, $(ASOURCES))
 
 HEADERS = $(wildcard $(KERN_HEAD)/*.h)
 
-IMG = kernel.img
+IMG = kernel.elf
 
 build: $(OBJECTS) $(HEADERS)
 	$(CC) -T linker.ld -o $(IMG) $(LFLAGS) $(OBJECTS)

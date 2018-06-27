@@ -1,14 +1,52 @@
 # OS notes
 
 ## Hardware
-Raspberry Pi 2 Model B \
-Uses Broadcom 2836 chip (architecture identical to BCM2835, except ARM1176JZF-S
-processor replaced with ARM Cortex-A7 processor)
+**Raspberry Pi 2 Model B** - uses Broadcom 2836 chip; its architecture is
+identical to BCM2835 chip, except the ARM1176JZF-S processor is replaced with
+the ARM Cortex-A7 processor
 
 ## Development environment
-Development done on x86_64 Linux 4.16.13-2-ARCH \
-Set up GCC cross-compiler for arm-none-eabi (provides toolchain to target System
-V ABI)
+Developed on x86\_64 Linux 4.16.13-2-ARCH onwards. As the target environment is
+a Raspberry Pi, which uses an ARM processor, there is the need to set up
+cross-compiler to target this architecture. In particular, GCC provides
+cross-compiler for arm-none-eabi, which provides a toolchain to target System V
+ABI.
+
+#### Note about System V ABI
+System V ABI (Application Binary Interface) is a set of specifications that
+detail calling conventions, object file formats, executable file formats,
+dynamic linking semantics, and more for systems complying with the System V
+Interface Definition. For example, it defines the Executable and Linkable Format
+(ELF), a format for storing programs or fragments of programs on disk, created
+as a result of compiling and linking. It is divided into sections, in particular
+a `.text`, `.data`, `.rodata`, and `.bss` section (all discussed later), along
+with `.comment`, `.note`, `.stab`, and `.stabstr` sections for compiler/linker
+toolchain comments and debugging information. The calling convention details for
+the Raspberry Pi 2's 32-bit Cortex A7 processor are as follows:
+
+* 15 general purpose data storage (r0-r14)
+* r15 - Program Counter
+* r14 - Link Register
+* r13 - Stack Pointer
+* r12 - Intra-Procedure-Call Scratch Register
+* r4 to r11 - used to hold local variables
+* r0 to r3 - used to hold arguments passed to functions, and the returned result
+* CPSR - Current Program Status Register
+* SPSR - Saved Program Status Register
+
+Subroutines must preserve the contents of r4 to r11 and the stack pointer. In
+particular, subroutines that call other subroutines *must* save the return
+address in the link register r14 to the stack before calling those other
+subroutines. However, such subroutines do not need to return that value to
+r14—they merely need to load that value into r15, the program counter, to
+return.
+
+It asserts a full descending stack:
+* full: SP points to topmost item in stack, i.e. the location of the last item
+  pushed (as opposed to empty: pointing to the next free location, the address
+  where the next item will be stored)
+* descending: stack grows downwards, i.e. the SP starts from a high memory
+  address and progresses to lower memory addresses as items are pushed.
 
 ## First steps: minimal kernel 
 ### boot.s
