@@ -1,6 +1,7 @@
 # object files
 *.o
 *.img
+*.elf
 
 # reference/admin
 reference/*

@@ -1,4 +1,5 @@
 #include <kernel/uart.h>
+#include <kernel/memory.h>
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
@@ -14,5 +15,4 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         uart_putc(c);
     }
 
-    uart_puts("Goodbye!\n");
 }

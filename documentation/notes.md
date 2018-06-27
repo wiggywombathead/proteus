@@ -277,3 +277,16 @@ Pi 2.
 * `-ffreestanding` - compile for freestanding, as opposed to hosted, environment
 
 For now, we use the target `run` to emulate the Raspberry Pi 2 on QEMU.
+
+## Memory
+Throughout the running of the operating system, processes and computations will
+need to use memory. Since we are the kernel, we can use whatever memory we like.
+To stop this all blowing up in our face, however, we organise memory into
+equal-sized blocks called pages - these allow us to allocate blocks of memory
+that are not insignificantly small, but not so large that they take up a
+significant portion of memory.
+
+### atags
+In order to organise our memory, we need to know how much is available to us.
+This can be done using atags
+([reference](http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_tag_reference)).
