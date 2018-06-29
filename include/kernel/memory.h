@@ -1,7 +1,11 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#define PAGE_SIZE 4096
+
 #include <stdint.h>
+#include <kernel/atag.h>
+#include <kernel/list.h>
 
 struct page_flags {
     uint8_t allocated : 1;
@@ -12,7 +16,11 @@ struct page_flags {
 struct page {
     uint32_t virt_addr;
     struct page_flags flags;
-    // TODO: DEFINE_LINK(struct page);
+    DEFINE_LINK(page);
 };
+
+void mem_init(struct atag);
+void *alloc_page(void);
+void free_page(void *);
 
 #endif
