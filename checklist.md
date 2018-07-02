@@ -4,8 +4,9 @@
 - [x] Hello kernel world
 - [ ] Memory management (in progress)
   - [x] implement generic linked list with macros
-  - [ ] implement dynamic allocator (malloc and free)
-- [ ] Display to real screen through HDMI
+  - [x] implement dynamic allocator (malloc and free)
+  - [ ] TODO: memcpy and framebuffer.h
+- [ ] Display to real screen through HDMI (in progress)
 - [ ] Processes
 - [ ] Change return value of `get_total_mem()` to 0 in atag.c in real thing
 - [ ] Boot from GRUB on real hardware
