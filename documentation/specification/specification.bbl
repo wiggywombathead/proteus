@@ -1,0 +1,51 @@
+\begin{thebibliography}{10}
+
+\bibitem{DinosaurCPU}
+A.~Silberschatz, P.~B. Galvin, and G.~Gagne, {\em Operating System Concepts},
+  ch.~5: Process Scheduling.
+\newblock Wiley, 9~ed., 2014.
+
+\bibitem{DinosaurDisk}
+A.~Silberschatz, P.~B. Galvin, and G.~Gagne, {\em Operating System Concepts},
+  ch.~12: Mass Storage Structure.
+\newblock Wiley, 9~ed., 2014.
+
+\bibitem{CFS}
+\url{}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{LinearScheduler}
+\url{}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{ConstantScheduler}
+\url{}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{SDS}
+\url{}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{BFS}
+\url{}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{LinuxScheduling}
+``Scheduling: Operating system process scheduler implementations.''
+  \url{https://en.wikipedia.org/wiki/Scheduling_(computing)#Linux}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{CannotDoC}
+``C: Things c can't do.'' \url{https://wiki.osdev.org/C#Things_C_can.27t_do}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{CrossCompilation}
+``Why do i need a cross compiler?.''
+  \url{https://wiki.osdev.org/Why_do_I_need_a_Cross_Compiler%3F}.
+\newblock Page accessed: 2018-08-30.
+
+\bibitem{qemu}
+\url{https://www.qemu.org/}.
+\newblock Page accessed: 2018-08-30.
+
+\end{thebibliography}

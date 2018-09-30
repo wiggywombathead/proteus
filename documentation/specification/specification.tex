@@ -1,0 +1,210 @@
+\documentclass[10pt,a4paper]{article}
+
+\bibliographystyle{ieeetr}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{diagbox}
+
+\title{A moduler kernel for the Raspberry Pi: Project Specification}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+    Thomas Archbold \\
+    1602581 \\
+    University of Warwick \\
+\end{center}
+
+\section{Background}
+In most operating systems, many design decisions are made in order to keep
+things simple for the user. Compromises are made to keep most of the technical
+details hidden, and in most cases this is an appropriate approach: needlessly
+offering more choices for low-level tasks that are usually handled by the
+operating system would only serve to confuse. Indeed, in the worst case, it
+could compromise the stability and security of the system by allowing more
+opportunities for errors to be introduced.  This more insulated approach does
+mean, however, that the user never really knows what is going on ``under the
+hood'', and indeed whether greater performance can be achieved by making
+\textit{different} fundamental decisions.  Furthermore, a number of operating
+systems exist for the Raspberry Pi, some focusing on ease-of-installation,
+others on Internet of Things integration, but none exist to serve as a testbed
+for low-level design decisions. Thus this project aims to fill this gap for the
+operating systems enthusiast, one who wishes to test for themselves the
+different approaches to such vital approaches to CPU scheduling, disk
+scheduling, interprocess communication, and filesystem structures. It will give
+the user the ability to dynamically change the fundamental ways in which their
+machine operates by loading different modules to handle different tasks, without
+the need to reboot, enabling for a more flexible operating system where
+performance can measured and tweaked at any point.
+
+\section{Objectives}
+This project will attempt to create a small but functional operating system for
+the Raspberry Pi 2 Model B, that is capable of loading different modules to
+tackle CPU scheduling, disk scheduling, interprocess communication, and
+filesystems in different ways. Crucially, the kernel must be bootable on real
+hardware, must be able to take input from a physical keyboard, and display any
+relevant/necessary output on a real screen. Specifically, it must be able to run
+multiple processes at once through utilising a CPU scheduler; interact with a
+hard disk drive and disk scheduler for mass storage; create, read, update, and
+delete files and directories using a custom filesystem; and be able to load
+modules dynamically for CPU and disk scheduling, interprocess communication, and
+a filesystem on demand.
+
+\subsection{Core aims}
+The operating system must be able to:
+\begin{itemize}
+    \item boot successfully from either GRUB or a custom bootloader
+    \item take keyboard input via the Pi's USB port
+    \item send output to a screen using the Pi's HDMI or serial port
+    \item implement a small shell/comand interpreter
+    \item exhibit some degree of multiprogramming
+    \item interface with a hard drive for mass storage
+    \item read from and write to a custom filesystem
+    \item implement an interface for dynamically switching modules for various
+        tasks
+    \item run stably throughout its lifetime
+    \item shutdown safely
+\end{itemize}
+
+\subsubsection{Loadable modules}
+The following data structures and algorithms will be implemented as loadable
+modules, which may be switched to on-the-fly:
+\begin{itemize}
+    \item CPU Scheduling \cite{DinosaurCPU}:
+        \begin{itemize}
+            \item First Come First Served
+            \item Round Robin
+            \item Shortest Job First
+            \item Shortest Remaining Time First
+            \item Priority Scheduling (preemptive and non-preemptive)
+            \item Lottery Scheduling
+        \end{itemize}
+    \item Disk Scheduling \cite{DinosaurDisk}:
+        \begin{itemize}
+            \item First Come First Served
+            \item Shortest Seek Time First
+            \item SCAN and C-SCAN (elevator algorithm)
+            \item LOOK and C-LOOK
+        \end{itemize}
+    \item Interprocess Communication
+        \begin{itemize}
+            \item Message passing
+            \item Shared memory
+        \end{itemize}
+    \item Filesystem
+        \begin{itemize}
+            \item persistent
+            \item load-on-request
+        \end{itemize}
+\end{itemize}
+
+\subsection{Stretch goals}
+Some stretch goals which would not be entirely necessary for the success of the
+project, but should be implemented to show understanding of more complex
+structures, would be primarily some more intricate scheduling algorithms,
+including the following:
+\begin{itemize}
+    \item Multilevel Queue and Multilevel Feedback Queue
+    \item Completely Fair Scheduler
+    \item $O(n)$ Scheduler
+    \item $O(1)$ Scheduler
+    \item Staircase Deadline Scheduler
+    \item Multiple Queue Skiplist Scheduler, MuQSS (a reimplementation of Con
+        Kolivas' Brain Fuck Scheduler)
+\end{itemize}
+
+In order to give the operating system more purpose and to increase
+usability, a simple text editor would be useful and should be implemented.
+Looking ahead much further into areas for development, it would be useful to
+implement a C compiler, so that the system is fully functional and on par with
+modern operating systems.
+
+\subsection{Further extensions}
+Beyond this, the project could implement more or all  of the complex CPU
+schedulers from the list above. Any further extensions would aim to increase the
+operating system's usability, and bring it more in line to what we expect from
+an operating system. As the system will be built with modularity as a key focus,
+this should aid in the development of additional functionality, and leave the
+option open for features such as networking and security. The timespan for these
+additions is likely to extend past the project deadline, however.
+
+\section{Methodology}
+The methodology best suited to the project will be a mix between a plan-driven
+and agile approach; the basic requirements of the system will not change over
+the course of the project, and furthermore there will be a rigid structure with
+regards to dependencies that the project is likely to abide by (for example, the
+system will have to boot before implementing memory management before
+implementing scheduling algorithms). Therefore, the early stages of the project
+will benefit from a plan driven approach, most likely an Incremental one to
+allow for some choice in what to implement, as opposed to the more restrictive
+structure of a Waterfall methodology. After the foundations have been
+implemented successfully, the project is likely to open up and take a more agile
+approach; Scrum cycles are likely to be useful dedicating a large portion of
+concentration implementing one feature, or fixing specific bugs, at one time, in
+an incremental manner.
+
+Throughout the project, weekly meetings will be held with the supervisor in
+order to discuss any current problems and talk through approaches to solutions
+(especially for the more complex ones), the overall progress of the project, as
+well as the direction in which it is headed. It would also be at this time that
+progress is compared with the timetable, and any notes and adjustments are made
+dynamically in order to fully stay on top of the work.
+
+\section{Testing}
+The project will be tested in an incremental manner. Especially to begin with,
+it is vital that some systems operate correctly before moving on and developing
+other areas. As the project progresses and its complexity increases, unit tests
+will be written to systematically cover all, or at least most, likely paths of
+execution, and to account for each of these. The most fundamental requirement to
+fulfill while testing the solution will be stability, that is to say, whether
+the system is able to safely switch between different modules and continue
+operation. Of course, the solution must also be correct: the user must be able
+to switch dynamically between the different modules, and the system must react
+accordingly. There must be a way to verify that the system is indeed operating
+in the way that is expected from the user, and again, unit tests and
+verification software must be produced to ensure this.
+
+\section{Timetable}
+
+\section{Technologies}
+The following technologies will be used by the project:
+\begin{itemize}
+    \item Git - version control
+    \item Github - to access the project from multiple sources, as well as to
+        back it up
+    \item C - the language in which most of the operating system will be
+        implemented
+    \item ARM assembly - used when C is unavailable/inappropriate
+        \cite{CannotDoC}
+    \item GCC cross compiler for ARM EABI - for cross compiling for the target
+        processor, the Cortex-A7 \cite{CrossCompilation}
+    \item QEMU - for emulating the Pi to allow quicker and safer testing
+        \cite{qemu}
+    \item Make - used to speed up the build process
+\end{itemize}
+
+\section{Resources}
+The following documentation will be used throughout for reference to the
+architecture of the Cortex-A7 processor and its intruction set:
+        \begin{itemize}
+            \item Cortex-A7 MPCore Technical Reference Manual
+            \item ARM Cortex-A Series Programmer's Guide
+            \item Broadcom BCM2835 ARM Peripherals Manual
+        \end{itemize}
+
+\section{Legal, social, ethical, and professional  considerations}
+All software used to build the project is available to use under the GNU Public
+License. Throughout the project's development, some testing will be required
+from people other than the creator, to gain feedback especially with regards to
+usability; these people are likely to be friends and colleagues, hence the
+social, ethical, and professional issues are insignificant.
+
+\bibliography{bibliography}
+
+\end{document}

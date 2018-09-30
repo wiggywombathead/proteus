@@ -1,0 +1,64 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{enumitem}
+\setlist{nosep}
+
+\begin{document}
+
+\section{Tasks}
+\begin{enumerate}
+    \item Read up on Raspberry Pi architecture and technical details
+    \item Set up development environment and makefile for minimal kernel
+    \item Write bootloader and minimal bootable kernel
+    \item Rewrite kernel and makefile in sustainable manner
+    \item Write standard library
+        \begin{itemize}
+            \item I/O
+            \item Memory management
+            \item String stuff
+            \item Interface for loading modules
+        \end{itemize}
+    \item Paging and Segmentation
+    \item Interrupts
+    \item CPU schedulers
+        \begin{itemize}
+            \item FCFS
+            \item RR
+            \item SJF
+            \item SRTF
+            \item P-scheduling non-preemptive, P-scheduling preemptive
+            \item Lottery Scheduling
+            \item CFS
+            \item Mutlilevel Queue, Multilevel Feedback Queue
+            \item Staircase Deadline Scheduler
+            \item $\mathcal{O}(n)$ Scheduler
+            \item $\mathcal{O}(1)$ Scheduler
+            \item MuQSS
+        \end{itemize}
+    \item Disk schedulers
+        \begin{itemize}
+            \item FCFS
+            \item SSTF
+            \item SCAN, C-SCAN, LOOK, C-LOOK
+        \end{itemize}
+    \item IPC
+        \begin{itemize}
+            \item Message passing
+            \item Shared memory
+        \end{itemize}
+    \item Filesystem
+        \begin{itemize}
+            \item Persistent
+            \item On-request
+        \end{itemize}
+    \item Work on real hardware
+        \begin{itemize}
+            \item Boot from SD
+            \item HDMI output
+            \item Keyboard input
+        \end{itemize}
+\end{enumerate}
+
+\end{document}

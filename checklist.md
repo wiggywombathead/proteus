@@ -19,7 +19,7 @@
   * Round Robin
   * Lottery
 
-## Disk scheculing
+## Disk scheduling
   * FCFS
   * SSTF
   * SCAN
