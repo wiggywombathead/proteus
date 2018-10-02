@@ -23,38 +23,52 @@
 
 \section{Background}
 In most operating systems, many design decisions are made in order to keep
-things simple for the user. Compromises are made to keep most of the technical
-details hidden, and in most cases this is an appropriate approach: needlessly
-offering more choices for low-level tasks that are usually handled by the
-operating system would only serve to confuse. Indeed, in the worst case, it
-could compromise the stability and security of the system by allowing more
-opportunities for errors to be introduced.  This more insulated approach does
-mean, however, that the user never really knows what is going on ``under the
-hood'', and indeed whether greater performance can be achieved by making
-\textit{different} fundamental decisions.  Furthermore, a number of operating
-systems exist for the Raspberry Pi, some focusing on ease-of-installation,
-others on Internet of Things integration, but none exist to serve as a testbed
-for low-level design decisions. Thus this project aims to fill this gap for the
-operating systems enthusiast, one who wishes to test for themselves the
-different approaches to such vital approaches to CPU scheduling, disk
-scheduling, interprocess communication, and filesystem structures. It will give
-the user the ability to dynamically change the fundamental ways in which their
-machine operates by loading different modules to handle different tasks, without
-the need to reboot, enabling for a more flexible operating system where
-performance can measured and tweaked at any point.
+things simple for the user, by keeping most of the technical details hidden. In
+most cases, this is an appropriate approach: needlessly offering more choices
+for low-level tasks that are usually handled by the operating system, such as
+CPU and disk scheduling algorithms, would only serve to confuse the average
+user. It may actually be detrimental to the security and the stability of the
+system by opening up more opportunities for errors to be introduced.  This more
+insulated approach does mean, however, that the user never really knows what is
+going on ``under the hood'', and indeed whether greater performance can be
+achieved by making \textit{different} fundamental decisions.  Furthermore, a
+number of operating systems exist for the Raspberry Pi, some focusing on
+ease-of-installation, others on Internet of Things integration, but none exist
+to serve as a testbed for these low-level decisions. This project aims to fill
+this gap for the operating systems enthusiast, one who wishes to test for
+themselves the different approaches to CPU scheduling, disk scheduling,
+interprocess communication, and filesystems. It will give the user the ability
+to dynamically change the fundamental ways in which their machine operates by
+loading different modules to handle different tasks, without the need to
+reboot, enabling for a more flexible operating system where such things can be
+tweaked at any point.
 
-\section{Objectives}
-This project will attempt to create a small but functional operating system for
-the Raspberry Pi 2 Model B, that is capable of loading different modules to
-tackle CPU scheduling, disk scheduling, interprocess communication, and
-filesystems in different ways. Crucially, the kernel must be bootable on real
-hardware, must be able to take input from a physical keyboard, and display any
-relevant/necessary output on a real screen. Specifically, it must be able to run
-multiple processes at once through utilising a CPU scheduler; interact with a
-hard disk drive and disk scheduler for mass storage; create, read, update, and
-delete files and directories using a custom filesystem; and be able to load
-modules dynamically for CPU and disk scheduling, interprocess communication, and
-a filesystem on demand.
+\section{Main goal}
+The goal of this project is to create a modular operating system for the
+Raspberry Pi 2 Model B that is capable of dynamically loading modules to tackle
+CPU scheduling, disk scheduling, interprocess communication, and filesystems in
+a variety of ways. Specifically, it must have some way to run and switch
+between multiple processes using a CPU scheduler; interact with a hard disk
+drive and a disk scheduler for permanent/mass storage; and be able to create,
+read, update, and delete files and directories using a custom filesystem. To
+achieve this, it must implement an interface for loading/removing modules and
+must do so safely and stably.
+
+%It must be able to boot on real hardware (that is to say,
+%not just in an emulated environment), as well as take input and send output
+%from and to real peripherals, namely a USB keyboard and HDMI/serial port.
+%
+%This project will attempt to create a small but functional operating system for
+%the Raspberry Pi 2 Model B, that is capable of loading different modules to
+%tackle CPU scheduling, disk scheduling, interprocess communication, and
+%filesystems in different ways. Crucially, the kernel must be bootable on real
+%hardware, must be able to take input from a physical keyboard, and display any
+%relevant/necessary output on a real screen. Specifically, it must be able to run
+%multiple processes at once through utilising a CPU scheduler; interact with a
+%hard disk drive and disk scheduler for mass storage; create, read, update, and
+%delete files and directories using a custom filesystem; and be able to load
+%modules dynamically for CPU and disk scheduling, interprocess communication, and
+%a filesystem on demand.
 
 \subsection{Core aims}
 The operating system must be able to:
@@ -73,8 +87,8 @@ The operating system must be able to:
 \end{itemize}
 
 \subsubsection{Loadable modules}
-The following data structures and algorithms will be implemented as loadable
-modules, which may be switched to on-the-fly:
+The following will be implemented as loadable modules, which may be switched to
+on-the-fly:
 \begin{itemize}
     \item CPU Scheduling \cite{DinosaurCPU}:
         \begin{itemize}
