@@ -7,7 +7,9 @@
 \usepackage{subfig}
 \usepackage{amsmath}
 \usepackage{url}
-\usepackage{diagbox}
+%\usepackage{diagbox}
+
+\newcommand{\code}[1]{\texttt{#1}}
 
 \title{A moduler kernel for the Raspberry Pi: Project Specification}
 
@@ -21,7 +23,7 @@
     University of Warwick \\
 \end{center}
 
-\section{Background}
+\section*{Background}
 In most operating systems, many design decisions are made in order to keep
 things simple for the user, by keeping most of the technical details hidden. In
 most cases, this is an appropriate approach: needlessly offering more choices
@@ -43,54 +45,32 @@ loading different modules to handle different tasks, without the need to
 reboot, enabling for a more flexible operating system where such things can be
 tweaked at any point.
 
-\section{Main goal}
+\section*{Main goal}
 The goal of this project is to create a modular operating system for the
 Raspberry Pi 2 Model B that is capable of dynamically loading modules to tackle
 CPU scheduling, disk scheduling, interprocess communication, and filesystems in
 a variety of ways. Specifically, it must have some way to run and switch
 between multiple processes using a CPU scheduler; interact with a hard disk
 drive and a disk scheduler for permanent/mass storage; and be able to create,
-read, update, and delete files and directories using a custom filesystem. To
-achieve this, it must implement an interface for loading/removing modules and
-must do so safely and stably.
+read, update, and delete files and directories using a custom filesystem.  To
+achieve this, it must implement an interface for loading/removing modules,
+similar to Linux's \code{insmod} and \code{rmmod} \cite{insmod}, and must do so
+safely and stably.  Furthermore, as executing processes forms a key functional
+requirement for the project, there must be a convenient way to load programs
+into memory and begin their execution. A solution to both of these problems is
+to implement a basic shell/command interpreter.
 
-%It must be able to boot on real hardware (that is to say,
-%not just in an emulated environment), as well as take input and send output
-%from and to real peripherals, namely a USB keyboard and HDMI/serial port.
-%
-%This project will attempt to create a small but functional operating system for
-%the Raspberry Pi 2 Model B, that is capable of loading different modules to
-%tackle CPU scheduling, disk scheduling, interprocess communication, and
-%filesystems in different ways. Crucially, the kernel must be bootable on real
-%hardware, must be able to take input from a physical keyboard, and display any
-%relevant/necessary output on a real screen. Specifically, it must be able to run
-%multiple processes at once through utilising a CPU scheduler; interact with a
-%hard disk drive and disk scheduler for mass storage; create, read, update, and
-%delete files and directories using a custom filesystem; and be able to load
-%modules dynamically for CPU and disk scheduling, interprocess communication, and
-%a filesystem on demand.
+Finally, a key objective of this project will be to get the operating system to
+work entirely on real hardware, and not solely in an emulated environment. This
+means it must be able to boot from the Pi's SD card using some bootloader, as
+well as taking input from a keyboard connected via USB, and printing output to
+a physical screen via the HDMI port on the Pi.
 
-\subsection{Core aims}
-The operating system must be able to:
+\subsubsection*{Loadable modules}
+The project must implement the following as loadable modules, which may be
+switched to on-the-fly by the user:
 \begin{itemize}
-    \item boot successfully from either GRUB or a custom bootloader
-    \item take keyboard input via the Pi's USB port
-    \item send output to a screen using the Pi's HDMI or serial port
-    \item implement a small shell/comand interpreter
-    \item exhibit some degree of multiprogramming
-    \item interface with a hard drive for mass storage
-    \item read from and write to a custom filesystem
-    \item implement an interface for dynamically switching modules for various
-        tasks
-    \item run stably throughout its lifetime
-    \item shutdown safely
-\end{itemize}
-
-\subsubsection{Loadable modules}
-The following will be implemented as loadable modules, which may be switched to
-on-the-fly:
-\begin{itemize}
-    \item CPU Scheduling \cite{DinosaurCPU}:
+    \item CPU Scheduling:
         \begin{itemize}
             \item First Come First Served
             \item Round Robin
@@ -99,7 +79,7 @@ on-the-fly:
             \item Priority Scheduling (preemptive and non-preemptive)
             \item Lottery Scheduling
         \end{itemize}
-    \item Disk Scheduling \cite{DinosaurDisk}:
+    \item Disk Scheduling:
         \begin{itemize}
             \item First Come First Served
             \item Shortest Seek Time First
@@ -118,37 +98,44 @@ on-the-fly:
         \end{itemize}
 \end{itemize}
 
-\subsection{Stretch goals}
+\subsection*{Stretch goals}
 Some stretch goals which would not be entirely necessary for the success of the
 project, but should be implemented to show understanding of more complex
 structures, would be primarily some more intricate scheduling algorithms,
-including the following:
+including the following \cite{CFS,BFS,DinosaurCPU,O(n)Scheduler,O(1)Scheduler}:
 \begin{itemize}
-    \item Multilevel Queue and Multilevel Feedback Queue
     \item Completely Fair Scheduler
-    \item $O(n)$ Scheduler
-    \item $O(1)$ Scheduler
-    \item Staircase Deadline Scheduler
-    \item Multiple Queue Skiplist Scheduler, MuQSS (a reimplementation of Con
-        Kolivas' Brain Fuck Scheduler)
+    \item Multiple Queue Skiplist Scheduler, MuQSS
+    \item Multilevel Queue and Multilevel Feedback Queue
+    \item $\mathcal{O}(n)$ Scheduler
+    \item $\mathcal{O}(1)$ Scheduler
 \end{itemize}
 
-In order to give the operating system more purpose and to increase
-usability, a simple text editor would be useful and should be implemented.
-Looking ahead much further into areas for development, it would be useful to
-implement a C compiler, so that the system is fully functional and on par with
-modern operating systems.
+In order to give the operating system more purpose and to increase usability,
+the collection of relatively simple programs on offer should be extended,
+including a mix of long running CPU- and I/O-bound programs. This will mean
+that the relative performance of the schedulers may be seen more easily. While
+the Not Recently Used (NRU) algorithm will be used for page replacement due to
+its low overhead and relatively decent performance, other algorithms could be
+explored and implemented as modules. These may include: First-In-First-Out (for
+its poor performance), the Clock Page Replacement algorithm, and the Least
+Recently Used algorithm \cite{PageReplacement}.
 
-\subsection{Further extensions}
-Beyond this, the project could implement more or all  of the complex CPU
-schedulers from the list above. Any further extensions would aim to increase the
-operating system's usability, and bring it more in line to what we expect from
-an operating system. As the system will be built with modularity as a key focus,
-this should aid in the development of additional functionality, and leave the
-option open for features such as networking and security. The timespan for these
-additions is likely to extend past the project deadline, however.
+\subsection*{Further extensions}
+Beyond these goals, further extensions would focus on increasing the usability
+of the system, and start to shape it into one which someone might actually use
+to get things done. One of the simpler ways to achieve this would be to write a
+text editor. It is, however, highly unlikely that this will be achieved given
+the time-frame of the project, but would make for a nice goal much further into
+the lifetime of the operating system.
 
-\section{Methodology}
+\subsection*{Out-of-scope}
+There are several features that will not be implemented in the project. These
+include any form of graphical interfaces, networking, and security, simply due
+to the complexity they would add and the extra investment required to complete
+them.
+
+\section*{Methodology}
 The methodology best suited to the project will be a mix between a plan-driven
 and agile approach; the basic requirements of the system will not change over
 the course of the project, and furthermore there will be a rigid structure with
@@ -170,7 +157,7 @@ well as the direction in which it is headed. It would also be at this time that
 progress is compared with the timetable, and any notes and adjustments are made
 dynamically in order to fully stay on top of the work.
 
-\section{Testing}
+\section*{Testing}
 The project will be tested in an incremental manner. Especially to begin with,
 it is vital that some systems operate correctly before moving on and developing
 other areas. As the project progresses and its complexity increases, unit tests
@@ -184,9 +171,9 @@ accordingly. There must be a way to verify that the system is indeed operating
 in the way that is expected from the user, and again, unit tests and
 verification software must be produced to ensure this.
 
-\section{Timetable}
+\section*{Timetable}
 
-\section{Technologies}
+\section*{Technologies}
 The following technologies will be used by the project:
 \begin{itemize}
     \item Git - version control
@@ -203,7 +190,7 @@ The following technologies will be used by the project:
     \item Make - used to speed up the build process
 \end{itemize}
 
-\section{Resources}
+\section*{Resources}
 The following documentation will be used throughout for reference to the
 architecture of the Cortex-A7 processor and its intruction set:
         \begin{itemize}
@@ -212,7 +199,7 @@ architecture of the Cortex-A7 processor and its intruction set:
             \item Broadcom BCM2835 ARM Peripherals Manual
         \end{itemize}
 
-\section{Legal, social, ethical, and professional  considerations}
+\section*{Legal, social, ethical, and professional  considerations}
 All software used to build the project is available to use under the GNU Public
 License. Throughout the project's development, some testing will be required
 from people other than the creator, to gain feedback especially with regards to
