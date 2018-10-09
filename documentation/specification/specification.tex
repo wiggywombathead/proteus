@@ -8,7 +8,9 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{pgfgantt}
-%\usepackage{diagbox}
+% \usepackage{diagbox}
+
+\graphicspath{{./figs/}}
 
 \newcommand{\code}[1]{\texttt{#1}}
 
@@ -74,9 +76,12 @@ permanent/mass storage. Finally, it must be capable of taking input from a
 keyboard connected via USB, and printing output to a physical screen via its
 HDMI port.
 
-\subsubsection*{Loadable modules}
-The project must implement the following as loadable modules, which may be
-configured at compilation time by the user:
+\subsubsection*{The kernel}
+% TODO
+
+\subsubsection*{Configurable modules}
+The project must implement the following as modules, which may be configured at
+compilation time by the user:
 \begin{itemize}
     \item CPU Scheduling:
         \begin{itemize}
@@ -141,13 +146,13 @@ After all, the operating system produced will only be experimental and designed
 for use by one user, and as such security will be an unnecessary feature.
 
 \section*{Hardware}
-The main reason for choosing to work with the Raspberry Pi was its boot process,
-which is detailed below. In particular, as it is handled entirely by its SoC, it
-means a custom bootloader capable of loading the kernel into memory and
-transferring control to it will need not be written. The motivation behind
-opting for the Raspberry Pi 2 Model B specifically was because of its prior
-availability to the author, and meant some other model need not be bought when
-it came to running on real hardware. The Raspberry Pi 1, 2, and 3 use the
+The main reason for choosing to work with the Raspberry Pi was due to its simple
+boot process, which is detailed below. In particular, as it is handled entirely
+by its SoC, it means a custom bootloader capable of loading the kernel into
+memory and transferring control to it will need not be written. The motivation
+behind opting for the Raspberry Pi 2 Model B specifically was because of its
+prior availability to the author, and meant some other model need not be bought
+when it came to running on real hardware. The Raspberry Pi 1, 2, and 3 use the
 Broadcom BCM2835, BCM2836, and BCM2837 respectively, and the underlying
 architecture behind these chips are identical. The only difference from the 2's
 chip to the BCM2835 is that the ARM1176JZF-S processor has been replaced with a
@@ -159,17 +164,16 @@ insignificant when compared with the focus of the project, in that it is
 concerned with producing an operating system simply for \textit{some} version of
 the Pi.
 
-\begin{center}
-    \begin{figure}[h]
-        \includegraphics[width=4in]{pi-diagram.png}
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=4in]{pi-diag.png}
         \caption{Raspberry Pi 2 Model B}
-    \end{figure}
-\end{center}
+    \end{center}
+\end{figure}
 
 \subsection*{A note about the Raspberry Pi's boot process}
-
-% Talk about boot process
-% diagrams and technical specs
+% TODO - Talk about boot process
+% TODO - diagrams and technical specs
 
 \section*{Methodology}
 The methodology best suited to the project will be a mix between a plan-driven
@@ -233,7 +237,8 @@ The following technologies will be used by the project:
     \item GCC cross compiler for ARM EABI - for cross compiling for the target
         processor, the Cortex-A7 \cite{CrossCompilation}
     \item QEMU - for emulating the Pi to allow quicker and safer testing
-        \cite{qemu}
+        \footnote{Note that QEMU does not simulate timing of execution, and so
+        some testing will eventually need to be done on real hardware}
     \item Make - used to speed up the build process
 \end{itemize}
 

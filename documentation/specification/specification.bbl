@@ -1,39 +1,55 @@
 \begin{thebibliography}{10}
 
+\bibitem{NOOBS}
+``Noobs.'' \url{https://www.raspberrypi.org/downloads/noobs/}.
+\newblock Page accessed: 2018-10-08.
+
+\bibitem{IoT}
+``An overview of windows 10 iot core.''
+  \url{https://docs.microsoft.com/en-us/windows/iot-core/windows-iot-core}.
+\newblock Page accessed: 2018-10-08.
+
+\bibitem{insmod}
+\url{modprobe://linux.die.net/man/8/insmod}.
+\newblock Page accessed: 2018-10-03.
+
+\bibitem{CFS}
+``Cfs scheduler.''
+  \url{https://www.kernel.org/doc/Documentation/scheduler/sched-design-CFS.txt}.
+\newblock Page accessed: 2018-10-03.
+
+\bibitem{BFS}
+``Kernel patch homepage of con kolivas.''
+  \url{www.users.on.net/~ckolivas/kernel/}.
+\newblock Page accessed: 2018-10-03.
+
 \bibitem{DinosaurCPU}
 A.~Silberschatz, P.~B. Galvin, and G.~Gagne, {\em Operating System Concepts},
   ch.~5: Process Scheduling.
 \newblock Wiley, 9~ed., 2014.
 
-\bibitem{DinosaurDisk}
-A.~Silberschatz, P.~B. Galvin, and G.~Gagne, {\em Operating System Concepts},
-  ch.~12: Mass Storage Structure.
-\newblock Wiley, 9~ed., 2014.
-
-\bibitem{CFS}
+\bibitem{O(n)Scheduler}
 \url{}.
 \newblock Page accessed: 2018-08-30.
 
-\bibitem{LinearScheduler}
+\bibitem{O(1)Scheduler}
 \url{}.
 \newblock Page accessed: 2018-08-30.
 
-\bibitem{ConstantScheduler}
-\url{}.
-\newblock Page accessed: 2018-08-30.
+\bibitem{PageReplacement}
+A.~S. Tanenbaum and A.~S. Woodhull, {\em Operating Systems: Design and
+  Implementation}, ch.~4: Memory Management.
+\newblock Pearson, 3~ed., 2009.
 
-\bibitem{SDS}
-\url{}.
-\newblock Page accessed: 2018-08-30.
+\bibitem{BCM2835}
+``Bcm2836.''
+  \url{https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/README.md}.
+\newblock Page accessed: 2018-10-08.
 
-\bibitem{BFS}
-\url{}.
-\newblock Page accessed: 2018-08-30.
-
-\bibitem{LinuxScheduling}
-``Scheduling: Operating system process scheduler implementations.''
-  \url{https://en.wikipedia.org/wiki/Scheduling_(computing)#Linux}.
-\newblock Page accessed: 2018-08-30.
+\bibitem{BCM2837}
+``Bcm2837.''
+  \url{https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2837/README.md}.
+\newblock Page accessed: 2018-10-08.
 
 \bibitem{CannotDoC}
 ``C: Things c can't do.'' \url{https://wiki.osdev.org/C#Things_C_can.27t_do}.
@@ -42,10 +58,6 @@ A.~Silberschatz, P.~B. Galvin, and G.~Gagne, {\em Operating System Concepts},
 \bibitem{CrossCompilation}
 ``Why do i need a cross compiler?.''
   \url{https://wiki.osdev.org/Why_do_I_need_a_Cross_Compiler%3F}.
-\newblock Page accessed: 2018-08-30.
-
-\bibitem{qemu}
-\url{https://www.qemu.org/}.
 \newblock Page accessed: 2018-08-30.
 
 \end{thebibliography}

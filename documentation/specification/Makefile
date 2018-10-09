@@ -5,4 +5,4 @@ specification.pdf: specification.tex bibliography.bib
 	pdflatex specification.tex
 
 clean: specification.pdf
-	find . -type f -not -name 'Makefile' -not -name '*.md' -not -name '*.bib' -not -name '*.pdf' -not -name '*.tex' -delete
+	find .  -maxdepth 1 -type f -not -name 'Makefile' -not -name '*.md' -not -name '*.bib' -not -name '*.pdf' -not -name '*.tex' -delete

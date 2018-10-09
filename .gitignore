@@ -3,6 +3,9 @@
 *.img
 *.elf
 
+# documentation
+documentation/**/*.{aux,bbl,blg,log}
+
 # reference/admin
 reference/*
 admin/*
