@@ -31,39 +31,38 @@ In most operating systems, many design decisions are made in order to keep
 things simple for the user, by keeping most of the technical details hidden. In
 most cases, this is an appropriate approach: needlessly offering more choices
 for low-level tasks that are usually handled by the operating system, such as
-CPU and disk scheduling algorithms, would only serve to confuse the average
-user. It may actually be detrimental to the security and the stability of the
-system by opening up more opportunities for errors to be introduced.  This more
-insulated approach does mean, however, that the user never really knows what is
-going on ``under the hood'', and indeed whether greater performance can be
-achieved by making \textit{different} fundamental decisions.  Furthermore, a
-number of operating systems exist for the Raspberry Pi, some focusing on
+CPU scheduling algorithms, would only serve to confuse the average user. It may
+actually be detrimental to the security and the stability of the system by
+opening up more opportunities for errors to be introduced.  This more insulated
+approach does mean, however, that the user never really knows what is going on
+``under the hood'', and indeed whether greater performance can be achieved by
+making \textit{different} fundamental decisions.  Furthermore, a number of
+operating systems exist for the Raspberry Pi, some focusing on
 ease-of-installation, others on Internet of Things integration, such as the
 NOOBS \cite{NOOBS} Linux distribution or the Windows 10 IoT Core distribution
-\cite{IoT}. However, none exist to serve as an experimental operating system,
-designed to be a testbed for making and changing these low-level behaviours.
-This project aims to fill this gap for the operating systems enthusiast, one who
-wishes to test for themselves the different approaches to CPU scheduling, disk
-scheduling, interprocess communication, and filesystems. It will give the user
-the ability to alter the fundamental ways in which their machine operates by
-compiling different modules to handle different tasks, without the need to
-reboot, enabling for a more flexible operating system where such things can be
-tweaked at any point.
+\cite{IoT}. Yet, none exist to serve as an experimental operating system,
+designed as a testbed for making and changing these low-level behaviours.  This
+project aims to fill this gap for the operating systems enthusiast, one who
+wishes to test for themselves the different approaches to CPU scheduling,
+interprocess communication, and filesystems. It will give the user the ability
+to alter the fundamental ways in which their machine operates by compiling
+different modules to handle different tasks, enabling for a more flexible
+operating system where such things can be tweaked at any point.
 
 \section*{Main goal}
 The goal of this project is to create a modular operating system for the
 Raspberry Pi 2 Model B that is capable of loading different modules at
-compilation time to tackle CPU scheduling, disk scheduling, interprocess
-communication, and filesystems in a variety of ways. Specifically, it must have
-some way to run and switch between multiple processes using a CPU scheduler;
-interact with a hard disk drive and a disk scheduler for permanent/mass storage;
-and be able to create, read, update, and delete files and directories using a
-custom filesystem.  To achieve this, it must implement an interface for
-loading/removing modules, similar to Linux's \code{insmod} and \code{rmmod}
-\cite{insmod}, and must do so safely and stably.  Furthermore, as executing
-processes forms a key functional requirement for the project, there must be a
-convenient way to load programs into memory and begin their execution. A
-solution to both of these problems is to implement a basic shell/command
+compilation time to tackle CPU scheduling, interprocess communication, and
+filesystems in a variety of ways. Specifically, it must have some way to run and
+switch between multiple processes using a CPU scheduler; to use both shared
+memory and message passing for interprocess communication; to
+create, read, update, and delete files and directories using a custom
+filesystem; and to interface with the SD card for permanent/mass storage.  To
+achieve this, it must implement an interface for compiling different modules,
+similar to Linux's \code{insmod}, \code{rmmod}, and Kbuild system \cite{insmod,
+Kbuild}.  Furthermore, as executing processes forms a key functional requirement
+for the project, there must be a convenient way to load programs into memory and
+begin their execution. A solution to this is to implement a basic shell/command
 interpreter.
 
 Finally, a key objective of this project will be to get the operating system to
@@ -146,6 +145,21 @@ After all, the operating system produced will only be experimental and designed
 for use by one user, and as such security will be an unnecessary feature.
 
 \section*{Hardware}
+The Raspberry Pi 2 Model B's technical specifications are as follows:
+\begin{itemize}
+    \item 900 MHz quad-core ARM Cortex-A7 CPU
+    \item 1GB RAM
+    \item 40 GPIO pins
+    \item 4 USB ports
+    \item Full HDMI port
+    \item MicroSD card slot
+    \item 100 Base Ethernet
+    \item VideoCore IV graphics Core
+    \item Combined 3.5mm audio jack and composite video
+    \item Camera interface (CSI)
+    \item Display interface (DSI)
+\end{itemize}
+
 The main reason for choosing to work with the Raspberry Pi was due to its simple
 boot process, which is detailed below. In particular, as it is handled entirely
 by its SoC, it means a custom bootloader capable of loading the kernel into
@@ -235,7 +249,7 @@ The following technologies will be used by the project:
     \item ARM assembly - used when C is unavailable/inappropriate
         \cite{CannotDoC}
     \item GCC cross compiler for ARM EABI - for cross compiling for the target
-        processor, the Cortex-A7 \cite{CrossCompilation}
+        processor, the Cortex-A7 %\cite{CrossCompilation}
     \item QEMU - for emulating the Pi to allow quicker and safer testing
         \footnote{Note that QEMU does not simulate timing of execution, and so
         some testing will eventually need to be done on real hardware}
