@@ -8,6 +8,7 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{pgfgantt}
+\usepackage{lscape}
 % \usepackage{diagbox}
 
 \graphicspath{{./figs/}}
@@ -106,8 +107,9 @@ compilation time by the user:
 \subsection*{Stretch goals}
 Some stretch goals which should be implemented to show understanding of more
 complex structures would be some more intricate scheduling algorithms, including
-the following \cite{CFS,BFS,DinosaurCPU,O(n)Scheduler,O(1)Scheduler}:
+the following \cite{CFS,BFS,DinosaurCPU,Schedulers}:
 \begin{itemize}
+    \itemsep0em 
     \item Completely Fair Scheduler
     \item Multiple Queue Skiplist Scheduler, MuQSS
     \item Multilevel Queue and Multilevel Feedback Queue
@@ -145,10 +147,15 @@ After all, the operating system produced will only be experimental and designed
 for use by one user, and as such security will be an unnecessary feature.
 
 \section*{Hardware}
-The Raspberry Pi 2 Model B's technical specifications are as follows:
+Compared to the Raspberry Pi 1, the Raspberry Pi 2 Model B has:
 \begin{itemize}
+    \itemsep0em
     \item 900 MHz quad-core ARM Cortex-A7 CPU
     \item 1GB RAM
+\end{itemize}
+Like the Pi 1 Model B+, it has:
+\begin{itemize}
+    \itemsep0em
     \item 40 GPIO pins
     \item 4 USB ports
     \item Full HDMI port
@@ -205,31 +212,72 @@ meetings will start at once every fortnight in Term 1, and increase to once
 weekly in Term 2, simply due to timetabling and course load for other modules.
 
 \section*{Testing}
-The project will be tested in an incremental manner. Especially to begin with,
-it is vital that some systems operate correctly before moving on and developing
-other areas. As the project progresses and its complexity increases, unit tests
-will be written to systematically cover all, or at least most, likely paths of
-execution, and to account for each of these. The most fundamental requirement to
-fulfill while testing the solution will be stability, that is to say, whether
-the system is able to safely switch between different modules and continue
-operation. Of course, the solution must also be correct: the user must be able
-to switch dynamically between the different modules, and the system must react
-accordingly. There must be a way to verify that the system is indeed operating
-in the way that is expected from the user, and again, unit tests and
-verification software must be produced to ensure this.
+The project will be tested incrementally. In its early stages, progress will
+simply not be able to be made until some systems operate correctly, so thorough
+manual testing of such areas will be vital as there will simply not be the
+platform to write dedicated unit tests. As it progresses, and unit tests become
+more viable, they will be written to cover most likely paths of execution to
+identify shortcomings of the system, and dealt with accordingly. Since the
+project's aim is to create a configurable operating system, manual testing will
+again need to be undertaken in order to verify whether it works under the
+various combinations of modules. This will test both the correctness and the
+stability of the system rigorously, two of the most important goals of any piece
+of software.
 
 \section*{Timetable}
-\begin{ganttchart}{1}{12}
-    \gantttitle{2011}{12} \\
-    \gantttitlelist{1,...,12}{1} \\
-    \ganttgroup{Group 1}{1}{7} \\
-    \ganttbar{Task 1}{1}{2} \\
-    \ganttlinkedbar{Task 2}{3}{7} \ganttnewline
-    \ganttmilestone{Milestone}{7} \ganttnewline
-    \ganttbar{Final Task}{8}{12}
-    \ganttlink{elem2}{elem3}
-    \ganttlink{elem3}{elem4}
-\end{ganttchart}
+\ganttset{%
+    calendar week text={%
+        \pgfcalendarmonthshortname{0}~\startday%
+    }%
+}
+
+\begin{landscape}
+    \begin{ganttchart}[
+            hgrid,
+            vgrid,
+            x unit=1.8mm,
+            time slot format=isodate
+        ]{2018-10-01}{2019-01-06}
+
+    \gantttitlecalendar{month=name, week=1} \\
+    \ganttbar{Specification}{2018-10-01}{2018-10-12} \\
+    \ganttbar{Progress Report}{2018-11-06}{2018-11-27} \\
+
+    \ganttbar{Environment setup}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Memory management}{2018-10-01}{2018-10-08} \\
+    \ganttbar{I/O - terminal/HDMI support}{2018-10-15}{2018-10-22} \\
+    \ganttbar{I/O - keyboard input}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Interrupts \& Exceptions}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Processes}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Multi-threaded kernel}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Deadlock avoidance/recovery}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Program loading}{2018-10-01}{2018-10-08} \\
+
+    \ganttlink{elem6}{elem6}
+
+    \end{ganttchart}
+\end{landscape}
+
+\begin{landscape}
+    \begin{ganttchart}[
+            hgrid,
+            vgrid,
+            x unit=1.8mm,
+            time slot format=isodate
+        ]{2019-01-07}{2019-04-29}
+    \gantttitlecalendar{month=name, week=1} \\
+    \ganttbar{Presentation}{2019-02-16}{2019-04-03} \\
+    \ganttbar{Final Report}{2019-04-01}{2019-04-29} \\
+
+    \ganttbar{User  mode}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Syscalls}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Fork \& execute}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Shell}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Threading}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Mass storage}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Filesystem}{2018-10-01}{2018-10-08} \\
+    \end{ganttchart}
+\end{landscape}
 
 \section*{Technologies}
 The following technologies will be used by the project:
@@ -244,8 +292,9 @@ The following technologies will be used by the project:
     \item GCC cross compiler for ARM EABI - for cross compiling for the target
         processor, the Cortex-A7 %\cite{CrossCompilation}
     \item QEMU - for emulating the Pi to allow quicker and safer testing
-        \footnote{QEMU does not simulate timing of execution, so some testing
-        will eventually need to be done on real hardware}
+        \footnote{QEMU does not simulate a system timer (at least for the
+        Raspberry Pi 2), so some testing will eventually need to be done on real
+        hardware}
     \item Make - automate the build process
 \end{itemize}
 
