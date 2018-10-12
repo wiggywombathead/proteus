@@ -39,8 +39,8 @@ approach does mean, however, that the user never really knows what is going on
 ``under the hood'', and indeed whether greater performance can be achieved by
 making \textit{different} fundamental decisions.  Furthermore, a number of
 operating systems exist for the Raspberry Pi, some focusing on
-ease-of-installation, others on Internet of Things integration, such as the
-NOOBS \cite{NOOBS} Linux distribution or the Windows 10 IoT Core distribution
+ease-of-installation, with Linux's NOOBS \cite{NOOBS} distribution, others on
+Internet of Things integration, such as the Windows 10 IoT Core distribution
 \cite{IoT}. Yet, none exist to serve as an experimental operating system,
 designed as a testbed for making and changing these low-level behaviours.  This
 project aims to fill this gap for the operating systems enthusiast, one who
@@ -77,7 +77,40 @@ keyboard connected via USB, and printing output to a physical screen via its
 HDMI port.
 
 \subsubsection*{The kernel}
-% TODO
+The kernel will be built using the cross-compiler from GCC for
+\code{arm-none-eabi}, which provides a toolchain to target the System V
+Application Binary Interface (ABI). As a result, programs and fragments of
+programs on disk, and by extension the kernel itself, will be in the Executable
+and Linkable Format (ELF) after compilation and linking. The kernel will use
+just a single core of the four available to the BCM2836, but will support
+multithreading, both at the kernel and user levels, with appropriate interfaces
+being written in both cases. 
+
+The memory available to the operating system will be organised into pages, and
+furthermore it will use a dynamic memory allocator, similar to the C standard
+library's \code{malloc()} and \code{free()}, to further split the available
+memory into segments. Processes will need to be loaded into and out of memory,
+and as such will need an appropriate representation as a Process Control Block
+(PCB), and will need to be stored in a Process Table to facilitate context
+switching. On top of this, the kernel must also be able to handle interrupts and
+exceptions to safely halt processes and bring them out of memory. At this point,
+CPU scheduling will need to be tackled, and a long-term and multiple short-term
+schedulers implemented. As QEMU does not simulate a system timer, the move to
+working on real hardware will coincide with the introduction of multitasking,
+involving taking input via USB keyboard and printing output via HDMI.
+
+With the possibility of multiple running processes, synchronisation will need to
+be tackled, most likely using semaphores, and the issues of deadlock avoidance,
+detection, and correction will need to be considered. Furthermore, solutions for
+interprocess communication will then be developed, most likely starting with
+shared memory due to its simplicity. Message passing will follow as a
+configurable module. Beyond this, a filesystem can then be implemented and
+development can move to focus more on user space, including a command
+interpreter, actually accessing mass storage, and implementing \code{fork()} and
+\code{execute()} At this time the notion of syscalls and operating system traps
+will also need to be developed. As an operating system needs to be written in a
+freestanding (as opposed to hosted) environment, a standard library will be
+continually developed over the course of the project.
 
 \subsubsection*{Configurable modules}
 The project must implement the following as modules, which may be configured at
@@ -168,29 +201,25 @@ Like the Pi 1 Model B+, it has:
 \end{itemize}
 
 The main reason for choosing to work with the Raspberry Pi was due to its simple
-boot process, which is detailed below. In particular, as it is handled entirely
-by its SoC, it means a custom bootloader to load the kernel into memory and
-transfer control to it will need not be written. The Raspberry Pi 2 Model B in
-particular uses the BCM2836 processor, whose underlying architecture is
-identical to the 1's BCM2835 and the 3's BCM2837 chips. The only difference is
-that the 2 uses the quad-core Cortex-A7 cluster as opposed to the ARM1176JZF-S
-or the quad-core ARM Cortex-A53 cluster, as used by the 1 and 3 respectively
-\cite{BCM2835,BCM2837}.
-Therefore, as the choice between specific models of the Pi would make little
-significant difference to the outcome of the project, it made sense to opt for
-the one already available to the author at the time the project was conceived,
-namely the Raspberry Pi 2 Model B.
+boot process, details of which can be found here \cite{pi_boot}. In particular,
+as it is handled entirely by its SoC, it means a custom bootloader to load the
+kernel into memory and transfer control to it will need not be written. The
+Raspberry Pi 2 Model B in particular uses the BCM2836 processor, whose
+underlying architecture is identical to the 1's BCM2835 and the 3's BCM2837
+chips. The only difference is that the 2 uses the quad-core Cortex-A7 cluster as
+opposed to the ARM1176JZF-S or the quad-core ARM Cortex-A53 cluster, as used by
+the 1 and 3 respectively \cite{BCM2835,BCM2837}.  Therefore, as the choice
+between specific models of the Pi would make little significant difference to
+the outcome of the project, it made sense to opt for the one already available
+to the author at the time the project was conceived, namely the Raspberry Pi 2
+Model B.
 
-% TODO: cite this
 \begin{figure}[h]
     \begin{center}
-        \includegraphics[width=4in]{pi-diag.png}
-        \caption{Raspberry Pi 2 Model B}
+        \includegraphics[width=4in]{raspi.png}
+        \caption{Raspberry Pi 2 Model B \cite{Pi}}
     \end{center}
 \end{figure}
-
-\subsection*{A note about the Raspberry Pi's boot process}
-% TODO - Talk about boot process
 
 \section*{Methodology}
 The methodology best suited to the project will be a mix between plan-driven and
@@ -225,59 +254,13 @@ stability of the system rigorously, two of the most important goals of any piece
 of software.
 
 \section*{Timetable}
+See Appendix.
+
 \ganttset{%
     calendar week text={%
         \pgfcalendarmonthshortname{0}~\startday%
     }%
 }
-
-\begin{landscape}
-    \begin{ganttchart}[
-            hgrid,
-            vgrid,
-            x unit=1.8mm,
-            time slot format=isodate
-        ]{2018-10-01}{2019-01-06}
-
-    \gantttitlecalendar{month=name, week=1} \\
-    \ganttbar{Specification}{2018-10-01}{2018-10-12} \\
-    \ganttbar{Progress Report}{2018-11-06}{2018-11-27} \\
-
-    \ganttbar{Environment setup}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Memory management}{2018-10-01}{2018-10-08} \\
-    \ganttbar{I/O - terminal/HDMI support}{2018-10-15}{2018-10-22} \\
-    \ganttbar{I/O - keyboard input}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Interrupts \& Exceptions}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Processes}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Multi-threaded kernel}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Deadlock avoidance/recovery}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Program loading}{2018-10-01}{2018-10-08} \\
-
-    \ganttlink{elem6}{elem6}
-
-    \end{ganttchart}
-\end{landscape}
-
-\begin{landscape}
-    \begin{ganttchart}[
-            hgrid,
-            vgrid,
-            x unit=1.8mm,
-            time slot format=isodate
-        ]{2019-01-07}{2019-04-29}
-    \gantttitlecalendar{month=name, week=1} \\
-    \ganttbar{Presentation}{2019-02-16}{2019-04-03} \\
-    \ganttbar{Final Report}{2019-04-01}{2019-04-29} \\
-
-    \ganttbar{User  mode}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Syscalls}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Fork \& execute}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Shell}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Threading}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Mass storage}{2018-10-01}{2018-10-08} \\
-    \ganttbar{Filesystem}{2018-10-01}{2018-10-08} \\
-    \end{ganttchart}
-\end{landscape}
 
 \section*{Technologies}
 The following technologies will be used by the project:
@@ -300,7 +283,7 @@ The following technologies will be used by the project:
 
 \section*{Resources}
 The following documentation will be used throughout for reference to the
-architecture of the Cortex-A7 processor and its intruction set, and the
+architecture of the Cortex-A7 processor and its instruction set, and the
 peripherals on the Pi:
 \begin{itemize}
     \item Cortex-A7 MPCore Technical Reference Manual
@@ -319,5 +302,71 @@ regards to usability; these people are likely to be friends and colleagues,
 hence the social, ethical, and professional issues are insignificant.
 
 \bibliography{bibliography}
+
+\appendix
+\section*{Appendix}
+
+\begin{landscape}
+    \begin{ganttchart}[
+            hgrid,
+            vgrid,
+            x unit=1.8mm,
+            time slot format=isodate
+        ]{2018-10-01}{2019-01-06}
+
+    \gantttitlecalendar{month=name, week=1} \\
+    \ganttbar{Specification}{2018-10-01}{2018-10-12} \\
+    \ganttbar{Progress Report}{2018-11-06}{2018-11-27} \\
+
+    \ganttbar{Environment setup}{2018-10-01}{2018-10-08} \\
+    \ganttbar{Memory management}{2018-10-15}{2018-10-21} \\
+    \ganttbar{I/O - terminal support}{2018-10-22}{2018-10-28} \\
+    \ganttbar{I/O - keyboard input}{2018-10-22}{2018-10-28} \\
+    \ganttbar{Interrupts \& Exceptions}{2018-10-29}{2018-11-04} \\
+    \ganttbar{Processes}{2018-11-05}{2018-11-18} \\
+    \ganttbar{Program loading}{2018-11-19}{2018-12-02} \\
+    \ganttbar{CPU Scheduling}{2018-11-19}{2018-12-16} \\
+    \ganttbar{IPC: Shared memory}{2018-11-29}{2018-12-09} \\
+    \ganttbar{Multi-threaded kernel}{2018-12-10}{2018-12-23} \\
+    \ganttbar{C standard library}{2018-10-22}{2018-12-23}
+
+    \ganttlink{elem6}{elem7}
+    \ganttlink{elem3}{elem7}
+    \ganttlink{elem7}{elem8}
+
+    \end{ganttchart}
+\end{landscape}
+
+\begin{landscape}
+    \begin{ganttchart}[
+            hgrid,
+            vgrid,
+            x unit=1.8mm,
+            time slot format=isodate
+        ]{2019-01-07}{2019-04-29}
+    \gantttitlecalendar{month=name, week=1} \\
+    \ganttbar{Presentation}{2019-02-16}{2019-04-03} \\
+    \ganttbar{Final Report}{2019-04-01}{2019-04-29} \\
+
+    \ganttbar{Synchronisation \& Deadlock}{2019-01-05}{2019-01-13} \\
+    \ganttbar{Persistent filesystem}{2019-01-05}{2019-01-27} \\
+    \ganttbar{User mode}{2019-01-14}{2019-01-27} \\
+    \ganttbar{Syscalls}{2019-02-04}{2019-02-10} \\
+    \ganttbar{Shell}{2019-01-21}{2019-02-03} \\
+    \ganttbar{Fork \& execute}{2019-02-04}{2019-02-10} \\
+    \ganttbar{Threading}{2019-02-11}{2019-02-24} \\
+    \ganttbar{Extra Schedulers}{2019-02-25}{2019-03-10} \\
+    \ganttbar{IPC: Message passing}{2019-02-25}{2019-03-03} \\
+    \ganttbar{Load-on-Request FS}{2019-03-04}{2019-03-25} \\
+    \ganttbar{Compilation config}{2019-02-25}{2019-04-22}
+
+    \ganttlink{elem4}{elem5}
+    \ganttlink{elem6}{elem7}
+    \ganttlink{elem9}{elem12}
+    \ganttlink{elem10}{elem12}
+    \ganttlink{elem11}{elem12}
+
+    \end{ganttchart}
+\end{landscape}
 
 \end{document}
