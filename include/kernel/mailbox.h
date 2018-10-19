@@ -2,6 +2,26 @@
 #define _MAILBOX_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+#define MAILBOX_BASE    PERIPHERAL_BASE + MAILBOX_OFFSET
+#define MAIL0_READ      MAILBOX_BASE + 0x00
+#define MAIL0_STATUS    MAILBOX_BASE + 0x18
+#define MAIL0_WRITE     MAILBOX_BASE + 0x20
+
+#define FRAMEBUF_CHANNEL 1
+#define PROPERTY_CHANNEL 8
+
+struct mail_message {
+    uint8_t channel : 4;
+    uint32_t data : 28;
+};
+
+struct mail_status {
+    uint32_t reserved : 30;
+    uint8_t empty : 1;
+    uint8_t full : 1;
+};
 
 enum property_tag {
     NULL_TAG                    = 0,
@@ -17,7 +37,7 @@ enum property_tag {
 };
 
 struct fb_allocate_res {
-    void *fb_addr;
+    void    *fb_addr;
     uint32_t fb_size;
 };
 
@@ -30,8 +50,8 @@ union value_buffer {
     uint32_t fb_allocate_align;
     struct fb_allocate_res fb_allocate_res;
     struct fb_screen_size fb_screen_size;
-    uint32_t fb_bits_per_pixel;
-    uint32_t fb_bytes_per_row;
+    uint32_t fb_depth;  // bits per pixel
+    uint32_t fb_pitch;  // bytes per row
 };
 
 struct property_msg_tag {
@@ -50,5 +70,9 @@ struct property_msg_buf {
     struct buf_req_res_code req_res_code;
     uint32_t tags[1];
 };
+
+struct mail_message mailbox_read(int);
+void mailbox_send(struct mail_message, int);
+int send_messages(struct property_msg_tag *);
 
 #endif

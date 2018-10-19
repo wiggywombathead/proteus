@@ -1,10 +1,10 @@
 #include <kernel/atag.h>
 
-uint32_t get_total_mem(struct atag *a) {
+uint32_t get_total_mem(struct atag *atag) {
     
-    while (a->tag != ATAG_NONE) {
-        if (a->tag == ATAG_MEM) {
-            return a->mem.size;
+    while (atag->tag != ATAG_NONE) {
+        if (atag->tag == ATAG_MEM) {
+            return atag->atag_mem.size;
         }
         a = a + a->size;    /* move to next tag */
     }

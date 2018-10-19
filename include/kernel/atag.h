@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 
-enum {
+enum atag_tag {
+    ATAG_NONE       = 0x00000000,
     ATAG_CORE       = 0x54410001,
     ATAG_MEM        = 0x54410002,
     ATAG_VIDEOTEXT  = 0x54410003,
@@ -13,7 +14,6 @@ enum {
     ATAG_REVISION   = 0x54410007,
     ATAG_VIDEOLFB   = 0x54410008,
     ATAG_CMDLINE    = 0x54410009,
-    ATAG_NONE       = 0x00000000 
 };
 
 struct atag_core {

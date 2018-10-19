@@ -290,3 +290,131 @@ significant portion of memory.
 In order to organise our memory, we need to know how much is available to us.
 This can be done using atags
 ([reference](http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_tag_reference)).
+
+We match the layout of the atags by defining some types (none, core, mem, ...,
+cmdline). Then we iterate over the atag list until we reach the `MEM` tag, in
+`get_mem_size()`.
+
+## Paging
+Number of pages is total memory (from atags) divided by page size, which is 4kB.
+Pages need metadata: the virtual address they map to, flags for if it is
+allocated, if it is a kernel page, and reserved for when we enable virtual
+memory.
+
+To hold all of the metadata, we use a large portion of memory just after the
+kernel image for an array of pages/metadata. This address (just after the kernel
+img) is found using the `__end` symbol, as declared in the linker script. We
+also create a linked list of pages to keep track of which are free.
+
+### Allocating pages
+To allocate a page, just find one which hasn't been allocated yet and return a
+pointer to its memory. The memory of the page itself can be found by multiplying
+the index in the page array by 4096.
+
+To free a page, we get the index to free by dividing its address by 4096.
+
+## Allocating memory on the heap
+We can take memory directly after the page metadata and reserve it for the heap.
+This amount to reserve is arbitrary: 1MB is large enough to be sufficient for
+all dynamic memory needs, and small enough to not use a significant portion of
+memory that user code may want.
+
+### Implementing `kmalloc()`
+Associate each allocation with a header, which will all form a linked list. It
+includes the allocation size, and whether it is currently in use. To allocate,
+we must find an allocaion that is at least the number of requested bytes and not
+currently in use. If the allocation being inspected is large relative to the
+request, we can split it up (i.e. if allocation is >= 2 times the header -
+avoids having too many allocations that are half header, half data).
+
+### Implementing `kfree()`
+Need to mark free'd segments as unallocated, and merge adjacent free segments
+into one big one (avoid internal fragmentation). We do this with a while loop,
+incrementally increasing the `segment_size` of the free'd segment, effectively
+mergin free segments to the right.
+
+### Initialising the heap
+We must reserve the pages we are going to use, put a header stating there is a
+1MB unused allocation here, and assign the `heap_segment_list_head` to this
+header. Finally, this must actually be initialised by calling `mem_init()` in
+`kernel_main()`.
+
+## Printing to a real screen
+### Framebuffers
+Framebuffer - a piece of memory that is shared between CPU and GPU. CPU writes
+RGB pixels to the framebuffer, and GPU renders it to the output device
+(whichever one is connected).
+
+Depth of a framebuffer - number of bits in every pixel e.g. 1 byte for each
+red, green, and blue value (0-255) means depth of 24.
+
+Pitch of a frambuffer - number of bytes in each row on the screen.
+
+We can calculate pixels per row = pitch / (depth / 8).
+Pixel located at (x,y) = pitch * y + (depth / 8) * x.
+
+To draw anything to the screen, we need a framebuffer, which we request from the
+GPU. We do this using the mailbox peripheral. 
+
+### The mailbox peripheral
+The mailbox is a peripheral that facilitates communication between the CPU and
+the GPU. It starts at offset 0xB880.
+
+The read register is at offset 0x00 from the mailbox base, and allows for
+reading messages from the GPU. The lower 4 bits specify the channel the message
+is from, and the upper 28 bits are data.
+
+The status register is located at offset 0x18. Bit 30 signifies whether the read
+register is empty, while bit 31 signifies whether the write register is full.
+
+The write register is at offset 0x20.
+
+A channel is a number specifying to you and the GPU what the information being
+sent through the GPU means. For these purposes we will only need channel 1, the
+Frambuffer channel, and channel 8, the property channel.
+
+#### Reading from the mailbox
+To read from the mailbox:
+- read the status register to ensure the read register is not empty
+- read the contents of the read register
+- check the channel of the read message: either do something with the
+  information, or discard
+- if the channel is correct, read the data
+
+#### Writing to the mailbox
+- in a loop, check status register to ensure write register is not full
+- write the data to the write register
+
+### The property channel
+The property channel, mailbox channel 8, is how to ask the GPU for a
+framebuffer. It provides a means to get and set data about various hardware
+devices, one of which is the framebuffer.
+
+#### Property channel messages
+A message must be 16-byte aligned buffer of 4-byte words. The respinse
+overwrites the original message.
+
+A message begins with a 4 byte size of the message, plus 4 bytes for the size
+itself. This is followed by a 4 byte request/respnse code. When sending a
+message, this must be 0. When receiving, it will be either 0x80000000
+(indicating success) or 0x80000001 (indicating error).
+
+Following the request/response code comes a list of tags - commands and buffers
+for their (the commands') responses. The very last tag must be an end tag, which
+is 4 bytes of 0. Finally, the entire message must be padded to ensure 16 byte
+alignment.
+
+#### Message tags
+A tag is a command to get or set data about the hardware. Each starts with a 4
+byte tag id, which identifies the command to be run. In general, tags are of the
+form 0x000XYZZZ, where X specifies the hardware device to access, Y the type of
+command (0 - get, 4 - test, 8 - set), and ZZZ is the specific command. A tag
+also stores the size of its value buffer in bytes, i.e. the maximum of the size
+of the parameters the command takes, and the size of the results. The tag also
+has its own request/response code. Sending => 0, while receiving => value is
+0x80000000 + the length of the result. After this is the value buffer, where the
+parameters and results are stored.
+
+#### Getting a framebuffer
+First we must set the screen size, virtual screen size, and depth. The tag ids
+for these commands are 0x00048003, 0x00048004, and 0x00048005 respectively. 

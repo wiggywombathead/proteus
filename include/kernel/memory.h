@@ -16,7 +16,7 @@ struct page_flags {
 };
 
 struct page {
-    uint32_t virt_addr;
+    uint32_t virt_addr;     // the virtual address mapping to this page
     struct page_flags flags;
     DEFINE_LINK(page);
 };

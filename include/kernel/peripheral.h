@@ -1,0 +1,11 @@
+#ifndef _PERIPHERAL_H_
+#define _PERIPHERAL_H_
+
+#define PERIPHERAL_BASE 0x3F000000
+#define PERIPHERAL_LEN  0x01000000
+
+#define MAILBOX_OFFSET  0xB880
+#define UART_OFFSET     0x201000
+#define GPIO_OFFSET     0x200000
+
+#endif
