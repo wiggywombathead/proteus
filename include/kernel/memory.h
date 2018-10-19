@@ -28,9 +28,10 @@ struct heap_segment {
     uint32_t segment_size;
 };
 
-void mem_init(struct atag);
+void mem_init(struct atag *);
 void *alloc_page(void);
 void free_page(void *);
 void *kmalloc(uint32_t);
+void kfree(void *);
 
 #endif

@@ -1,5 +1,6 @@
 #include <kernel/uart.h>
 #include <kernel/memory.h>
+#include <kernel/gpu.h>
 #include <common/stdlib.h>
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
@@ -8,12 +9,16 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) r1;
     (void) atags;
 
-    uart_init();
-    uart_puts("Hello, kernel world!\r\n");
+    mem_init((struct atag *) atags);
+    gpu_init();
+
+    puts("Hello kernel!\n");
 
     int c;
-    while ((c = uart_getc()) != 'q') {
-        uart_putc(c);
+    while ((c = getc()) != 'q') {
+        putc(c);
     }
+
+    puts("Goodbye!");
 
 }

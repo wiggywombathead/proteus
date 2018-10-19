@@ -4,10 +4,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <kernel/peripheral.h>
+
 #define MAILBOX_BASE    PERIPHERAL_BASE + MAILBOX_OFFSET
-#define MAIL0_READ      MAILBOX_BASE + 0x00
-#define MAIL0_STATUS    MAILBOX_BASE + 0x18
-#define MAIL0_WRITE     MAILBOX_BASE + 0x20
+#define MAIL0_READ      ((struct mail_message *) (MAILBOX_BASE + 0x00))
+#define MAIL0_STATUS    ((struct mail_status *) (MAILBOX_BASE + 0x18))
+#define MAIL0_WRITE     ((struct mail_message *) (MAILBOX_BASE + 0x20))
 
 #define FRAMEBUF_CHANNEL 1
 #define PROPERTY_CHANNEL 8
@@ -55,8 +57,8 @@ union value_buffer {
 };
 
 struct property_msg_tag {
-    struct property_tag prop_tag;
-    struct value_buffer value_buffer;
+    enum property_tag prop_tag;
+    union value_buffer value_buffer;
 };
 
 enum buf_req_res_code {
@@ -67,7 +69,7 @@ enum buf_req_res_code {
 
 struct property_msg_buf {
     uint32_t size;
-    struct buf_req_res_code req_res_code;
+    enum buf_req_res_code req_res_code;
     uint32_t tags[1];
 };
 

@@ -1,5 +1,6 @@
 #include <kernel/mailbox.h>
 #include <kernel/memory.h>
+#include <common/stdlib.h>
 
 struct mail_message mailbox_read(int channel) {
     struct mail_status status;

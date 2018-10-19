@@ -126,7 +126,7 @@ void *kmalloc(uint32_t bytes) {
         return NULL;
 
     // split this segment if its size >= twice the header size
-    if (best_diff >= 2 * sizeof(struct heap_segment)) {
+    if (best_diff > (int) (2 * sizeof(struct heap_segment))) {
         bzero(((void *) best) + bytes, sizeof(struct heap_segment));
         curr = best->next;
         best->next = ((void *) best) + bytes;

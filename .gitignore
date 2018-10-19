@@ -4,7 +4,7 @@
 *.elf
 
 # documentation
-documentation/**/*.{aux,bbl,blg,log}
+documentation/**/{*.{aux,bbl,blg,log},figs}
 
 # reference/admin
 reference/*
