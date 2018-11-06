@@ -33,7 +33,8 @@ void gpu_putc(char c) {
     uint32_t i;
     uint32_t num_rows = fb_info.height / CHAR_HEIGHT;
 
-    if (fb_info.row >= num_rows) {
+    /* scrolling */
+    if (fb_info.row > num_rows) {
 
         // shift all characters up one row
         for (i = 0; i < num_rows - 1; i++) {
@@ -50,7 +51,7 @@ void gpu_putc(char c) {
         fb_info.row--;
     } 
 
-    if (c == '\n') {
+    if (c == ' ') {
         fb_info.col = 0;
         fb_info.row++;
         return;

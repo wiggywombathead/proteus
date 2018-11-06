@@ -420,3 +420,15 @@ First we must set the screen size, virtual screen size, and depth. The tag ids
 for these commands are 0x00048003, 0x00048004, and 0x00048005 respectively. 
 
 [Font](https://github.com/dhepper/font8x8/blob/master/font8x8_basic.h)
+
+## Loading on real hardware
+Using `arm-none-eabi-objcopy`, we copy the kernel ELF file to a raw binary file.
+Then, we must copy this image to the SD card from which the operating system
+will boot. First we insert the card, find where it is mounted using `lsblk`,
+and mount it using `mount /dev/mmcblk0p1 [some directory]`. Then we copy the
+image by using `dd bs=4M if=kernel.img of=/dev/mmcblk0 conv=fsync`. To ensure
+the write cache is flushed and that it is safe to unmount the card, we run
+`sync`, then we may unmount using `umount /dev/mmcblk0p1` and remove the SD card
+from the development computer.
+Note: guidance taken from
+[here](https://www.raspberrypi.org/documentation/installation/installing-images/linux.md).

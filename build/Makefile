@@ -1,4 +1,6 @@
 CC = arm-none-eabi-gcc	# use ARM cross compiler
+OBJCOPY = arm-none-eabi-objcopy
+
 CPU = cortex-a7
 
 CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding
@@ -20,10 +22,11 @@ OBJECTS += $(patsubst $(KERN_SRC)/%.s, $(OBJ_DIR)/%.o, $(ASOURCES))
 
 HEADERS = $(wildcard $(KERN_HEAD)/*.h)
 
-IMG = kernel.elf
+IMG = proteus
 
 build: $(OBJECTS) $(HEADERS)
-	$(CC) -T linker.ld -o $(IMG) $(LFLAGS) $(OBJECTS)
+	$(CC) -T linker.ld -o $(IMG).elf $(LFLAGS) $(OBJECTS)
+	$(OBJCOPY) $(IMG).elf -O binary $(IMG).img
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
 	mkdir -p $(@D)
@@ -39,7 +42,8 @@ $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 
 clean:
 	rm -rf $(OBJ_DIR)
-	rm $(IMG)
+	rm $(IMG).elf
+	rm $(IMG).img
 
 run: build
-	qemu-system-arm -m 256 -M raspi2 -serial stdio -kernel $(IMG)
+	qemu-system-arm -m 256 -M raspi2 -serial stdio -kernel $(IMG).elf

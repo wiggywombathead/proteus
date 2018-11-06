@@ -10,5 +10,6 @@ uint32_t get_total_mem(struct atag *atag) {
     }
 
     /* TODO: just return 0 in real thing */
-    return 1024 * 1024 * 256;
+    return 0;
+    // return 1024 * 1024 * 256;
 }
