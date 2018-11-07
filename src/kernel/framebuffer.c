@@ -27,8 +27,8 @@ int framebuffer_init(void) {
     fb_info.width = tags[0].value_buffer.fb_screen_size.width;
     fb_info.height = tags[0].value_buffer.fb_screen_size.height;
 
-    fb_info.max_row = fb_info.width / CHAR_WIDTH;
-    fb_info.max_col = fb_info.height / CHAR_HEIGHT;
+    fb_info.max_col = fb_info.width / CHAR_WIDTH;
+    fb_info.max_row = fb_info.height / CHAR_HEIGHT;
 
     fb_info.col = 0;
     fb_info.row = 0;

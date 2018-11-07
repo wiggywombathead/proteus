@@ -16,6 +16,7 @@ int printf(const char *fmt, ...) {
     float float_tmp;
     char char_tmp;
     char *str_tmp;
+    void *ptr;
 
     while (*fmt != '\0') {
 
@@ -31,18 +32,36 @@ int printf(const char *fmt, ...) {
                     break;
                 case 'c':
                     char_tmp = va_arg(args, int);
+                    putc(char_tmp);
                     break;
                 case 'd':
                     int_tmp = va_arg(args, int);
-                    // TODO: itoa(int_tmp, buf, ...)
+                    itoa(int_tmp, 10, buf, 64);
+                    puts(buf);
+                    written += strlen(buf);
+                    break;
+                case 'o':
+                    int_tmp = va_arg(args, int);
+                    itoa(int_tmp, 8, buf, 64);
                     puts(buf);
                     written += strlen(buf);
                     break;
                 case 'p':
+                    int_tmp = va_arg(args, int *);
+                    itoa(int_tmp, 16, buf, 64);
+                    puts(buf);
+                    written += strlen(buf);
                     break;
                 case 's':
+                    str_tmp = va_arg(args, char *);
+                    puts(str_tmp);
+                    written += strlen(str_tmp);
                     break;
                 case 'x':
+                    int_tmp = va_arg(args, int);
+                    itoa(int_tmp, 16, buf, 64);
+                    puts(buf);
+                    written += strlen(buf);
                     break;
             }
 

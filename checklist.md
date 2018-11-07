@@ -1,18 +1,11 @@
 # proteus checklist
 ## Todo
-- [x] Set up virtual machine
-- [x] Hello kernel world
-- [x] Memory management
-  - [x] implement generic linked list with macros
-  - [x] implement dynamic allocator (malloc and free)
-  - [ ] TODO: memcpy and framebuffer.h
-- [x] Display to real screen through HDMI
+- [ ] Display to real HDMI (works on QEMU but not IRL :/ )
+- [ ] Boot on real pi
+- [ ] Interrupts
 - [ ] Processes
-- [ ] Change return value of `get_total_mem()` to 0 in atag.c in real thing
-- [ ] Boot from GRUB on real hardware
-
-- [ ] printf() - handle more cases
-- [ ] itoa()
+- [ ] Filesystem
+- [ ] IPC
 
 ## CPU scheduling
   * FCFS

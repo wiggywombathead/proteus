@@ -32,6 +32,7 @@ void gpu_putc(char c) {
     bool printable = true;
 
     const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
+    // const uint8_t *bmp = (uint8_t *) font_8x16[(int) c];
 
     uint32_t i;
 
@@ -90,13 +91,13 @@ void gpu_putc(char c) {
                             fb_info.col * CHAR_WIDTH + w,
                             fb_info.row * CHAR_HEIGHT + h,
                             &ORANGE
-                            );
+                    );
                 } else {
                     write_pixel(
                             fb_info.col * CHAR_WIDTH + w,
                             fb_info.row * CHAR_HEIGHT + h,
                             &BLACK
-                            );
+                    );
                 }
             }
         }
