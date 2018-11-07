@@ -14,8 +14,8 @@ struct framebuffer_info {
     uint32_t pitch;
     void    *buffer;
     uint32_t bufsize;
-    uint32_t char_width;
-    uint32_t char_height;
+    uint32_t max_col;
+    uint32_t max_row;
     uint32_t row;       // current row
     uint32_t col;       // current column
 };

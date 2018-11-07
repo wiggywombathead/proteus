@@ -2,14 +2,17 @@
 ## Todo
 - [x] Set up virtual machine
 - [x] Hello kernel world
-- [ ] Memory management (in progress)
+- [x] Memory management
   - [x] implement generic linked list with macros
   - [x] implement dynamic allocator (malloc and free)
   - [ ] TODO: memcpy and framebuffer.h
-- [ ] Display to real screen through HDMI (in progress)
+- [x] Display to real screen through HDMI
 - [ ] Processes
 - [ ] Change return value of `get_total_mem()` to 0 in atag.c in real thing
 - [ ] Boot from GRUB on real hardware
+
+- [ ] printf() - handle more cases
+- [ ] itoa()
 
 ## CPU scheduling
   * FCFS
@@ -19,7 +22,7 @@
   * Round Robin
   * Lottery
 
-## Disk scheduling
+## Disk scheduling (REDACTED)
   * FCFS
   * SSTF
   * SCAN
@@ -28,6 +31,7 @@
   * C-LOOK
 
 ## Filesystem
+  * Persistent
   * Loadable on request
 
 ## Interprocess Communication

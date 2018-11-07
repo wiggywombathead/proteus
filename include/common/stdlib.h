@@ -5,8 +5,8 @@
 
 void bzero(void *, int);
 void *memcpy(void *, void *, size_t);
-char getc(void);
-void putc(char);
-void puts(const char *);
+uint32_t atoi(const char *);
+
+uint32_t strlen(const char *);
 
 #endif

@@ -18,17 +18,20 @@ void *memcpy(void *dst, const void *src, size_t bytes) {
     return d;
 }
 
-char getc() {
-    return uart_getc();
+uint32_t atoi(const char *nstr) {
+    uint32_t ans = 0;
+    while (*nstr != '\0') {
+        ans = ans * 10 + (*nstr - '0');
+        nstr++;
+    }
+    return ans;
 }
 
-void putc(char c) {
-    gpu_putc(c);
-}
-
-void puts(const char *str) {
-    for (size_t i = 0; str[i] != '\0'; i++)
-        putc(str[i]);
+uint32_t strlen(const char *str) {
+    uint32_t len;
+    while (*str++ != '\0')
+        len++;
+    return len;
 }
 
 #endif
