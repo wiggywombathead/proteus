@@ -13,10 +13,13 @@ int printf(const char *fmt, ...) {
     int written = 0;
 
     int int_tmp;
-    float float_tmp;
     char char_tmp;
     char *str_tmp;
-    void *ptr;
+
+    /* TODO
+     *  float float_tmp;
+     *  void *ptr;
+     */
 
     while (*fmt != '\0') {
 
@@ -31,11 +34,16 @@ int printf(const char *fmt, ...) {
                     written++;
                     break;
                 case 'c':
-                    char_tmp = va_arg(args, int);
+                    char_tmp = (char) va_arg(args, int);
                     putc(char_tmp);
+                    written++;
                     break;
                 case 'd':
                     int_tmp = va_arg(args, int);
+                    if (int_tmp < 0) {
+                        putc('-');
+                        int_tmp = -int_tmp;
+                    }
                     itoa(int_tmp, 10, buf, 64);
                     puts(buf);
                     written += strlen(buf);
@@ -47,7 +55,7 @@ int printf(const char *fmt, ...) {
                     written += strlen(buf);
                     break;
                 case 'p':
-                    int_tmp = va_arg(args, int *);
+                    int_tmp = va_arg(args, int);
                     itoa(int_tmp, 16, buf, 64);
                     puts("0x");
                     puts(buf);

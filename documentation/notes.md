@@ -419,23 +419,73 @@ parameters and results are stored.
 First we must set the screen size, virtual screen size, and depth. The tag ids
 for these commands are 0x00048003, 0x00048004, and 0x00048005 respectively. 
 
+More information on framebuffers can be found
+[here](https://github.com/raspberrypi/firmware/wiki/Mailboxes).
+
+TODO
+
 [Font](https://github.com/dhepper/font8x8/blob/master/font8x8_basic.h)
 
 ## Loading on real hardware
 Using `arm-none-eabi-objcopy`, we copy the kernel ELF file to a raw binary file.
 Then, we must copy this image to the SD card from which the operating system
-will boot. First we insert the card, find where it is mounted using `lsblk`,
-and mount it using `mount /dev/mmcblk0p1 [some directory]`. Then we copy the
-image by using `dd bs=4M if=kernel.img of=/dev/mmcblk0 conv=fsync`. To ensure
-the write cache is flushed and that it is safe to unmount the card, we run
-`sync`, then we may unmount using `umount /dev/mmcblk0p1` and remove the SD card
-from the development computer.
-Note: guidance taken from
-[here](https://www.raspberrypi.org/documentation/installation/installing-images/linux.md).
+will boot. An easy way to do this is to install an operating system with an already
+functioning boot partition, and replace the `.img` file with that built by the
+makefile one. In this
+case I just used the official Raspbian download from the Raspberry Pi website.
+Then you can mount the SD card with Raspbian, rename `kernel7.img` to something
+else, and insert the custom `.img` file, so that this is loaded for execution
+instead.
+
+### The boot process on the Pi
+The boot process relies on closed-source proprietary code programmed into the
+SoC processor, which cannot be modifiedi. Importantly, the ARM CPU is not hte
+main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup, the ARM CPU
+is halted and the GPU is run. The firmware then loads the bootloader from ROM to
+the L2 cache and executes it.  This first stage bootloader mounts the FAT32 boot
+partition on the SD card so that the second stage bootloader may be accessed.
+This is its only responsibility, to load `bootcode.bin`. The first stage
+bootloader is programmed into the SoC itself during manufacture and cannot be
+reprogrammed by the user.  Next, the second stage bootloader (`bootcode.bin`)
+then retrieves the GPU firmware from the SD card, programs the firmware, then
+starts the GPU. The GPU firmware (`start.elf`) is loaded, and allows the GPU to
+start up the CPU. An additional file `fixup.dat` is used to configure the SDRAM
+partition between the GPU and CPU. Here the kernel image is loaded, the CPU is
+released from reset, and control is transferred to it to execute the kernel.
+
+After the operating system is loaded, the code on the GPU is not unloaded;
+instead, it runs its own simple operating system, called Video Core Operating
+System (VCOS). The kernel can then use this to communicate with the services it
+provides (e.g. providing a framebuffer, as above) using the Mailbox Peripheral
+and interrupts (the GPU is able to produce ARM interrupts). The GPU is not only
+in charge of graphical functions - it also controls clocks and audio, for
+example. In this way the GPU firmware is similarly to a normal PC's BIOS (Basic
+Input/Output System).
+
+Sources:
+[1](https://raspberrypi.stackexchange.com/questions/8475/what-bios-does-raspberry-pi-use)
+[2](https://raspberrypi.stackexchange.com/questions/7122/level-of-hackability-of-raspberry-pi/7126#7126)
 
 ## Debugging real hardware
-Printing out to HDMI did not initially work - Adam said this was because I was
-outputting to serial. Since there was no way to display the problem, I checked
-to see if the kernel was being correctly loaded by flashing the ACT led.
+On the first attempt, printing out on real hardware did not work, despite
+functioning well in the emulated environment provided by QEMU. In particular,
+the screen displayed the "rainbow screen". As there is no real platform to debug
+software at such a low level, the approach I took was to flash the ACT LED in
+two locations in the boot code - firstly before `kernel_main` is called, to
+check the setup prior to this is functioning correctly, then after `kernel_main`
+is called, to ensure the kernel is being called and executed correctly.
 
 [here](https://raspberrypi.stackexchange.com/questions/67431/cant-turn-on-act-led-on-baremetal-pi3)
+
+The ACT LED is located on GPIO pin 47. This pin is pull-high, meaning we have to
+set the pin to turn the LED on (on the Pi 1, the ACT LED was on pin 16, which
+was pull-low, meaning it had to be cleared to be turned on). So we need to use
+GPSET and GPCLR to turn the pin on and off respectively. But there are two
+versions of each, namely GPSET0, GPSET1, GPCLR0, and GPCLR1. GPSET0 and GPCLR0
+deal with register 0 to 31, so we need to use GPSET1 and GPCLR1.
+
+Now the ACT blinks on and off at around a half second delay thanks to the
+following assembly: TODO
+
+[Massively helpful
+reference](https://www.raspberrypi.org/forums/viewtopic.php?p=852703)

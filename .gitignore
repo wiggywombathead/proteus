@@ -4,8 +4,10 @@
 *.elf
 
 # documentation
-documentation/**/{*.{aux,bbl,blg,log},figs}
+*.{aux,bbl,blg,log}
 
 # reference/admin
-reference/*
 admin/*
+fonts/*
+jsandler/*
+reference/*
