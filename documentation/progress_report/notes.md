@@ -9,7 +9,7 @@ Brief document detailing:
 - timetabling
 - clarifications
 - plan for next term
-- any changes (if noe, say so)
+- any changes (if no, say so)
 - project is developing as challenging piece of work but doable
 
 Recommended length: 2-3k words

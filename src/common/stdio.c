@@ -49,6 +49,7 @@ int printf(const char *fmt, ...) {
                 case 'p':
                     int_tmp = va_arg(args, int *);
                     itoa(int_tmp, 16, buf, 64);
+                    puts("0x");
                     puts(buf);
                     written += strlen(buf);
                     break;

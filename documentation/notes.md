@@ -432,3 +432,10 @@ the write cache is flushed and that it is safe to unmount the card, we run
 from the development computer.
 Note: guidance taken from
 [here](https://www.raspberrypi.org/documentation/installation/installing-images/linux.md).
+
+## Debugging real hardware
+Printing out to HDMI did not initially work - Adam said this was because I was
+outputting to serial. Since there was no way to display the problem, I checked
+to see if the kernel was being correctly loaded by flashing the ACT led.
+
+[here](https://raspberrypi.stackexchange.com/questions/67431/cant-turn-on-act-led-on-baremetal-pi3)

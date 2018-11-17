@@ -6,16 +6,15 @@ struct mail_message mailbox_read(int channel) {
     struct mail_status status;
     struct mail_message result;
 
-    // ensure message is from correct channel
+    /* ensure message is from correct channel */
     do {
 
-        // make sure there is mail to receive
+        /* make sure there is mail to receive */
         do {
             status = *MAIL0_STATUS;
         } while (status.empty);
 
-        // actually get the message
-        result = *MAIL0_READ;
+        result = *MAIL0_READ;   // actually get message
 
     } while (result.channel != channel);
 

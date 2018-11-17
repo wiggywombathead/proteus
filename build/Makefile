@@ -1,5 +1,8 @@
-CC = arm-none-eabi-gcc	# use ARM cross compiler
-OBJCOPY = arm-none-eabi-objcopy
+TOOLCHAIN = arm-none-eabi
+
+CC = $(TOOLCHAIN)-gcc			# ARM cross compiler
+OBJCOPY = $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
+GDB = $(TOOLCHAIN)-gdb
 
 CPU = cortex-a7
 
@@ -24,6 +27,8 @@ HEADERS = $(wildcard $(KERN_HEAD)/*.h)
 
 IMG = proteus
 
+.PHONY: build clean gdbinit
+
 build: $(OBJECTS) $(HEADERS)
 	$(CC) -T linker.ld -o $(IMG).elf $(LFLAGS) $(OBJECTS)
 	$(OBJCOPY) $(IMG).elf -O binary $(IMG).img
@@ -47,3 +52,13 @@ clean:
 
 run: build
 	qemu-system-arm -m 256 -M raspi2 -serial stdio -kernel $(IMG).elf
+
+dbginit:
+	echo "target remote loalhost:1234" > .gdbinit
+	echo "break kernel_main" > .gdbinit
+
+dbg:
+	$(GDB) $(IMG).elf
+
+dbgrun: build gdbinit
+	qemu-system-arm -m 256 -no-reboot -M raspi2 -serial stdio -kernel $(IMG).elf -S -s

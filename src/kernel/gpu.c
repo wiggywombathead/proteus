@@ -37,7 +37,7 @@ void gpu_putc(char c) {
     uint32_t i;
 
     /* scrolling */
-    if (fb_info.row > fb_info.max_row) {
+    if (fb_info.row >= fb_info.max_row) {
 
         // shift all characters up one row
         for (i = 0; i < fb_info.max_row - 1; i++) {
@@ -56,24 +56,49 @@ void gpu_putc(char c) {
 
     /* non-printable characters */
     switch (c) {
-    case '\b':
+    case '\t':
     case '\n':
     case '\r':
+    case '\b':
+    case 0x7f:  // delete
         printable = false;
         break;
     default:
         printable = true;
     }
 
-    // newlines
+    /* tabs */
+    if (c == '\t') {
+        fb_info.col += 4;
+    }
+
+    /* backspace */
+    if (c == '\b') {
+        fb_info.col = (fb_info.col == 0) ? 0 : fb_info.col - 1;
+    }
+
+    /* newlines */
     if (c == '\n' || c == '\r') {
         fb_info.col = 0;
         fb_info.row++;
-    }
 
-    // backspace
-    if (c == '\b') {
-        fb_info.col = (fb_info.col == 0) ? 0 : fb_info.col - 1;
+        /* perform another scroll */
+        if (fb_info.row >= fb_info.max_row) {
+
+            // shift all characters up one row
+            for (i = 0; i < fb_info.max_row - 1; i++) {
+                memcpy(
+                        fb_info.buffer + fb_info.pitch * i * CHAR_HEIGHT,
+                        fb_info.buffer + fb_info.pitch * (i+1) * CHAR_HEIGHT,
+                        fb_info.pitch * CHAR_HEIGHT
+                      );
+            }
+
+            // zero out the last row
+            bzero(fb_info.buffer + fb_info.pitch * i * CHAR_HEIGHT, fb_info.pitch * CHAR_HEIGHT);
+
+            fb_info.row--;
+        } 
     }
 
     uint8_t w, h;
@@ -104,6 +129,8 @@ void gpu_putc(char c) {
 
         fb_info.col++;
     }
+
+
 
     if (fb_info.col > fb_info.max_col - 1) {
         fb_info.col = 0;

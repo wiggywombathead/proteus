@@ -38,10 +38,27 @@ _start:
     cmp r4, r9
     blo 1b;
 
-    /* call kernel_main */
+    // call kernel_main
     ldr r3, =kernel_main
     blx r3
 
 halt:
-    wfe
+    wfe     /* enter low power state */
     b halt
+
+/*
+blink:
+    ldr r0, =0x3f200000
+    mov r1, #1
+    lsl r1, #21         @ logical shift left
+    str r1, [r0, #16]
+
+    mov r1, #1
+    lsl r1, #15
+    str r1, [r0, #32]
+
+    b blink
+
+loop$:
+    b loop$
+*/
