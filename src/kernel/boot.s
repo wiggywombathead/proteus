@@ -48,7 +48,7 @@ _start:
     lsl r1, #15             @ set 15th bit of r1
 
 loop$:
-    str r1, [r0, #0x20]     @ set GPIO 15 low, turning LED on
+    str r1, [r0, #0x20]     @ set GPIO 15 high, turning LED on
     mov r2, #0x1f0000       @ set counter variable for delay
 
 wait1$:
@@ -56,7 +56,7 @@ wait1$:
     cmp r2, #0
     bne wait1$
 
-    str r1, [r0, #0x2c]     @ set GPIO 15 high, turning LED off
+    str r1, [r0, #0x2c]     @ set GPIO 15 low, turning LED off
 
     mov r2, #0x1f0000
 

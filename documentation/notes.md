@@ -99,7 +99,7 @@ management and may not be present. The debugging subsystem, for example, is p14.
 ```assembly
 mov sp, #0x8000
 ```
-Setup stack pointer (r13). Program Counter (r15) for kernel starts at 0x8000 an
+Setup stack pointer (r13). Program Counter (r15) for kernel starts at 0x8000 and
 grows upwards. Therefore our stack can safely start at 0x8000 without
 interfering with the kernel. Note that the stack grows downwards.
 

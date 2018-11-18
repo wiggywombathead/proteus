@@ -44,11 +44,23 @@
 The project is currently at a point at which the operating system is able to
 successfully boot in the emulated environment provided by QEMU. Since it has
 been capable of doing this since \code{boot.s} was written, early on in Term 1,
-it is important to note the specific stages of initialisation performed by
+it is important to note the specific stages of initialisation performed by the
 kernel at this point, as well as discuss the environment setup that has enabled
-development to happen.
+this point in development to be reached.
+
+\subsection{Development environmet}
+The project is being developed on a machine running Linux kernel version 4.16
+onwards. Since the target environment, the Raspberry Pi 2 Model B, is different
+to that on which it is being developed, a cross-compiler is required to compile
+code that will run on the target machine, as opposed to the host. In particular,
+available for download on the ARM developer website \cite{GNUtoolchain} is the
+GNU Embedded Toolchain, which provides tools to target ARM Cortex family of
+processors, including the GNU Compiler Collection (GCC). Conveniently this suite
+of tools is available from Arch Linux's package manager, pacman, and this is the
+version of the cross-compiler used in the makefile.
 
 \subsection{Makefile}
+
 \subsection{linker.ld}
 \subsection{boot.s}
 \subsection{Atags}
@@ -77,6 +89,8 @@ development to happen.
 % How have I managed the project so far - may use formal methodology (e.g.
 % management of code versions), and can refer to less formal ways of keeping on
 % track, e.g. regular meetings with supervisor
+
+\bibliography{bibliography}
 
 \appendix
 

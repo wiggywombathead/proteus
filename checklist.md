@@ -1,12 +1,12 @@
 # proteus checklist
 ## Todo
+- [ ] Debug rainbow screen at boot
 - [ ] Display to real HDMI (works on QEMU but not IRL :/ )
 - [ ] Boot on real pi
 - [ ] Interrupts
 - [ ] Processes
 - [ ] Filesystem
 - [ ] IPC
-- [ ] FIGURE OUT WHY IT DOESN'T WORK NOW
 
 ## CPU scheduling
   * FCFS
