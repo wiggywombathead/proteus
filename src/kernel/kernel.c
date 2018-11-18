@@ -4,6 +4,8 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
+extern int blink(void);
+
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     (void) r0;
@@ -15,8 +17,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     printf("Feelin' fine.\n");
 
-    int a = -10;
-    printf("a = %d\n", a);
+    blink();
 
     int c;
     while ((c = getc()) != 0x4) {

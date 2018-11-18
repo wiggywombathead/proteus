@@ -62,9 +62,9 @@ struct property_msg_tag {
 };
 
 enum buf_req_res_code {
-    REQUEST = 0x00000000,
-    RESPONSE_SUCCESS = 0x80000000,
-    RESPONSE_ERROR = 0x80000001
+    REQUEST             = 0x00000000,
+    RESPONSE_SUCCESS    = 0x80000000,
+    RESPONSE_ERROR      = 0x80000001
 };
 
 struct property_msg_buf {

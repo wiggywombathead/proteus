@@ -38,36 +38,7 @@ _start:
     cmp r4, r9
     blo 1b;
 
-    /* begin ACT LED code */
-    ldr r0, =0x3f200000
-
-    mov r1, #1
-    lsl r1, #21
-    str r1, [r0, #0x10]     @ set GPIO function select
-    mov r1, #1
-    lsl r1, #15             @ set 15th bit of r1
-
-loop$:
-    str r1, [r0, #0x20]     @ set GPIO 15 high, turning LED on
-    mov r2, #0x1f0000       @ set counter variable for delay
-
-wait1$:
-    sub r2, #1
-    cmp r2, #0
-    bne wait1$
-
-    str r1, [r0, #0x2c]     @ set GPIO 15 low, turning LED off
-
-    mov r2, #0x1f0000
-
-wait2$:
-    sub r2, #1
-    cmp r2, #0
-    bne wait2$
-
-    b loop$
-
-    // call kernel_main
+    /* call kernel_main */
     ldr r3, =kernel_main
     blx r3
 
