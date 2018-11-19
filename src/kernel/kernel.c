@@ -1,10 +1,10 @@
-#include <kernel/uart.h>
 #include <kernel/memory.h>
+#include <kernel/gpio.h>
 #include <kernel/gpu.h>
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
-extern int blink(void);
+#include <kernel/debug.h>
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
@@ -13,11 +13,15 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) atags;
 
     mem_init((struct atag *) atags);
-    gpu_init();
+    int gpu_good = gpu_init();
 
     printf("Feelin' fine.\n");
-
-    blink();
+    
+    /* test this worked */
+    if (gpu_good == 0) {
+        act_blink(3);
+        printf("GPU initialised well\n");
+    }
 
     int c;
     while ((c = getc()) != 0x4) {

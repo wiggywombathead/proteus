@@ -1,8 +1,9 @@
 #ifndef _STDLIB_H
 #define _STDLIB_H
 
-#include <kernel/uart.h>
-#include <kernel/gpu.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <common/stdlib.h>
 
 void bzero(void *ptr, int bytes) {
     char *p = ptr;

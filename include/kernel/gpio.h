@@ -1,13 +1,25 @@
-#ifndef _UART_H
-#define _UART_H
+#ifndef _GPIO_H
+#define _GPIO_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 enum {
 
     /* GPIO register's base address */
     GPIO_BASE = 0x3f200000,
+
+    /* GPIO function select */
+    GPFSEL0 = (GPIO_BASE + 0x00),
+    GPFSEL1 = (GPIO_BASE + 0x04),
+    GPFSEL2 = (GPIO_BASE + 0x08),
+    GPFSEL3 = (GPIO_BASE + 0x0c),
+    GPFSEL4 = (GPIO_BASE + 0x10),
+    GPFSEL5 = (GPIO_BASE + 0x14),
+
+    GPSET0 = (GPIO_BASE + 0x1c),
+    GPSET1 = (GPIO_BASE + 0x20),
+    GPCLR0 = (GPIO_BASE + 0x28),
+    GPCLR1 = (GPIO_BASE + 0x2c),
 
     GPPUD = (GPIO_BASE + 0x94),
     GPPUDCLK0 = (GPIO_BASE + 0x98),
@@ -39,5 +51,10 @@ void uart_init();
 void uart_putc(unsigned char c);
 unsigned char uart_getc();
 void uart_puts(const char* str);
+
+void act_init(void);
+void act_on(void);
+void act_off(void);
+// void act_blink(uint32_t);
 
 #endif

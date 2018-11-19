@@ -56,13 +56,59 @@ code that will run on the target machine, as opposed to the host. In particular,
 available for download on the ARM developer website \cite{GNUtoolchain} is the
 GNU Embedded Toolchain, which provides tools to target ARM Cortex family of
 processors, including the GNU Compiler Collection (GCC). Conveniently this suite
-of tools is available from Arch Linux's package manager, pacman, and this is the
-version of the cross-compiler used in the makefile.
+of tools is available from Arch Linux's package manager, pacman \cite{pacman},
+and this is the version of the cross-compiler used in the makefile.
 
-\subsection{Makefile}
+Before writing any code, as the author had little-to-no prior experience in
+systems programming, research had to be undertaken in order to get acquainted
+with this environment. In particular, this involved skimming over the various
+peripherals manuals, technical reference manuals, and programmer's guides for
+programming on the Raspberry Pi to learn more about its hardware and how to
+interface with it using ARM assembly. \cite{BCM2835} and \cite{BCM2836} detail the
+peripherals on board the Raspberry Pi 2 Model B, the layout of their related
+registers, and how to read and write them to do meaningful things with the
+hardware, while \cite{TRM} and \cite{PG} provided help on ARM assembly's syntax,
+and how and when to use specific instructions.
+
+Particularly important so far have been the sections of the peripherals manual
+on GPIO and UART, as until the implementation for the property mailbox interface
+is working, all input and output is done through the serial connection provided
+by the UART.  Since there were issues with getting the Pi to run on real
+hardware, information about the GPIO peripheral was needed in order to write
+basic low-level debugging functions, mainly in the form of getting the green ACT
+LED to blink for various return values of functions.
+
+\subsection{boot.s}
+The first piece of code to be written was \code{boot.s}, which is responsible
+for providing the basic setup of the entire system, which includes initialising
+a minimum C environment. In particular, it sends three of the four cores on the
+CPU to shutdown (to decrease overall complexity of the system, as discussed in
+the specification), initialises the stack pointer at address \code{0x8000}, sets
+up the BSS segment (where statically-allocated variables that are not explicitly
+initialised are stored) and zeroes it out (as required by the C standard), and
+then loads our C kernel entry point, \code{kernel\_main}, into memory to begin
+its execution. Note that the Program Counter for the kernel starts at address
+\code{0x8000} and grows upwards, so the stack can safely start at \code{0x8000}
+without interfering with the kernel (as it grows downwards).
 
 \subsection{linker.ld}
-\subsection{boot.s}
+The code in \code{linker.ld} is responsible for linking all of the compiled
+object files into one final executable. There are scripts which do this for
+user-space programs, but since we are our own user-space, being the kernel, we
+have to create one for ourselves. The various sections that the script defines
+are as follows:
+\begin{itemize}
+    \itemsep0em
+    \item \code{.text} - contains executable code
+    \item \code{.rodata} - read-only data i.e. global constants
+    \item \code{.data} - global variables initialised at compile-time
+    \item \code{.bss} - uninitialised global variables
+\end{itemize}
+
+We also define the entry point of our entire operating system in this script,
+namely \code{\_start} from \code{boot.s}. TODO
+
+\subsection{Makefile}
 \subsection{Atags}
 \subsection{Initialising memory}
 \subsection{Printing to HDMI}

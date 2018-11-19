@@ -6,10 +6,10 @@ uint32_t get_total_mem(struct atag *atag) {
         if (atag->tag == ATAG_MEM) {
             return atag->mem.size;
         }
-        atag = atag + atag->size;    /* move to next tag */
+        
+        /* move to next tag */
+        atag = (struct atag *)(((uint32_t *) atag) + atag->size);
     }
 
-    /* TODO: just return 0 in real thing */
-    //return 0;
-    return 1024 * 1024 * 256;
+    return 0;
 }

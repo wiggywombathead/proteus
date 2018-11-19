@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdarg.h>
-#include <kernel/uart.h>
+#include <kernel/gpio.h>
 #include <kernel/gpu.h>
 #include <common/stdio.h>
 #include <common/stdlib.h>

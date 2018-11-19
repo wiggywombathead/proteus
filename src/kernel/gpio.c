@@ -1,4 +1,6 @@
-#include <kernel/uart.h>
+#include <stddef.h>
+#include <kernel/gpio.h>
+#include <common/stdio.h>
 
 static inline void mmio_write(uint32_t reg, uint32_t data) {
     *(volatile uint32_t *) reg = data;
@@ -54,3 +56,25 @@ void uart_puts(const char* str) {
     for (size_t i = 0; str[i] != '\0'; i++)
         uart_putc((unsigned char) str[i]);
 }
+
+void act_init(void) {
+    mmio_write(GPFSEL4, 1 << 21);
+}
+
+void act_on(void) {
+    mmio_write(GPCLR1, 0 << 15);
+    mmio_write(GPSET1, 1 << 15);
+}
+
+void act_off(void) {
+    mmio_write(GPSET1, 0 << 15);
+    mmio_write(GPCLR1, 1 << 15);
+}
+
+// void act_blink(uint32_t n) {
+//     while (n--) {
+//         act_on();
+//         delay(0xf000);
+//         act_off();
+//     };
+// }

@@ -67,8 +67,11 @@ int send_messages(struct property_msg_tag *tags) {
 
     bufsize += 3 * sizeof(uint32_t);
 
-    if (bufsize % 16 != 0)
-        bufsize += 16 - (bufsize % 16);
+    // if (bufsize % 16 != 0)
+    //     bufsize += 16 - (bufsize % 16);
+
+    /* 16 byte align buffer */
+    bufsize += (bufsize % 16) ? 16 - (bufsize % 16) : 0;
 
     msg = kmalloc(bufsize);
 
@@ -94,9 +97,14 @@ int send_messages(struct property_msg_tag *tags) {
     mailbox_send(mail, PROPERTY_CHANNEL);
     mail = mailbox_read(PROPERTY_CHANNEL);
 
-    if (msg->req_res_code == RESPONSE_ERROR) {
+    if (msg->req_res_code == REQUEST) {
         kfree(msg);
         return 1;
+    }
+
+    if (msg->req_res_code == RESPONSE_ERROR) {
+        kfree(msg);
+        return 2;
     }
 
     for (i = 0, bufpos = 0; tags[i].prop_tag != NULL_TAG; i++) {

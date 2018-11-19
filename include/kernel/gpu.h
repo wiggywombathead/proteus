@@ -9,7 +9,7 @@ struct pixel {
     uint8_t blue;
 };
 
-void gpu_init(void);
+int gpu_init(void);
 void write_pixel(uint32_t, uint32_t, const struct pixel *);
 void gpu_putc(char);
 

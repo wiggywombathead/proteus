@@ -6,18 +6,18 @@
 #include <common/stdlib.h>
 
 /* initialise framebuffer and write black pixels everywhere */
-void gpu_init(void) {
+int gpu_init(void) {
 
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
 
-    framebuffer_init();
+    int res = framebuffer_init();
 
     for (uint32_t j = 0; j < fb_info.height; j++) {
         for (uint32_t i = 0; i < fb_info.width; i++) {
             write_pixel(i, j, &BLACK);
         }
     }
-
+    return res;
 }
 
 void write_pixel(uint32_t x, uint32_t y, const struct pixel *p) {
