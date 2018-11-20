@@ -106,11 +106,61 @@ are as follows:
 \end{itemize}
 
 We also define the entry point of our entire operating system in this script,
-namely \code{\_start} from \code{boot.s}. TODO
+namely the \code{\_start} routine from \code{boot.s}. This script also sets the
+symbols \code{\_\_start} and \code{\_\_text\_start} to be \code{0x8000}, which
+is where the bootloader will put the kernel image - the code from \code{boot.s}
+will be put in the first part of this section, \code{.text.boot}. We use
+\code{KEEP} to tell the compiler not to try to optimise the code in
+\code{.text.boot}, and \code{ALIGN} sets the current address to the next
+available page (the next address divisible by 4096). The \code{,rodata},
+\code{.data}, and \code{.bss} sections are then declared in much the same way.
 
 \subsection{Makefile}
+The makefile was written to speed up the build process, and there are only a few
+features to note. First is that here we specify that we are using the
+\code{arm-none-eabi} toolchain, for the compiler to target the Raspberry Pi's
+architecture as opposed to our own, in particular the Cortex-A7 processor. The
+\code{-fpic} compilation flag is currently being used while we are ignoring the
+Memory Management Unit, and in particular virtual memory, on the Pi, as it
+creates position-independent code, and will keep separate applications from
+interfering with each other within this single address space when processes are
+implemented. The \code{-ffreestanding} compiler and linker flag, and the
+\code{-nostdlib} linker flag, specifies that we are writing code in a
+freestanding environment, and as such do not expect much of the C standard
+library to exist, or for program startup to necessarily to be at \code{main()}.
+Specifically, we only have access to the following header files:
+\code{<float.h>}, \code{<iso646.h>}, \code{<limits.h>}, \code{<stdalign.h>},
+\code{<stdarg.h>}, \code{<stdbool.h>}, \code{<stddef.h>}, \code{<stdint.h>}, and
+\code{<stdnoreturn.h>}. The rest of the standard library must be implemented
+ourselves.
+
 \subsection{Atags}
+The first piece of meaningful setup that can be done when the kernel is booted
+is to get information about the memory available to the system. On the Raspberry
+Pi, the bootloader creates creates a list of information about the hardware
+called Atags, places it at address \code{0x100}, and passes it as the third
+parameter to \code{kernel\_main} in register 2. Each tag in the list contains a
+header consisting of two unsigned 32-bit values: the size of the tag (in 32-bit
+words), and the tag value. Each header is then followed by information specific
+to that tag, aside from \code{ATAG\_NONE}, which has no associated data, and
+\code{ATAG\_CORE}, whose data is optional. To access the information in each of
+the tags when we come across them, we must match the layout of each of the tags
+\cite{atags} by defining appropriate C structs in \code{atag.h}.
+
+To find the amount of memory on the device, we can skip through the Atags list
+(using pointer arithmetic and information about the tag's size in its header)
+until we come across the \code{ATAG\_MEM} tag. Then it is simply a case of
+return the value in the \code{size} field of the \code{atag\_mem} struct.
+
 \subsection{Initialising memory}
+Throughout the operating system's execution, different processes will require
+memory to perform computations. Although the only thing doing anything
+meaningful at the moment is the kernel, which can theoretically use any memory
+it wants, in order to impose some order for later implementations of processes
+and user space, we split the available memory up into 4KiB pages. The total
+number of pages is therefore given by the total amount of memory divided by the
+page size.
+
 \subsection{Printing to HDMI}
 \subsection{Booting on real hardware}
 

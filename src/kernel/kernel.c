@@ -1,3 +1,4 @@
+#include <kernel/atag.h>
 #include <kernel/memory.h>
 #include <kernel/gpio.h>
 #include <kernel/gpu.h>
@@ -16,11 +17,16 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     int gpu_good = gpu_init();
 
     printf("Feelin' fine.\n");
+
+    uint32_t hi = get_serialnr_hi((struct atag *) atags);
+    uint32_t lo = get_serialnr_lo((struct atag *) atags);
+
+    printf("%d.%d\n", hi, lo); 
     
     /* test this worked */
     if (gpu_good == 0) {
         act_blink(3);
-        printf("GPU initialised well\n");
+        printf("GPU initialised successfully\n");
     }
 
     int c;
@@ -28,6 +34,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         putc(c);
     }
 
-    puts("Goodbye!");
+    puts("\nGoodbye!");
 
 }

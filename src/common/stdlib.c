@@ -28,9 +28,26 @@ uint32_t atoi(const char *nstr) {
     return ans;
 }
 
+size_t strncpy(char *dst, const char *src, size_t n) {
+    size_t len = 0;
+    size_t i;
+
+    for (i = 0; i < n && src[i] != '\0'; i++)
+        dst[i] = src[i];
+    for ( ; i < n; i++)
+        dst[i] = '\0';
+
+    return len;
+}
+
 int32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
     char *symbols = "0123456789abcdef";
     uint32_t i = 0;
+
+    if (n == 0) {
+        return strncpy(buf, "0", 1);
+    }
+        
     while (n > 0) {
         if (i > max - 1)
             return -1;
@@ -50,8 +67,8 @@ int32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
     return len;
 }
 
-uint32_t strlen(const char *str) {
-    uint32_t len = 0;
+size_t strlen(const char *str) {
+    size_t len = 0;
     while (*str++ != '\0')
         len++;
     return len;
