@@ -10,6 +10,7 @@
 \usepackage{pgfgantt}
 \usepackage{lscape}
 \usepackage{pdfpages}
+\usepackage[title]{appendix}
 % \usepackage{diagbox}
 
 \graphicspath{{./figs/}}
@@ -261,14 +262,15 @@ is not the main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup,
 the ARM CPU is halted and the GPU is run. The firmware then loads the bootloader
 from ROM to the L2 cache and executes it.  This first stage bootloader mounts
 the FAT32 boot partition on the SD card so that the second stage bootloader may
-be accessed.  This is its only responsibility, to load `bootcode.bin`. The first
-stage bootloader is programmed into the SoC itself during manufacture and cannot
-be reprogrammed by the user.  Next, the second stage bootloader (`bootcode.bin`)
-then retrieves the GPU firmware from the SD card, programs the firmware, then
-starts the GPU. The GPU firmware (`start.elf`) is loaded, and allows the GPU to
-start up the CPU. An additional file `fixup.dat` is used to configure the SDRAM
-partition between the GPU and CPU.  Here the kernel image is loaded, the CPU is
-released from reset, and control is transferred to it to execute the kernel.
+be accessed.  This is its only responsibility, to load \code{bootcode.bin}. The
+first stage bootloader is programmed into the SoC itself during manufacture and
+cannot be reprogrammed by the user.  Next, the second stage bootloader
+(\code{bootcode.bin}) then retrieves the GPU firmware from the SD card, programs
+the firmware, then starts the GPU. The GPU firmware (\code{start.elf}) is
+loaded, and allows the GPU to start up the CPU. An additional file
+\code{fixup.dat} is used to configure the SDRAM partition between the GPU and
+CPU.  Here the kernel image is loaded, the CPU is released from reset, and
+control is transferred to it to execute the kernel.
 
 After the operating system is loaded, the code on the GPU is not unloaded;
 instead, it runs its own simple operating system, called Video Core Operating
@@ -287,6 +289,30 @@ official operating system on it, such as Raspbian \cite{Raspbian}, and replace
 kernel image, it will load ours instead.
 
 \subsection{Issues and debugging on real hardware}
+On the first attempt, printing via HDMI did not work, despite functioning in the
+emulated environment provided by QEMU. In particular, the screen displayed the
+"rainbow screen", signifying that somehow the framebuffer is not being
+initialised properly. In an attempt to debug this, assembly code was written,
+under the guidance of \cite{BakingPi}, to make the green ACT LED blink at
+certain points in the code, to verify that these points were being reached
+successfully.
+
+\section{Progress against the timetable}
+Progress had been largely in line with what was proposed by the intial
+timetable, given in the project specification, and even, at points, ahead.
+However, with the significant problem of failing to output to real hardware,
+further progress has become stunted. For example, features such as interrupts,
+exceptions, and processes should all have been started and completed by this
+point; a possible reason for this is understimation of the problems that could
+arise transitioning from a purely emulated environment to a fully real one.
+Furthermore, while course load was taken into account when planning the initial
+timetable, issues with other pieces of coursework, and needing to fix them, have
+contributed perhaps more than expected, and as such detracted more attention
+from this project than initially thought. Thankfully, time was planned to be set
+aside as a buffer in the original timetable during the winter holidays, during
+which the current issues can be mitigated and progress can align again, more or
+less, with the original timetable. An revised version of the timetable is
+provided in appendix A.
 
 % overview of work so far, including
 %   technical content - what work have I done, meaningful summary of significant
@@ -296,6 +322,33 @@ kernel image, it will load ours instead.
 
 \section{Project management}
 \subsection{Development}
+The project has been developed incrementally - this has involved deciding on the
+next feature to implement, breaking it down into its own set of requirements,
+and tackling each of these in turn. An example of this is memory management, for
+which it was broken down into getting information about memory through the
+atags, implementing paging, then implementing segmentation and a dynamic memory
+allocator. Up to this point in the project there has been little flexibility
+in the order in which things are completed, as some of the systems are still
+being implemented to even allow ``higer-level'' features to exist. An example of
+this is getting the project to work on real hardware before interrupts and
+interrupts before scheduling: the former because of QEMU's lack of simulation of a
+system timer, and the latter because processes cannot be interrupted if there is
+no way to interrupt anything. Once the base systems are implemented, development
+can open up more, with more flexibility as to deciding on which features to
+develop next. This will of course need to be managed to ensure all areas that
+the project aims to address are getting attention.
+
+Version control has been a constant focus during development, and has been
+important. Due to the size of this project already, with the amount of code from
+a number of different files all contributing to the system's functionality, any
+time a change is made that has broken the project where a previous version has
+worked has been much less of an issue. In particular, using Git has allowed for
+specific differences between commits to be presented clearly, helping to track
+down the source of various problems much more quickly.
+
+Progress has been kept in mind by timetabling fortnightly meetings with the
+project supervisor.
+
 \subsection{Testing}
 % How have I managed the project so far - may use formal methodology (e.g.
 % management of code versions), and can refer to less formal ways of keeping on
@@ -304,19 +357,60 @@ kernel image, it will load ours instead.
 \section{Next steps}
 % outline plans for next term and any alterations to original ideas
 % updated timetable with as much detail as possible
+For the rest of Term 1, most efforts will be dedicated to debugging the issue
+with printing on HDMI on real hardware. The nature of the problem, that nothing
+will display on a real screen, makes the process more difficult in that
+debugging will rely on tweaking the flash of an LED. With the winter holidays
+approaching, this issue should find resolution, if not before the end of term,
+then certainly before the start of next. Furthermore, to make up the deficit
+caused by this problem, more attention will need to be paid towards interrupts,
+exceptions, and processes, in order to finish them in a timely manner so that
+work can be at least started on scheduling, inter-process communication, and
+synchronisation.
+
+Some further research will also need to be undertaken before the start of Term 2
+to decide on a filesystem to implement, and assess the options of implementing a
+custom one, or one that is already established. In particular, over next term is
+where the project will begin to diverge from other operating systems already in
+existence and take on its own form, that is, in granting the user a degree of
+customisation at a low level which others do not provide.
 
 \section{Reflection}
-% reflection and appraisal - assessment on how thing shave gone so far. Any
+% reflection and appraisal - assessment on how things have gone so far. Any
 % lessons learned to make future progress smoother?
+The progress made with the project so far has been pleasing; having little
+experience in systems programming prior to starting this project, it has been
+fulfilling learning about every aspect of the Raspberry Pi in minute detail,
+which is indeed required to make things work at a low level. While it has been
+noted that at this point there is little to distinguish this piece of work from
+any other hobbyist operating system, it is nonetheless satisfying to have set
+this ground work which is, all things considered, still a custom operating
+system that is capable of running on a Raspberry Pi. Furthermore, despite the
+issue caused by the framebuffer, it has been a fun challenge to develop a
+debugging solution for this, and while a blinking green LED may not be a core
+feature of the final project, learning how to use the GPIO and doing so in
+assembly has been another valuable, and fun, learning experience.
 
 \section{Ethical consent}
 % state that I have considered it, but not needed
+All software being used to develop the project is available under the GNU Public
+License. At points in the project's development, informal feedback may be
+requested from friends and colleagues for more of the non-functional
+requirements, such as usability or how the project is presented. Due to the
+informal nature of this feedback, however, any associated ethical, social, or
+professional issues are insignificant.
 
 \bibliography{bibliography}
 
-\appendix
+\begin{appendices}
 
-% include project specification as part of appendices
-\includepdf[pages=-]{../specification/specification.pdf}
+    \section{Revised Timetable}
+
+    \section{Project Specification}
+
+    % include project specification as part of appendices
+    \includepdf[pages=-]{../specification/specification.pdf}
+
+\end{appendices}
 
 \end{document}

@@ -9,6 +9,7 @@
 \usepackage{url}
 \usepackage{pgfgantt}
 \usepackage{lscape}
+\usepackage[title]{appendix}
 % \usepackage{diagbox}
 
 \graphicspath{{./figs/}}
@@ -306,9 +307,9 @@ hence the social, ethical, and professional issues are insignificant.
 
 \bibliography{bibliography}
 
-\appendix
-\section*{Appendix}
+\begin{appendices}
 
+    \section{Timetable}
 \begin{landscape}
     \begin{ganttchart}[
             hgrid,
@@ -371,5 +372,7 @@ hence the social, ethical, and professional issues are insignificant.
 
     \end{ganttchart}
 \end{landscape}
+
+\end{appendices}
 
 \end{document}
