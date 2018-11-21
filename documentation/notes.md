@@ -391,7 +391,7 @@ framebuffer. It provides a means to get and set data about various hardware
 devices, one of which is the framebuffer.
 
 #### Property channel messages
-A message must be 16-byte aligned buffer of 4-byte words. The respinse
+A message must be 16-byte aligned buffer of 4-byte words. The response
 overwrites the original message.
 
 A message begins with a 4 byte size of the message, plus 4 bytes for the size
@@ -419,10 +419,26 @@ parameters and results are stored.
 First we must set the screen size, virtual screen size, and depth. The tag ids
 for these commands are 0x00048003, 0x00048004, and 0x00048005 respectively. 
 
+To set the screen size requires a 4-byte width and a 4-byte height, with no
+result returned. Thus, the value buffer has size 8 bytes for the screen size
+commands. To set the depth requires a 4-byte value, and no result is returned,
+meaning the value buffer has size 4 bytes. 
+
+We then send this buffer through the mailbox - we must ensure the buffer is at a
+16-byte aligned address, so only the high 28 bits contain the address. We then
+bitwise OR with this address to set the channel number, and send this through
+the mailbox. To verify this has worked, we check the request/response code of
+the buffer; if this is 0, then it has failed as the GPU could not overwrite this
+part with a response code. If 0x80000001, then error. If 0x80000000, then
+success.
+
+Now the screen parameters are set, we can request a framebuffer - the tag ID
+for this command is 0x00040001. It takes a single 4-byte parameter, the
+requested alignment of the framebuffer, and returns two 4-byte values, a pointer
+to the buffer and the buffer size. 
+
 More information on framebuffers can be found
 [here](https://github.com/raspberrypi/firmware/wiki/Mailboxes).
-
-TODO
 
 [Font](https://github.com/dhepper/font8x8/blob/master/font8x8_basic.h)
 
@@ -439,7 +455,7 @@ instead.
 
 ### The boot process on the Pi
 The boot process relies on closed-source proprietary code programmed into the
-SoC processor, which cannot be modifiedi. Importantly, the ARM CPU is not hte
+SoC processor, which cannot be modified. Importantly, the ARM CPU is not the
 main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup, the ARM CPU
 is halted and the GPU is run. The firmware then loads the bootloader from ROM to
 the L2 cache and executes it.  This first stage bootloader mounts the FAT32 boot

@@ -145,7 +145,14 @@ void kfree(void *ptr) {
     struct heap_segment *seg = ptr - sizeof(struct heap_segment);
     seg->allocated = 0;
 
-    // merge segments to the right 
+    /* merge segments to the left */
+    while (seg->prev != NULL && !seg->prev->allocated) {
+        seg->prev->next = seg->next;
+        seg->prev->segment_size += seg->segment_size;
+        seg = seg->prev;
+    }
+
+    /* merge segments to the right */
     while (seg->next != NULL && !seg->next->allocated) {
         seg->segment_size += seg->next->segment_size;
         seg->next = seg->next->next;

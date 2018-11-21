@@ -71,12 +71,12 @@ hardware, while \cite{TRM} and \cite{PG} provided help on ARM assembly's syntax,
 and how and when to use specific instructions.
 
 Particularly important so far have been the sections of the peripherals manual
-on GPIO and UART, as until the implementation for the property mailbox interface
-is working, all input and output is done through the serial connection provided
-by the UART.  Since there were issues with getting the Pi to run on real
-hardware, information about the GPIO peripheral was needed in order to write
-basic low-level debugging functions, mainly in the form of getting the green ACT
-LED to blink for various return values of functions.
+on GPIO and UART, as until the implementation for the mailbox interface is
+working, all input and output is done through the serial connection provided by
+the UART.  Since there were issues with getting the Pi to run on real hardware,
+information about the GPIO peripheral was needed in order to write basic
+low-level debugging functions, mainly in the form of getting the green ACT LED
+to blink for various return values of functions.
 
 \subsection{boot.s}
 The first piece of code to be written was \code{boot.s}, which is responsible
@@ -152,7 +152,7 @@ To find the amount of memory on the device, we can skip through the Atags list
 until we come across the \code{ATAG\_MEM} tag. Then it is simply a case of
 return the value in the \code{size} field of the \code{atag\_mem} struct.
 
-\subsection{Initialising memory}
+\subsection{Organising memory}
 Throughout the operating system's execution, different processes will require
 memory to perform computations. Although the only thing doing anything
 meaningful at the moment is the kernel, which can theoretically use any memory
@@ -161,14 +161,145 @@ and user space, we split the available memory up into 4KiB pages. The total
 number of pages is therefore given by the total amount of memory divided by the
 page size.
 
-\subsection{Printing to HDMI}
+To organise the pages, we give each page a header which stores metadata about
+the page, including whether the page has been allocated, whether it is a kernel
+page, and whether this page is part of the heap (used later when dynamically
+allocating memory). We organise all of the page headers into a linked list
+directly after the end of the kernel image, using the \code{\_\_end} variable
+from the linker script. Each page also stores the virtual address to which it
+maps; as virtual memory has not yet been implemented, a page's virtual address is
+simply its index in the page list multiplied by the page size. All that remains
+is to iterate over the page header list to initialise each page's metadata, and
+add each page to a linked list of all the free pages.
+
+Naturally the next feature implemented was allocating and freeing pages.
+Allocating a page is done by simply popping the head of the free page list,
+setting the appropriate flags, and returning the address of the page. Freeing,
+meanwhile, is done by passing the address of the page to free, again setting the
+appropriate flags, and appending this page back to the fre page list.
+
+\subsection{Allocating memory}
+A 1MiB portion of memory located directly after the page headers is reserved for
+the heap - while the choice of 1MiB is fairly arbitrary, it should be large
+enough to suffice for all dynamic memory needs, and small enough to not use a
+significant portion of memory that may be desired by user code. We define the
+struct \code{heap\_segment} for keeping track of heap allocations, such as the
+segment size and whether it has been allocated (useful for avoiding external
+fragmentation later), and initialise the heap by declaring a single heap segment
+whose size is equal to that of the heap - as more memory is allocated, this
+initial segment will be split into smaller ones, which in turn may be split
+further to satisfy requests for differing amounts of memory. Whenever memory is
+requested, we add the size of the header to the request and 16-byte align it, so
+as to actually reserve some space for the heap segment metadata.
+
+To allocate a segment, we step through the list of segments in the heap and look
+for the one best satisfying the number of bytes requested, and not in use. If
+the current segment is large (i.e. the segemnt size if $\ge2$ times the header
+size), we split it into two segments and only use one of them. Once a segment
+satisfying the request is found, we return a pointer to the memory directly
+after the header. To free an allocation, we set the appropriate flags, and then
+attempt to merge consecutive free segments, checking both to the left and the
+right of the current segment.
+
+\subsection{Serial output}
+Initial output was done using the UART on board the Pi, meaning text was sent
+and received through serial ports. This was mainly due to simplicity in early
+builds of the system, and while this can be achieved in the final version of the
+project by using a USB-to-TTL cable, ideally it will use the HDMI port on the Pi
+instead, which requires interfacing with the Mailbox peripheral (discussed
+later). This was all done by interacting with the GPIO pins on the Pi, which is
+done entirely through Memory Mapped I/O (MMIO) - that is, by reading from and
+writing to predefined memory addresses. A peripheral on the Raspberry Pi is
+simply an address to and from which you may read and write data, and all may be
+described by an offset from the Peripheral Base Address; this is
+\code{0x3f200000} on the Raspberry Pi 2 Model B. Moreover, a register is a
+32-bit chunk of memory that a peripheral may read from or write to. The BCM2835
+Peripherals Manual gives the UART base address as \code{0x7e201000}. Thus, in
+\code{gpio.c}, after setting all the required flags for using the UART, we can
+implement a serial \code{putc()} by checking that the FIFO is not full and
+writing our data to the Data Register, and \code{getc()} by checking that the
+FIFO is non-empty and reading from it. \footnote{From the manual: ``Physical
+addresses range from \code{0x20000000} to \code{0x20ffffff} for peripherals. The
+bus addresses for peripherals are set up to map onto the peripheral bus address
+range starting at \code{0x7e000000}. Thus a peripheral listed at
+\code{0x7ennnnnn} will be available at physical address \code{0x20nnnnnn}."}
+
+\subsection{HDMI output}
+The final goal, however, is to not use any extra adapters to make serial output
+work - instead, output will be through the HDMI port on the Pi and to do so,
+familiarisation with the Mailbox peripheral has been important. The Mailbox is a
+peripheral that facilitates communication between the ARM CPU and the VideoCore
+GPU \cite{Mailboxes}, and starts at offset \code{0xb880}. We may get data from the GPU via the
+read register, pass data to the GPU using the write register, and check if
+either of these are empty or full using the status register, at offsets
+\code{0x00}, \code{0x20}, and \code{0x18} respectively. Furthermore, a channel
+is a number that gives meaning to the data being sent to and received from the
+GPU - for interacting with HDMI, we need the Property channel, channel 8. This
+provides a means to get and set data about various hardware devices, one of
+which is the framebuffer.
+
+In order to ask the GPU for a framebuffer, we need first to be able to
+communicate with it by sending messages and parsing the received response. The
+messages we send it, for example, are to set the framebuffer's physical and
+virtual dimensions, and its colour depth (bits per pixel). Once all the
+parameters are set, we can ask the GPU for a framebuffer, using the
+\code{FB\_ALLOCATE\_BUFFER} tag (defined in \code{mailbox.h} as
+\code{0x00040001}). The returned values are a pointer to this framebuffer and its
+size. 
+
 \subsection{Booting on real hardware}
+This is the first point at which the project has required testing on real
+hardware, in order to verify that a framebuffer is being correctly requested and
+supplied by the GPU. This required the kernel to be installed on an SD card and
+for it to be run on the physical board of the Pi. It is now helpful to detail
+the unique boot process of Pi, which makes this stage much easier.
+
+\subsubsection{The boot process of the Raspberry Pi}
+The boot process relies on closed-source proprietary code programmed into the
+SoC processor \cite{Firmware} which cannot be modified. Importantly, the ARM CPU
+is not the main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup,
+the ARM CPU is halted and the GPU is run. The firmware then loads the bootloader
+from ROM to the L2 cache and executes it.  This first stage bootloader mounts
+the FAT32 boot partition on the SD card so that the second stage bootloader may
+be accessed.  This is its only responsibility, to load `bootcode.bin`. The first
+stage bootloader is programmed into the SoC itself during manufacture and cannot
+be reprogrammed by the user.  Next, the second stage bootloader (`bootcode.bin`)
+then retrieves the GPU firmware from the SD card, programs the firmware, then
+starts the GPU. The GPU firmware (`start.elf`) is loaded, and allows the GPU to
+start up the CPU. An additional file `fixup.dat` is used to configure the SDRAM
+partition between the GPU and CPU.  Here the kernel image is loaded, the CPU is
+released from reset, and control is transferred to it to execute the kernel.
+
+After the operating system is loaded, the code on the GPU is not unloaded;
+instead, it runs its own simple operating system, called Video Core Operating
+System (VCOS). The kernel can then use this to communicate with the services it
+provides (e.g. providing a framebuffer, as above) using the Mailbox Peripheral
+and interrupts (the GPU is able to produce ARM interrupts). The GPU is not only
+in charge of graphical functions - it also controls clocks and audio, for
+example. In this way the GPU firmware is similar to a normal PC's BIOS (Basic
+Input/Output System) \cite{Boot1, Boot2}.
+
+\subsubsection{Loading using Raspbian}
+To install the project's kernel onto an SD card, we can simply install an
+official operating system on it, such as Raspbian \cite{Raspbian}, and replace
+\code{kernel7.img} with that produced by the Makefile (and renaming it to
+\code{kernel7.img}). Now, when the bootloader would look to load Raspbian's
+kernel image, it will load ours instead.
+
+\subsection{Issues and debugging on real hardware}
 
 % overview of work so far, including
 %   technical content - what work have I done, meaningful summary of significant
 %   aspects
 %   progress - review progress against timetable. If unexpected delays, how have
 %   they been dealt with?
+
+\section{Project management}
+\subsection{Development}
+\subsection{Testing}
+% How have I managed the project so far - may use formal methodology (e.g.
+% management of code versions), and can refer to less formal ways of keeping on
+% track, e.g. regular meetings with supervisor
 
 \section{Next steps}
 % outline plans for next term and any alterations to original ideas
@@ -180,11 +311,6 @@ page size.
 
 \section{Ethical consent}
 % state that I have considered it, but not needed
-
-\section{Project management}
-% How have I managed the project so far - may use formal methodology (e.g.
-% management of code versions), and can refer to less formal ways of keeping on
-% track, e.g. regular meetings with supervisor
 
 \bibliography{bibliography}
 

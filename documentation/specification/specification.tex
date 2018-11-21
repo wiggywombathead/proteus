@@ -16,6 +16,7 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \title{A modular kernel for the Raspberry Pi: Project Specification}
+\date{12 October, 2018}
 
 \begin{document}
 
@@ -69,7 +70,7 @@ interpreter.
 Finally, a key objective of this project will be to get the operating system to
 work entirely on real hardware, and not solely in an emulated environment. This
 includes booting from the SD card installed in the Raspberry Pi. As the boot
-process is handled by the Pi's System on Chip (SoC), so booting will be possible
+process is handled by the Pi's System on Chip (SoC), booting will be possible
 without writing a custom bootloader. On top of booting from it, the operating
 system must interact with the SD card in conjunction with a filesystem for
 permanent/mass storage. Finally, it must be capable of taking input from a
@@ -107,7 +108,7 @@ shared memory due to its simplicity. Message passing will follow as a
 configurable module. Beyond this, a filesystem can then be implemented and
 development can move to focus more on user space, including a command
 interpreter, actually accessing mass storage, and implementing \code{fork()} and
-\code{execute()} At this time the notion of syscalls and operating system traps
+\code{execute()}. At this time the notion of syscalls and operating system traps
 will also need to be developed. As an operating system needs to be written in a
 freestanding (as opposed to hosted) environment, a standard library will be
 continually developed over the course of the project.
@@ -265,6 +266,7 @@ See Appendix.
 \section*{Technologies}
 The following technologies will be used by the project:
 \begin{itemize}
+    \itemsep0em
     \item Git - version control
     \item Github - to access the project from multiple sources, as well as to
         back it up
@@ -286,6 +288,7 @@ The following documentation will be used throughout for reference to the
 architecture of the Cortex-A7 processor and its instruction set, and the
 peripherals on the Pi:
 \begin{itemize}
+    \itemsep0em
     \item Cortex-A7 MPCore Technical Reference Manual
     \item ARM Cortex-A Series Programmer's Guide
     \item Broadcom BCM2835 ARM Peripherals Manual
