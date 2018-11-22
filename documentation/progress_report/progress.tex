@@ -51,7 +51,7 @@ provide an operating system for the Raspberry Pi 2 Model B, whose approaches to
 CPU scheduling, inter-process communication, and filesystems may be altered by
 providing different compilation options at build-time.
 
-\section*{Background}
+\section*{Background \& Motivation}
 % all research I have put into it until this point - good understanding of
 % background and how it fits into landscape (does not exist in isolation, before
 % or after conception)
@@ -193,7 +193,7 @@ the tags \cite{atags} was matched by defining appropriate C structs in
 To find the amount of memory on the device, we skip through the Atags list
 (using pointer arithmetic and information about the tag's size in its header)
 until we come across the \code{ATAG\_MEM} tag. The function
-\code{get\_total\_mem()} then simply returns the value of the \code{size} ield
+\code{get\_total\_mem()} then simply returns the value of the \code{size} field
 of the \code{atag\_mem} struct.
 
 \subsection*{Organising memory}
@@ -217,17 +217,16 @@ Next, page allocation and deallocation was implemented. Allocating a page is
 done by simply popping the head of the free page list, setting the appropriate
 flags, and returning the address of the page. Freeing, meanwhile, is done by
 passing the address of the page to free, again setting the appropriate flags,
-and appending this page back to the fre page list.
+and appending this page back to the free page list.
 
 \subsection*{Allocating memory}
 A 1MiB portion of memory located directly after the page headers is reserved for
-the heap. The 
-struct \code{heap\_segment} is defined for keeping track of heap allocations, such as the
-segment size and whether it has been allocated (useful for avoiding external
-fragmentation later), and the heap is initialised by declaring a single heap segment
-whose size is equal to that of the heap - as more memory is allocated, this
-segment will be split into smaller ones, which may be split
-further to satisfy requests for differing amounts of memory.
+the heap. The struct \code{heap\_segment} is defined for keeping track of heap
+allocations, such as the segment size and whether it has been allocated (useful
+for avoiding external fragmentation later), and the heap is initialised by
+declaring a single heap segment whose size is equal to that of the heap - as
+more memory is allocated, this segment will be split into smaller ones, which
+may be split further to satisfy requests for differing amounts of memory.
 
 Segment allocation is done by iterating over segments in the heap and finding
 one which best satisfies the number of bytes requested, and which is not in use.
@@ -322,7 +321,7 @@ and its \code{kernel7.img} was replaced with that produced by the Makefile
 (after renaming it to \code{kernel7.img}). Now, when the bootloader would look
 to load Raspbian's kernel image, it loads the project's instead.
 
-\subsection*{Issues and debugging on real hardware}
+\subsubsection*{Debugging on real hardware}
 On the first attempt, printing via HDMI did not work, despite functioning in the
 emulated environment provided by QEMU. In particular, the screen displayed the
 "rainbow screen", signifying that somehow the framebuffer is not being
@@ -330,29 +329,6 @@ initialised properly. In an attempt to debug this, assembly code was written,
 under the guidance of \cite{BakingPi}, to make the green ACT LED blink at
 certain points in the code, to verify that these points were being reached
 successfully.
-
-\section*{Progress against the timetable}
-Progress had been largely in line with what was proposed by the initial
-timetable, given in the project specification, and even, at points, ahead.
-However, with the significant problem of failing to output to real hardware,
-further progress has become stunted. For example, features such as interrupts,
-exceptions, and processes should all have been started and completed by this
-point; a possible reason for this is underestimation of the problems that could
-arise transitioning from a purely emulated environment to a fully real one.
-Furthermore, while course load was taken into account when planning the initial
-timetable, issues with other pieces of coursework, and needing to fix them, have
-contributed perhaps more than expected, and as such detracted more attention
-from this project than initially thought. Thankfully, time was planned to be set
-aside as a buffer in the original timetable during the winter holidays, during
-which the current issues can be mitigated and progress can align again, more or
-less, with the original timetable. An revised version of the timetable is
-provided in appendix A.
-
-% overview of work so far, including
-%   technical content - what work have I done, meaningful summary of significant
-%   aspects
-%   progress - review progress against timetable. If unexpected delays, how have
-%   they been dealt with?
 
 \section*{Project management}
 \subsection*{Development}
@@ -404,6 +380,39 @@ not. In this way, testing has been a slow process, but equally in a way that
 demands the necessary attention to detail to be paid to writing a stable
 operating system.
 
+\subsection*{Ethical consent}
+% state that I have considered it, but not needed
+All software being used to develop the project is available under the GNU Public
+License. At points in the project's development, informal feedback may be
+requested from friends and colleagues for more of the non-functional
+requirements, such as usability or how the project is presented. Due to the
+informal nature of this feedback, however, any associated ethical, social, or
+professional issues are insignificant.
+
+\section*{Progress issues}
+Progress had been largely in line with what was proposed by the initial
+timetable, given in the project specification, and even, at points, ahead.
+However, with the significant problem of failing to output to real hardware,
+further progress has become stunted. For example, features such as interrupts,
+exceptions, and processes should all have been started and completed by this
+point; a possible reason for this is underestimation of the problems that could
+arise transitioning from a purely emulated environment to a fully real one.
+
+Furthermore, while course load was taken into account when planning the initial
+timetable, issues with other pieces of coursework, and needing to fix them, have
+contributed perhaps more than expected, and as such detracted more attention
+from this project than initially thought. Thankfully, time was planned to be set
+aside as a buffer in the original timetable during the winter holidays, during
+which the current issues can be mitigated and progress can align again, more or
+less, with the original timetable. A revised version of the timetable is
+provided in Appendix A.
+
+% overview of work so far, including
+%   technical content - what work have I done, meaningful summary of significant
+%   aspects
+%   progress - review progress against timetable. If unexpected delays, how have
+%   they been dealt with?
+
 \section*{Next steps}
 % outline plans for next term and any alterations to original ideas
 % updated timetable with as much detail as possible
@@ -420,10 +429,18 @@ synchronisation before the calendar year's end.
 
 Some further research will also need to be undertaken before the start of Term 2
 to decide on a filesystem to implement, and assess the options of implementing a
-custom one, or one that is already established. In particular, over next term is
-where the project will begin to diverge from other operating systems already in
-existence and take on its own form, that is, in granting the user a degree of
-customisation at a low level which others do not provide.
+custom one, or one that is already established, such as SFS, FAT, BMFS, or
+something else \cite{Filesystems}. It is true that at this point, there is
+little to distinguish the project from any other hobbyist operating system
+around, given that there is nothing it does that is special or particularly
+unique at this stage. Over next term is where the project will begin to diverge
+from other operating systems and take on its own form, that is, in granting the
+user a degree of customisation at a low level which others do not provide. Going
+into the start of Term 2, focus will be on developing the features that will
+begin to differentiate this operating system from others, namely different
+approaches to CPU scheduling and inter-process communication, and thought will
+need to be put into designing the interface for customising the operating system
+at compile-time.
 
 \section*{Reflection}
 % reflection and appraisal - assessment on how things have gone so far. Any
@@ -439,16 +456,11 @@ system that is capable of running on a Raspberry Pi. Furthermore, despite the
 issue caused by the framebuffer, it has been a fun challenge to develop a
 debugging solution for this, and while a blinking green LED may not be a core
 feature of the final project, learning how to use the GPIO and doing so in
-assembly has been another valuable, and fun, learning experience.
-
-\section*{Ethical consent}
-% state that I have considered it, but not needed
-All software being used to develop the project is available under the GNU Public
-License. At points in the project's development, informal feedback may be
-requested from friends and colleagues for more of the non-functional
-requirements, such as usability or how the project is presented. Due to the
-informal nature of this feedback, however, any associated ethical, social, or
-professional issues are insignificant.
+assembly has been another valuable, and fun, learning experience. Overall,
+despite the setbacks caused by running on real hardware, the project is
+progressing well, and while difficulty is expected to pick up into next term, so
+to is time spent working on it, hopefully allowing for a smooth transition in
+between terms and for steady progress to continue being made.
 
 \bibliography{bibliography}
 
