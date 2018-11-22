@@ -29,7 +29,7 @@
     University of Warwick \\
 \end{center}
 
-\section{Introduction}
+\section*{Introduction}
 % problem that project addresses, motivations (importance of undertaking)
 % make sure objectives are clear and clarify why it is a significant undertaking
 % and of suitable level for third year project in computer science
@@ -51,7 +51,7 @@ provide an operating system for the Raspberry Pi 2 Model B, whose approaches to
 CPU scheduling, inter-process communication, and filesystems may be altered by
 providing different compilation options at build-time.
 
-\section{Background}
+\section*{Background}
 % all research I have put into it until this point - good understanding of
 % background and how it fits into landscape (does not exist in isolation, before
 % or after conception)
@@ -59,15 +59,16 @@ providing different compilation options at build-time.
 % have been key sources for project
 An operating system is a piece of software which draws together a wide range of
 aspects within the field of computer science, from applying knowledge about a
-computer's organisation and architecture, to implementing efficient dynamic data
-structures in the form of linked lists and filesystem trees. As such, a well
-written operating system will be one that successfully marries much of the
-theory behind computer science with the application of it, to produce a piece of
-software that is a microcosm of the field itself. This is one of the main
-motivations behind the project, to serve not only as a means of gaining
-experience in systems programming and getting real hardware to perform useful,
-real-world tasks, but also to draw on everything on the other side of the field,
-namely algorithms, data structures, and optimisation.
+computer's organisation and architecture, to implementing efficient data
+structures in the form of linked lists and filesystem trees. As such, a good
+operating system is one that successfully marries much of the theory behind
+computer science with its application, to produce a piece of software that is a
+microcosm of the field itself. This is one of the main motivations behind the
+project, to serve not only as a means of gaining experience in systems
+programming and getting real hardware to perform real-world tasks, but also to
+draw on many areas within the field of computer science, namely algorithms, data
+structures, and optimisation, to create a useful and self-contained piece of
+software.
 
 Inspiration has been drawn from a number of sources, not only for the project's
 conception, but also in guiding some early design decisions. In particular,
@@ -83,7 +84,7 @@ information about various attributes of the hardware and how to interact with it
 on the Pi. The official Github repositories, in particular
 \cite{PiDocumentation}, have also helped in this regard.
 
-\section{Current progress}
+\section*{Current progress}
 The project is currently at a point at which the operating system is able to
 successfully boot in the emulated environment provided by QEMU. Since it has
 been capable of doing this since \code{boot.s} was written, early on in Term 1,
@@ -91,7 +92,7 @@ it is important to note the specific stages of initialisation performed by the
 kernel at this point, as well as discuss the environment setup that has enabled
 this point in development to be reached.
 
-\subsection{Development environmet}
+\subsection*{Development environmet}
 The project is being developed on a machine running Linux kernel version 4.16
 onwards. Since the target environment, the Raspberry Pi 2 Model B, is different
 to that on which it is being developed, a cross-compiler is required to compile
@@ -121,10 +122,10 @@ information about the GPIO peripheral was needed in order to write basic
 low-level debugging functions, mainly in the form of getting the green ACT LED
 to blink for various return values of functions.
 
-\subsection{boot.s}
-The first piece of code to be written was \code{boot.s}, which is responsible
-for providing the basic setup of the entire system, which includes initialising
-a minimum C environment. In particular, it sends three of the four cores on the
+\subsection*{boot.s}
+The first piece of code written was \code{boot.s}, which is responsible for
+providing the basic setup of the entire system, which includes initialising a
+minimum C environment. In particular, it sends three of the four cores on the
 CPU to shutdown (to decrease overall complexity of the system, as discussed in
 the specification), initialises the stack pointer at address \code{0x8000}, sets
 up the BSS segment (where statically-allocated variables that are not explicitly
@@ -134,7 +135,7 @@ its execution. Note that the Program Counter for the kernel starts at address
 \code{0x8000} and grows upwards, so the stack can safely start at \code{0x8000}
 without interfering with the kernel (as it grows downwards).
 
-\subsection{linker.ld}
+\subsection*{linker.ld}
 The code in \code{linker.ld} is responsible for linking all of the compiled
 object files into one final executable. There are scripts which do this for
 user-space programs, but since we are our own user-space, being the kernel, we
@@ -149,16 +150,16 @@ are as follows:
 \end{itemize}
 
 We also define the entry point of our entire operating system in this script,
-namely the \code{\_start} routine from \code{boot.s}. This script also sets the
-symbols \code{\_\_start} and \code{\_\_text\_start} to be \code{0x8000}, which
-is where the bootloader will put the kernel image - the code from \code{boot.s}
+namely the \code{\_start} routine from \code{boot.s}, and also set the symbols
+\code{\_\_start} and \code{\_\_text\_start} to be at \code{0x8000}, which is
+where the bootloader will put the kernel image - the code from \code{boot.s}
 will be put in the first part of this section, \code{.text.boot}. We use
 \code{KEEP} to tell the compiler not to try to optimise the code in
-\code{.text.boot}, and \code{ALIGN} sets the current address to the next
-available page (the next address divisible by 4096). The \code{.rodata},
-\code{.data}, and \code{.bss} sections are then declared in much the same way.
+\code{.text.boot}, and set the page size as 4KiB using \code{ALIGN}. The
+\code{.rodata}, \code{.data}, and \code{.bss} sections are then declared in
+similar ways.
 
-\subsection{Makefile}
+\subsection*{Makefile}
 The makefile was written to speed up the build process, and there are only a few
 features to note. First is that here we specify that we are using the
 \code{arm-none-eabi} toolchain, for the compiler to target the Raspberry Pi's
@@ -177,74 +178,65 @@ Specifically, we only have access to the following header files:
 \code{<stdnoreturn.h>}. The rest of the standard library must be implemented
 ourselves.
 
-\subsection{Atags}
-The first piece of meaningful setup that can be done when the kernel is booted
-is to get information about the memory available to the system. On the Raspberry
-Pi, the bootloader creates creates a list of information about the hardware
-called Atags, places it at address \code{0x100}, and passes it as the third
-parameter to \code{kernel\_main} in register 2. Each tag in the list contains a
-header consisting of two unsigned 32-bit values: the size of the tag (in 32-bit
-words), and the tag value. Each header is then followed by information specific
-to that tag, aside from \code{ATAG\_NONE}, which has no associated data, and
-\code{ATAG\_CORE}, whose data is optional. To access the information in each of
-the tags when we come across them, we must match the layout of each of the tags
-\cite{atags} by defining appropriate C structs in \code{atag.h}.
+\subsection*{Atags}
+The first piece of setup to be done was discovering the amount of memory
+available to the system. On the Raspberry Pi, the bootloader creates creates a
+list of information about the hardware called Atags, places it at address
+\code{0x100}, and passes it as the third parameter to \code{kernel\_main} in
+register 2. Each tag in the list contains a header consisting of two unsigned
+32-bit values: the size of the tag (in 32-bit words), and the tag value. Each
+header is then followed by information specific to that tag. To access the
+information in each of the tags when we come across them, the layout of each of
+the tags \cite{atags} was matched by defining appropriate C structs in
+\code{atag.h}.
 
-To find the amount of memory on the device, we can skip through the Atags list
+To find the amount of memory on the device, we skip through the Atags list
 (using pointer arithmetic and information about the tag's size in its header)
-until we come across the \code{ATAG\_MEM} tag. Then it is simply a case of
-return the value in the \code{size} field of the \code{atag\_mem} struct.
+until we come across the \code{ATAG\_MEM} tag. The function
+\code{get\_total\_mem()} then simply returns the value of the \code{size} ield
+of the \code{atag\_mem} struct.
 
-\subsection{Organising memory}
+\subsection*{Organising memory}
 Throughout the operating system's execution, different processes will require
 memory to perform computations. Although the only thing doing anything
 meaningful at the moment is the kernel, which can theoretically use any memory
 it wants, in order to impose some order for later implementations of processes
-and user space, we split the available memory up into 4KiB pages. The total
-number of pages is therefore given by the total amount of memory divided by the
-page size.
+and user space, memory is split into 4KiB pages.
 
-To organise the pages, we give each page a header which stores metadata about
-the page, including whether the page has been allocated, whether it is a kernel
-page, and whether this page is part of the heap (used later when dynamically
-allocating memory). We organise all of the page headers into a linked list
-directly after the end of the kernel image, using the \code{\_\_end} variable
-from the linker script. Each page also stores the virtual address to which it
-maps; as virtual memory has not yet been implemented, a page's virtual address is
-simply its index in the page list multiplied by the page size. All that remains
-is to iterate over the page header list to initialise each page's metadata, and
-add each page to a linked list of all the free pages.
+To organise the pages, each page has been given a header containing information
+about whether the page has been allocated, whether it is a kernel page, and
+whether this page is part of the heap (used later when dynamically allocating
+memory). The headers have been organised into a linked list directly after
+the end of the kernel image, using the \code{\_\_end} variable from the linker
+script. Each page also stores the virtual address to which it maps; as virtual
+memory has not yet been implemented, all pages are simply identity mapped. The
+pages are then iterated over and their headers initialised, and each is added to
+a linked list of free pages.
 
-Naturally the next feature implemented was allocating and freeing pages.
-Allocating a page is done by simply popping the head of the free page list,
-setting the appropriate flags, and returning the address of the page. Freeing,
-meanwhile, is done by passing the address of the page to free, again setting the
-appropriate flags, and appending this page back to the fre page list.
+Next, page allocation and deallocation was implemented. Allocating a page is
+done by simply popping the head of the free page list, setting the appropriate
+flags, and returning the address of the page. Freeing, meanwhile, is done by
+passing the address of the page to free, again setting the appropriate flags,
+and appending this page back to the fre page list.
 
-\subsection{Allocating memory}
+\subsection*{Allocating memory}
 A 1MiB portion of memory located directly after the page headers is reserved for
-the heap - while the choice of 1MiB is fairly arbitrary, it should be large
-enough to suffice for all dynamic memory needs, and small enough to not use a
-significant portion of memory that may be desired by user code. We define the
-struct \code{heap\_segment} for keeping track of heap allocations, such as the
+the heap. The 
+struct \code{heap\_segment} is defined for keeping track of heap allocations, such as the
 segment size and whether it has been allocated (useful for avoiding external
-fragmentation later), and initialise the heap by declaring a single heap segment
+fragmentation later), and the heap is initialised by declaring a single heap segment
 whose size is equal to that of the heap - as more memory is allocated, this
-initial segment will be split into smaller ones, which in turn may be split
-further to satisfy requests for differing amounts of memory. Whenever memory is
-requested, we add the size of the header to the request and 16-byte align it, so
-as to actually reserve some space for the heap segment metadata.
+segment will be split into smaller ones, which may be split
+further to satisfy requests for differing amounts of memory.
 
-To allocate a segment, we step through the list of segments in the heap and look
-for the one best satisfying the number of bytes requested, and not in use. If
-the current segment is large (i.e. the segemnt size if $\ge2$ times the header
-size), we split it into two segments and only use one of them. Once a segment
-satisfying the request is found, we return a pointer to the memory directly
-after the header. To free an allocation, we set the appropriate flags, and then
-attempt to merge consecutive free segments, checking both to the left and the
-right of the current segment.
+Segment allocation is done by iterating over segments in the heap and finding
+one which best satisfies the number of bytes requested, and which is not in use.
+If one is found, the address directly after the segment's header is returned.
+To free an allocation, we set the appropriate flags, and then attempt to merge
+consecutive free segments, checking both to the left and the right of the
+current segment.
 
-\subsection{Serial output}
+\subsection*{Serial output}
 Initial output was done using the UART on board the Pi, meaning text was sent
 and received through serial ports. This was mainly due to simplicity in early
 builds of the system, and while this can be achieved in the final version of the
@@ -252,52 +244,52 @@ project by using a USB-to-TTL cable, ideally it will use the HDMI port on the Pi
 instead, which requires interfacing with the Mailbox peripheral (discussed
 later). This was all done by interacting with the GPIO pins on the Pi, which is
 done entirely through Memory Mapped I/O (MMIO) - that is, by reading from and
-writing to predefined memory addresses. A peripheral on the Raspberry Pi is
-simply an address to and from which you may read and write data, and all may be
-described by an offset from the Peripheral Base Address; this is
-\code{0x3f200000} on the Raspberry Pi 2 Model B. Moreover, a register is a
-32-bit chunk of memory that a peripheral may read from or write to. The BCM2835
-Peripherals Manual gives the UART base address as \code{0x7e201000}. Thus, in
-\code{gpio.c}, after setting all the required flags for using the UART, we can
-implement a serial \code{putc()} by checking that the FIFO is not full and
-writing our data to the Data Register, and \code{getc()} by checking that the
-FIFO is non-empty and reading from it. \footnote{From the manual: ``Physical
-addresses range from \code{0x20000000} to \code{0x20ffffff} for peripherals. The
-bus addresses for peripherals are set up to map onto the peripheral bus address
-range starting at \code{0x7e000000}. Thus a peripheral listed at
-\code{0x7ennnnnn} will be available at physical address \code{0x20nnnnnn}."}
+writing to predefined memory addresses. 
 
-\subsection{HDMI output}
-The final goal, however, is to not use any extra adapters to make serial output
-work - instead, output will be through the HDMI port on the Pi and to do so,
-familiarisation with the Mailbox peripheral has been important. The Mailbox is a
-peripheral that facilitates communication between the ARM CPU and the VideoCore
-GPU \cite{Mailboxes}, and starts at offset \code{0xb880}. We may get data from the GPU via the
-read register, pass data to the GPU using the write register, and check if
-either of these are empty or full using the status register, at offsets
+A peripheral on the Raspberry Pi is simply an address to and from which you may
+read and write data, and all may be described by an offset from the Peripheral
+Base Address; this is \code{0x3f200000} on the Raspberry Pi 2 Model B. Moreover,
+a register is a 32-bit chunk of memory that a peripheral may read from or write
+to. The BCM2835 Peripherals Manual gives the UART base address as
+\code{0x7e201000}. Thus, in \code{gpio.c}, after setting all the required flags
+for using the UART, we can implement a serial \code{putc()} by checking that the
+FIFO is not full and writing our data to the Data Register, and \code{getc()} by
+checking that the FIFO is non-empty and reading from it. \footnote{From the
+manual: ``Physical addresses range from \code{0x20000000} to \code{0x20ffffff}
+for peripherals. The bus addresses for peripherals are set up to map onto the
+peripheral bus address range starting at \code{0x7e000000}. Thus a peripheral
+listed at \code{0x7ennnnnn} will be available at physical address
+\code{0x20nnnnnn}."}
+
+\subsection*{HDMI output}
+The final version, however, will send output through the HDMI port on the Pi. To
+do so, the Mailbox peripheral has been used. The Mailbox is a peripheral that
+facilitates communication between the ARM CPU and the VideoCore GPU
+\cite{Mailboxes}, and starts at offset \code{0xb880}. We may get data from the
+GPU via the read register, pass data to the GPU using the write register, and
+check if either of these are empty or full using the status register, at offsets
 \code{0x00}, \code{0x20}, and \code{0x18} respectively. Furthermore, a channel
 is a number that gives meaning to the data being sent to and received from the
 GPU - for interacting with HDMI, we need the Property channel, channel 8. This
 provides a means to get and set data about various hardware devices, one of
 which is the framebuffer.
 
-In order to ask the GPU for a framebuffer, we need first to be able to
-communicate with it by sending messages and parsing the received response. The
-messages we send it, for example, are to set the framebuffer's physical and
-virtual dimensions, and its colour depth (bits per pixel). Once all the
-parameters are set, we can ask the GPU for a framebuffer, using the
-\code{FB\_ALLOCATE\_BUFFER} tag (defined in \code{mailbox.h} as
-\code{0x00040001}). The returned values are a pointer to this framebuffer and its
-size. 
+In order to ask the GPU for a framebuffer, we communicate with it by sending
+messages and parsing the received response. The messages sent set the
+framebuffer's physical and virtual dimensions, and its colour depth (bits per
+pixel). Once all the parameters are set, we ask the GPU for a framebuffer, using
+the \code{FB\_ALLOCATE\_BUFFER} tag (defined in \code{mailbox.h} as
+\code{0x00040001}). The returned values are a pointer to this framebuffer and
+its size. 
 
-\subsection{Booting on real hardware}
+\subsection*{Booting on real hardware}
 This is the first point at which the project has required testing on real
 hardware, in order to verify that a framebuffer is being correctly requested and
 supplied by the GPU. This required the kernel to be installed on an SD card and
 for it to be run on the physical board of the Pi. It is now helpful to detail
 the unique boot process of Pi, which makes this stage much easier.
 
-\subsubsection{The boot process of the Raspberry Pi}
+\subsubsection*{The boot process of the Raspberry Pi}
 The boot process relies on closed-source proprietary code programmed into the
 SoC processor \cite{Firmware} which cannot be modified. Importantly, the ARM CPU
 is not the main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup,
@@ -323,14 +315,14 @@ in charge of graphical functions - it also controls clocks and audio, for
 example. In this way the GPU firmware is similar to a normal PC's BIOS (Basic
 Input/Output System) \cite{Boot1, Boot2}.
 
-\subsubsection{Loading using Raspbian}
-To install the project's kernel onto an SD card, we can simply install an
-official operating system on it, such as Raspbian \cite{Raspbian}, and replace
-\code{kernel7.img} with that produced by the Makefile (and renaming it to
-\code{kernel7.img}). Now, when the bootloader would look to load Raspbian's
-kernel image, it will load ours instead.
+\subsubsection*{Loading using Raspbian}
+To install the project's kernel onto an SD card, it was copied to an SD card
+already containing an operating system, in this case Raspbian \cite{Raspbian},
+and its \code{kernel7.img} was replaced with that produced by the Makefile
+(after renaming it to \code{kernel7.img}). Now, when the bootloader would look
+to load Raspbian's kernel image, it loads the project's instead.
 
-\subsection{Issues and debugging on real hardware}
+\subsection*{Issues and debugging on real hardware}
 On the first attempt, printing via HDMI did not work, despite functioning in the
 emulated environment provided by QEMU. In particular, the screen displayed the
 "rainbow screen", signifying that somehow the framebuffer is not being
@@ -339,13 +331,13 @@ under the guidance of \cite{BakingPi}, to make the green ACT LED blink at
 certain points in the code, to verify that these points were being reached
 successfully.
 
-\section{Progress against the timetable}
-Progress had been largely in line with what was proposed by the intial
+\section*{Progress against the timetable}
+Progress had been largely in line with what was proposed by the initial
 timetable, given in the project specification, and even, at points, ahead.
 However, with the significant problem of failing to output to real hardware,
 further progress has become stunted. For example, features such as interrupts,
 exceptions, and processes should all have been started and completed by this
-point; a possible reason for this is understimation of the problems that could
+point; a possible reason for this is underestimation of the problems that could
 arise transitioning from a purely emulated environment to a fully real one.
 Furthermore, while course load was taken into account when planning the initial
 timetable, issues with other pieces of coursework, and needing to fix them, have
@@ -362,16 +354,16 @@ provided in appendix A.
 %   progress - review progress against timetable. If unexpected delays, how have
 %   they been dealt with?
 
-\section{Project management}
-\subsection{Development}
+\section*{Project management}
+\subsection*{Development}
 The project has been developed incrementally - this has involved deciding on the
 next feature to implement, breaking it down into its own set of requirements,
 and tackling each of these in turn. An example of this is memory management, for
 which it was broken down into getting information about memory through the
-atags, implementing paging, then implementing segmentation and a dynamic memory
+Atags, implementing paging, then implementing segmentation and a dynamic memory
 allocator. Up to this point in the project there has been little flexibility
 in the order in which things are completed, as some of the systems are still
-being implemented to even allow ``higer-level'' features to exist. An example of
+being implemented to even allow ``higher-level'' features to exist. An example of
 this is getting the project to work on real hardware before interrupts and
 interrupts before scheduling: the former because of QEMU's lack of simulation of a
 system timer, and the latter because processes cannot be interrupted if there is
@@ -394,7 +386,7 @@ otherwise it may be easy to forget about the project in favour of other modules.
 Regularly discussing the project has also consolidated things learned over the
 course of the fortnight, and help identify exactly what progress has been made.
 
-\subsection{Testing}
+\subsection*{Testing}
 % How have I managed the project so far - may use formal methodology (e.g.
 % management of code versions), and can refer to less formal ways of keeping on
 % track, e.g. regular meetings with supervisor
@@ -412,7 +404,7 @@ not. In this way, testing has been a slow process, but equally in a way that
 demands the necessary attention to detail to be paid to writing a stable
 operating system.
 
-\section{Next steps}
+\section*{Next steps}
 % outline plans for next term and any alterations to original ideas
 % updated timetable with as much detail as possible
 For the rest of Term 1, most efforts will be dedicated to debugging the issue
@@ -433,7 +425,7 @@ where the project will begin to diverge from other operating systems already in
 existence and take on its own form, that is, in granting the user a degree of
 customisation at a low level which others do not provide.
 
-\section{Reflection}
+\section*{Reflection}
 % reflection and appraisal - assessment on how things have gone so far. Any
 % lessons learned to make future progress smoother?
 The progress made with the project so far has been pleasing; having little
@@ -449,7 +441,7 @@ debugging solution for this, and while a blinking green LED may not be a core
 feature of the final project, learning how to use the GPIO and doing so in
 assembly has been another valuable, and fun, learning experience.
 
-\section{Ethical consent}
+\section*{Ethical consent}
 % state that I have considered it, but not needed
 All software being used to develop the project is available under the GNU Public
 License. At points in the project's development, informal feedback may be
