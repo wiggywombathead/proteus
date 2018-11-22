@@ -33,6 +33,23 @@
 % problem that project addresses, motivations (importance of undertaking)
 % make sure objectives are clear and clarify why it is a significant undertaking
 % and of suitable level for third year project in computer science
+While the personal computer has been widely available to the general public for
+some time now, the introduction of the Raspberry Pi - a cheap but otherwise
+fully capable computer - has made experimenting with computers much more
+accessible, and invites tinkering at all levels. Be it simply getting experience
+in a new operating system, or interacting with GPIO pins to turn LEDs on and
+off, the Pi provides a simple platform for this to take place. There are a
+handful of official operating systems available for the Pi \cite{OSes},
+addressing issues such as ease-of-installation, Internet of Things integration,
+or classroom management, there is little in the way of experimenting with the
+operating system itself. This project attempts to address this gap by providing
+customisation at the lowest levels of software that manages the computer; this
+involves altering its approaches to process scheduling, inter-process
+communication, and permanent storage, so that different options can be explored,
+and their impact can be felt, rather than dictated. By its end, the project will
+provide an operating system for the Raspberry Pi 2 Model B, whose approaches to
+CPU scheduling, inter-process communication, and filesystems may be altered by
+providing different compilation options at build-time.
 
 \section{Background}
 % all research I have put into it until this point - good understanding of
@@ -40,6 +57,31 @@
 % or after conception)
 % indication of how background information was gained - a few citations that
 % have been key sources for project
+An operating system is a piece of software which draws together a wide range of
+aspects within the field of computer science, from applying knowledge about a
+computer's organisation and architecture, to implementing efficient dynamic data
+structures in the form of linked lists and filesystem trees. As such, a well
+written operating system will be one that successfully marries much of the
+theory behind computer science with the application of it, to produce a piece of
+software that is a microcosm of the field itself. This is one of the main
+motivations behind the project, to serve not only as a means of gaining
+experience in systems programming and getting real hardware to perform useful,
+real-world tasks, but also to draw on everything on the other side of the field,
+namely algorithms, data structures, and optimisation.
+
+Inspiration has been drawn from a number of sources, not only for the project's
+conception, but also in guiding some early design decisions. In particular,
+Cambridge's \textit{Baking Pi} \cite{BakingPi}, Stanford's \textit{Pintos}
+\cite{Pintos}, and \cite{jsandler} have so far been helpful in providing
+guidance to achieving a basic functioning operating system, albeit it need of
+translating to the Raspberry Pi 2. Some guidance from \cite{littleosbook} has
+also been taken, and its use is likely only to increase. As for technical
+references, the BCM2835/6 Peripherals Manual \cite{BCM2835, BCM2836}, Cortex-A7
+MPCore Technical Reference Manual \cite{TRM}, and ARM Cortex-A Series
+Programmer's Guide \cite{PG} have all been useful in finding specific
+information about various attributes of the hardware and how to interact with it
+on the Pi. The official Github repositories, in particular
+\cite{PiDocumentation}, have also helped in this regard.
 
 \section{Current progress}
 The project is currently at a point at which the operating system is able to
@@ -113,7 +155,7 @@ is where the bootloader will put the kernel image - the code from \code{boot.s}
 will be put in the first part of this section, \code{.text.boot}. We use
 \code{KEEP} to tell the compiler not to try to optimise the code in
 \code{.text.boot}, and \code{ALIGN} sets the current address to the next
-available page (the next address divisible by 4096). The \code{,rodata},
+available page (the next address divisible by 4096). The \code{.rodata},
 \code{.data}, and \code{.bss} sections are then declared in much the same way.
 
 \subsection{Makefile}
@@ -347,12 +389,28 @@ specific differences between commits to be presented clearly, helping to track
 down the source of various problems much more quickly.
 
 Progress has been kept in mind by timetabling fortnightly meetings with the
-project supervisor.
+project supervisor. This has allowed progress to be regularly considered, when
+otherwise it may be easy to forget about the project in favour of other modules.
+Regularly discussing the project has also consolidated things learned over the
+course of the fortnight, and help identify exactly what progress has been made.
 
 \subsection{Testing}
 % How have I managed the project so far - may use formal methodology (e.g.
 % management of code versions), and can refer to less formal ways of keeping on
 % track, e.g. regular meetings with supervisor
+As the focus of the project so far has been to set up the foundations upon which
+more meaningful work can later on be built, testing has been done entirely
+manually, simply as there does not exist the platform to do otherwise at this
+stage. In particular, nothing much more can be done when testing if the project
+will boot on a physical system other than loading it onto an SD card and
+trying it. One aspect that has been able to be checked by unit-testing are
+implementations of functions in the C standard library. In this case, for
+example when testing \code{printf()}, the function was called with a range of
+different values, for example very large, negative, and zero, to test that such
+different cases could be handled, and if not, it was then explored manually why
+not. In this way, testing has been a slow process, but equally in a way that
+demands the necessary attention to detail to be paid to writing a stable
+operating system.
 
 \section{Next steps}
 % outline plans for next term and any alterations to original ideas
@@ -366,7 +424,7 @@ then certainly before the start of next. Furthermore, to make up the deficit
 caused by this problem, more attention will need to be paid towards interrupts,
 exceptions, and processes, in order to finish them in a timely manner so that
 work can be at least started on scheduling, inter-process communication, and
-synchronisation.
+synchronisation before the calendar year's end.
 
 Some further research will also need to be undertaken before the start of Term 2
 to decide on a filesystem to implement, and assess the options of implementing a
