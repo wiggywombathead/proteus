@@ -1,0 +1,72 @@
+\documentclass[10pt,a4paper,landscape]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{pgfgantt}
+
+\begin{document}
+
+\ganttset{%
+    calendar week text={%
+        \pgfcalendarmonthshortname{0}~\startday%
+    }%
+}
+
+\begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=1.8mm,
+        time slot format=isodate
+    ]{2018-10-01}{2019-01-06}
+
+\gantttitlecalendar{month=name, week=1} \\
+\ganttbar{Specification}{2018-10-01}{2018-10-12} \\
+\ganttbar{Progress Report}{2018-11-06}{2018-11-27} \\
+
+\ganttbar{Environment setup}{2018-10-01}{2018-10-08} \\
+\ganttbar{Memory management}{2018-10-15}{2018-10-21} \\
+\ganttbar{I/O - terminal support}{2018-10-22}{2018-10-28} \\
+\ganttbar{I/O - keyboard input}{2018-10-22}{2018-10-28} \\
+\ganttbar{Interrupts \& Exceptions}{2018-10-29}{2018-11-04} \\
+\ganttbar{Processes}{2018-11-05}{2018-11-18} \\
+\ganttbar{Program loading}{2018-11-19}{2018-12-02} \\
+\ganttbar{CPU Scheduling}{2018-11-19}{2018-12-16} \\
+\ganttbar{IPC: Shared memory}{2018-11-29}{2018-12-09} \\
+\ganttbar{Multi-threaded kernel}{2018-12-10}{2018-12-23} \\
+\ganttbar{C standard library}{2018-10-22}{2018-12-23}
+
+\ganttlink{elem6}{elem7}
+\ganttlink{elem3}{elem7}
+\ganttlink{elem7}{elem8}
+
+\end{ganttchart}
+
+\begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=1.8mm,
+        time slot format=isodate
+    ]{2019-01-07}{2019-04-29}
+\gantttitlecalendar{month=name, week=1} \\
+\ganttbar{Presentation}{2019-02-16}{2019-04-03} \\
+\ganttbar{Final Report}{2019-04-01}{2019-04-29} \\
+
+\ganttbar{Synchronisation \& Deadlock}{2019-01-05}{2019-01-13} \\
+\ganttbar{Persistent filesystem}{2019-01-05}{2019-01-27} \\
+\ganttbar{User mode}{2019-01-14}{2019-01-27} \\
+\ganttbar{Syscalls}{2019-02-04}{2019-02-10} \\
+\ganttbar{Shell}{2019-01-21}{2019-02-03} \\
+\ganttbar{Fork \& execute}{2019-02-04}{2019-02-10} \\
+\ganttbar{Threading}{2019-02-11}{2019-02-24} \\
+\ganttbar{Extra Schedulers}{2019-02-25}{2019-03-10} \\
+\ganttbar{IPC: Message passing}{2019-02-25}{2019-03-03} \\
+\ganttbar{Load-on-Request FS}{2019-03-04}{2019-03-25} \\
+\ganttbar{Compilation config}{2019-02-25}{2019-04-22}
+
+\ganttlink{elem4}{elem5}
+\ganttlink{elem6}{elem7}
+\ganttlink{elem9}{elem12}
+\ganttlink{elem10}{elem12}
+\ganttlink{elem11}{elem12}
+
+\end{ganttchart}
+\end{document}
