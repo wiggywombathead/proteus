@@ -10,7 +10,9 @@ int gpu_init(void) {
 
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
 
-    int res = framebuffer_init();
+    int res;
+    while ((res = framebuffer_init()))
+        ;
 
     for (uint32_t j = 0; j < fb_info.height; j++) {
         for (uint32_t i = 0; i < fb_info.width; i++) {
@@ -30,9 +32,6 @@ void gpu_putc(char c) {
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
 
     bool printable = true;
-
-    const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
-    // const uint8_t *bmp = (uint8_t *) font_8x16[(int) c];
 
     uint32_t i;
 
@@ -100,6 +99,9 @@ void gpu_putc(char c) {
             fb_info.row--;
         } 
     }
+
+    const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
+    // const uint8_t *bmp = font(c);
 
     uint8_t w, h;
     uint8_t mask;

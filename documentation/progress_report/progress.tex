@@ -407,6 +407,19 @@ which the current issues can be mitigated and progress can align again, more or
 less, with the original timetable. A revised version of the timetable is
 provided in Appendix A.
 
+One aspect of the original plan that was misjudged was the development of a
+standard library. It initially seemed to be a monolithic undertaking that would
+need to be implemented in its entirety to get any meaningful work done. Having
+actually begun developing the operating system, it is much less daunting, and
+functions only need implementing if they provide some benefit to doing so. For
+example, debugging was difficult without functions such as \code{itoa()},
+\code{strncpy()}, and \code{printf()}, so it was simply a case of writing them
+for their utility, and not for the sake of implementing the whole standard
+library. This is reflected now in the revised timetable by having this as an
+ongoing task, rather than with a set deadline. Functions will be added as they
+are needed, and as such this section has been removed from the timetable as its
+presence is implied throughout.
+
 % overview of work so far, including
 %   technical content - what work have I done, meaningful summary of significant
 %   aspects
@@ -466,12 +479,13 @@ between terms and for steady progress to continue being made.
 
 \begin{appendices}
 
-    \section{Revised Timetable}
+    %\section{Revised Timetable}
+    \includepdf[landscape=true,pages=1,pagecommand={\section{Revised Timetable}}]{../timetable/timetable.pdf}
+    \includepdf[landscape=true,pages=2,pagecommand={}]{../timetable/timetable.pdf}
 
-    \section{Project Specification}
-
-    % include project specification as part of appendices
-    \includepdf[pages=-]{../specification/specification.pdf}
+    %\section{Project Specification}
+    \includepdf[pages=1,pagecommand={\section{Project Specification}}]{../specification/specification.pdf}
+    \includepdf[pages=2-,pagecommand={}]{../specification/specification.pdf}
 
 \end{appendices}
 

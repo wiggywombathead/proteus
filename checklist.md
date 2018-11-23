@@ -2,6 +2,7 @@
 ## Todo
 - [ ] Debug rainbow screen at boot
 - [ ] Display to real HDMI (works on QEMU but not IRL :/ )
+- [ ] Look through Baking Pi code and translate to C
 - [ ] Boot on real pi
 - [ ] Interrupts
 - [ ] Processes

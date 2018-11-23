@@ -1,13 +1,17 @@
 # object files
 *.o
-*.img
 *.elf
+*.img
 
 # documentation
-*.{aux,bbl,blg,log}
+*.aux
+*.bbl
+*.blg
+*.log
 
 # reference/admin
-admin/*
-fonts/*
-jsandler/*
-reference/*
+admin
+fonts
+jsandler
+reference
+figs

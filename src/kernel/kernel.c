@@ -14,20 +14,14 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) atags;
 
     mem_init((struct atag *) atags);
-    int gpu_good = gpu_init();
 
-    printf("Feelin' fine.\n");
+    if (gpu_init() == 0)
+        printf("GPU initialised\n");
 
     uint32_t hi = get_serialnr_hi((struct atag *) atags);
     uint32_t lo = get_serialnr_lo((struct atag *) atags);
 
-    printf("%d.%d\n", hi, lo); 
-    
-    /* test this worked */
-    if (gpu_good == 0) {
-        act_blink(3);
-        printf("GPU initialised successfully\n");
-    }
+    act_blink(hi + 1);
 
     int c;
     while ((c = getc()) != 0x4) {
