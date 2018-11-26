@@ -57,16 +57,19 @@ providing different compilation options at build-time.
 % have been key sources for project
 An operating system is a piece of software which draws together a wide range of
 aspects within the field of computer science, from applying knowledge about a
-computer's organisation and architecture, to implementing efficient data
-structures in the form of linked lists and filesystem trees. As such, a good
+computer's organisation and architecture, to applying efficient algorithms on
+specifically crafted data structures, such as filesystem trees or resource
+allocation graphs. As such, a good
 operating system is one that successfully marries much of the theory behind
 computer science with its application, to produce a piece of software that is a
-microcosm of the field itself. This is one of the main motivations behind the
-project, to serve not only as a means of gaining experience in systems
-programming and getting real hardware to perform real-world tasks, but also to
-draw on many areas within the field of computer science, namely algorithms, data
-structures, and optimisation, to create a useful and self-contained piece of
-software.
+microcosm of the field itself. Thus the main motivation behind the project was
+to not only gain experience in systems programming and in interacting with
+real-world hardware, but also to draw on the many areas of computer science to
+create one useful, entirely self-contained piece of software. This is with the
+goal in mind that by its end, the project will produce an operating system that
+offers configuration to the most fundamental degree, and which can serve as a
+solid foundation on which more useful features of an operating system can be
+added.
 
 Inspiration has been drawn from a number of sources, not only for the project's
 conception, but also in guiding some early design decisions. In particular,
@@ -90,7 +93,7 @@ it is important to note the specific stages of initialisation performed by the
 kernel at this point, as well as discuss the environment setup that has enabled
 this point in development to be reached.
 
-\subsection*{Development environmet}
+\subsection*{Development environment}
 The project is being developed on a machine running Linux kernel version 4.16
 onwards. Since the target environment, the Raspberry Pi 2 Model B, is different
 to that on which it is being developed, a cross-compiler is required to compile
@@ -98,7 +101,7 @@ code that will run on the target machine, as opposed to the host. In particular,
 available for download on the ARM developer website \cite{GNUtoolchain} is the
 GNU Embedded Toolchain, which provides tools to target ARM Cortex family of
 processors, including the GNU Compiler Collection (GCC). Conveniently this suite
-of tools is available from Arch Linux's package manager, pacman \cite{pacman},
+of tools is available from Arch Linux's package manager, Pacman \cite{pacman},
 and this is the version of the cross-compiler used in the makefile.
 
 Before writing any code, as the author had little-to-no prior experience in
@@ -185,7 +188,7 @@ register 2. Each tag in the list contains a header consisting of two unsigned
 32-bit values: the size of the tag (in 32-bit words), and the tag value. Each
 header is then followed by information specific to that tag. To access the
 information in each of the tags when we come across them, the layout of each of
-the tags \cite{atags} was matched by defining appropriate C structs in
+the tags \cite{atags} was matched by defining appropriate C structures in
 \code{atag.h}.
 
 To find the amount of memory on the device, we skip through the Atags list
@@ -388,35 +391,77 @@ informal nature of this feedback, however, any associated ethical, social, or
 professional issues are insignificant.
 
 \section*{Progress issues}
-Progress had been largely in line with what was proposed by the initial
-timetable, given in the project specification, and even, at points, ahead.
-However, with the significant problem of failing to output to real hardware,
-further progress has become stunted. For example, features such as interrupts,
-exceptions, and processes should all have been started and completed by this
-point; a possible reason for this is underestimation of the problems that could
-arise transitioning from a purely emulated environment to a fully real one.
+\subsection*{Comparison with original timetable}
+Progress has largely been in line with that which was originally scheduled.
+Early on, progress was even slightly ahead of the timetable, particularly when
+writing \code{boot.s} and \code{linker.ld}, but this is largely due to there
+being little need to stray from the example code provided by \cite{OSDevBoot}.
+Overall, however, what was achieved compared to what was timetabled differed
+little in the first five weeks of the project. It was attempting to move to
+working and testing on real hardware where the two began to diverge - although
+it could boot on real hardware (evidenced by flashing the ACT at different
+times), problems arose when printing output to a real HDMI screen. Due to the
+limited facility to debug at this level, it has been particularly difficult to
+work towards a solution to this problem, and the project has fallen behind by a
+few weeks on this goal. As a result of this, at the time of writing, progress
+should be underway on loading programs into memory for execution, whereas in
+reality processes have not even begun development yet. Interrupts and processes
+should also have been completed by this point, and while progress has started on
+the former, the system will need to operate on real hardware for it to be
+finished, due to QEMU's lack of system timer. Therefore, interrupts and
+processes will not be able to be completed until the issue of outputting to HDMI
+is resolved.
 
-Furthermore, while course load was taken into account when planning the initial
-timetable, issues with other pieces of coursework, and needing to fix them, have
-contributed perhaps more than expected, and as such detracted more attention
-from this project than initially thought. Thankfully, time was planned to be set
-aside as a buffer in the original timetable during the winter holidays, during
-which the current issues can be mitigated and progress can align again, more or
-less, with the original timetable. A revised version of the timetable is
-provided in Appendix A.
+A reason for this oversight in the timetable is related to underestimating the
+problems that could arise in the transition from an emulated environment to a
+fully real one, as well as the time required to fix them. Furthermore, while
+course load was considered when writing the initial schedule, unforeseen issues
+with other pieces of coursework have interfered with progress on this project,
+more than previously accounted for. Time was however set aside during the winter
+holidays specifically to catch up in the case of delays, and as such the revised
+timetable, given in Appendix A, only differs slightly at the start of Term 2.
 
-One aspect of the original plan that was misjudged was the development of a
-standard library. It initially seemed to be a monolithic undertaking that would
-need to be implemented in its entirety to get any meaningful work done. Having
-actually begun developing the operating system, it is much less daunting, and
-functions only need implementing if they provide some benefit to doing so. For
-example, debugging was difficult without functions such as \code{itoa()},
-\code{strncpy()}, and \code{printf()}, so it was simply a case of writing them
-for their utility, and not for the sake of implementing the whole standard
-library. This is reflected now in the revised timetable by having this as an
-ongoing task, rather than with a set deadline. Functions will be added as they
-are needed, and as such this section has been removed from the timetable as its
-presence is implied throughout.
+\subsection*{Areas for timetable revision}
+The first change made to the timetable is the addition of several tasks, and
+merging of others into one. For example, booting has been given its own section,
+and memory management has been broken into organising memory by accessing Atags,
+and dynamic memory allocation. HDMI support has also been split into sections on
+mailboxes, framebuffers, and HDMI output as the task to get them working was
+larger than previously thought and deserving of more separate goals. Booting on
+real hardware has been added as a section to signify the time spent debugging
+the problems with transitioning on the real device, and is currently active.
+
+Virtual memory has been introduced, and where previously filesystems was split
+into persistent and load-on-request, it is now one block. Userspace is now a
+larger section, and encompasses the fork and execute and threading goals. The
+shell section has been extended to highlight its ongoing nature, while the
+stretch goals of networking and a ext editor have been added in similarly
+extended blocks of time, as it is unlikely they will be completely done before
+the project's end.
+
+One section that has been dropped entirely from the timetable is the development
+of a C standard library. That is not to say that it is not being implemented,
+but that it is only an auxiliary task - it will be continually developed as
+needed by other parts of the operating system, and not, as previously it might
+have implied, for its own sake. As an example, \code{itoa()} and \code{printf()}
+have been implemented, not because they show up in Linux, but because they
+provide meaningful functionality for tasks such as debugging. Therefore, this
+section is still present, albeit implicitly, as it is so closely tied to all
+other tasks.
+
+Further, tasks have been shifted around in the revised timetable compared to the
+original. Firstly, up to 25 November, 2018, the timetable now reflects the
+actual progress which was made, showing that booting and displaying on real
+hardware is still in progress, and interrupts will be started this week.  Most
+of the tasks following this in the original timetable have been pushed back to
+highlight this delay. Scheduling now carries into Term 2, and scheduled time to
+implement more schedulers has also been moved forward where previously it was to
+be started later. Filesystems have also been moved earlier in the term, as has
+message passing. This is to allow enough time for  compilation configuration to
+be developed, which has also been moved forward, to allow enough time to get it
+working well for the presentation. The endpoint for the presentation has also
+moved forwards to reflect the true deadline, while work on the final report will
+also now start much earlier.
 
 % overview of work so far, including
 %   technical content - what work have I done, meaningful summary of significant
@@ -429,14 +474,14 @@ presence is implied throughout.
 % updated timetable with as much detail as possible
 For the rest of Term 1, most efforts will be dedicated to debugging the issue
 with printing on HDMI on real hardware. The nature of the problem, that nothing
-will display on a real screen, makes the process more difficult in that
-debugging will rely on tweaking the flash of an LED. With the winter holidays
-approaching, this issue should find resolution, if not before the end of term,
-then certainly before the start of next. Furthermore, to make up the deficit
-caused by this problem, more attention will need to be paid towards interrupts,
-exceptions, and processes, in order to finish them in a timely manner so that
-work can be at least started on scheduling, inter-process communication, and
-synchronisation before the calendar year's end.
+but a rainbow displays on a real screen, makes the process more difficult in
+that debugging will rely on tweaking the flash of an LED. With the winter
+holidays approaching, this issue should find resolution, if not before the end
+of term, then certainly before the start of next. Furthermore, to make up the
+deficit caused by this problem, more attention will need to be paid towards
+interrupts, exceptions, and processes, in order to finish them in a timely
+manner so that work can be at least started on scheduling, inter-process
+communication, and synchronisation before the calendar year's end.
 
 Some further research will also need to be undertaken before the start of Term 2
 to decide on a filesystem to implement, and assess the options of implementing a
