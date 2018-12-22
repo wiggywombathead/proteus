@@ -15,13 +15,14 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mem_init((struct atag *) atags);
 
-    if (gpu_init() == 0)
-        printf("GPU initialised\n");
+    uart_init();
+    gpu_init();
 
-    uint32_t hi = get_serialnr_hi((struct atag *) atags);
-    uint32_t lo = get_serialnr_lo((struct atag *) atags);
-
-    act_blink(hi + 1);
+    int mem = get_total_mem((struct atag *) atags);
+    if (mem == 0) {
+        printf("No memory :(\n");
+        // act_blink(3);
+    }
 
     int c;
     while ((c = getc()) != 0x4) {

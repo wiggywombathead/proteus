@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define CHAR_WIDTH 8
+#define CHAR_HEIGHT 8
+
 struct pixel {
     uint8_t red;
     uint8_t green;

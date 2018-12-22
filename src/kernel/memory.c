@@ -5,7 +5,6 @@
 extern uint8_t __end;
 static uint32_t pages;
 
-DEFINE_LIST(page);
 IMPLEMENT_LIST(page);
 
 static struct page *all_pages;

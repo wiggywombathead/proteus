@@ -24,7 +24,7 @@ int gpu_init(void) {
 
 void write_pixel(uint32_t x, uint32_t y, const struct pixel *p) {
     uint8_t *loc = fb_info.buffer + y * fb_info.pitch + x * BYTES_PER_PIXEL;
-    memcpy(loc, (void *) p, BYTES_PER_PIXEL);
+    memcpy(loc, p, BYTES_PER_PIXEL);
 }
 
 void gpu_putc(char c) {
@@ -100,8 +100,8 @@ void gpu_putc(char c) {
         } 
     }
 
-    const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
-    // const uint8_t *bmp = font(c);
+    // const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
+    const uint8_t *bmp = font(c);
 
     uint8_t w, h;
     uint8_t mask;
@@ -111,6 +111,7 @@ void gpu_putc(char c) {
         /* print character pixel by pixel */
         for (w = 0; w < CHAR_WIDTH; w++) {
             for (h = 0; h < CHAR_HEIGHT; h++) {
+
                 mask = 1 << (w);
 
                 if (bmp[h] & mask) {
@@ -131,8 +132,6 @@ void gpu_putc(char c) {
 
         fb_info.col++;
     }
-
-
 
     if (fb_info.col > fb_info.max_col - 1) {
         fb_info.col = 0;

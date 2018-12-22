@@ -15,6 +15,8 @@ struct page_flags {
     uint32_t reserved : 29;
 };
 
+DEFINE_LIST(page);
+
 struct page {
     uint32_t virt_addr;     // the virtual address mapping to this page
     struct page_flags flags;
@@ -24,7 +26,7 @@ struct page {
 struct heap_segment {
     struct heap_segment *prev;
     struct heap_segment *next;
-    uint8_t allocated : 1;
+    uint32_t allocated : 1;
     uint32_t segment_size;
 };
 

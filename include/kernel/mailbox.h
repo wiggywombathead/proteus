@@ -7,9 +7,9 @@
 #include <kernel/peripheral.h>
 
 #define MAILBOX_BASE    PERIPHERAL_BASE + MAILBOX_OFFSET
-#define MAIL0_READ      ((struct mail_message *) (MAILBOX_BASE + 0x00))
-#define MAIL0_STATUS    ((struct mail_status *) (MAILBOX_BASE + 0x18))
-#define MAIL0_WRITE     ((struct mail_message *) (MAILBOX_BASE + 0x20))
+#define MAIL0_READ      (((struct mail_message *) (MAILBOX_BASE + 0x00)))
+#define MAIL0_STATUS    (((struct mail_status *) (MAILBOX_BASE + 0x18)))
+#define MAIL0_WRITE     (((struct mail_message *) (MAILBOX_BASE + 0x20)))
 
 #define FRAMEBUF_CHANNEL 1
 #define PROPERTY_CHANNEL 8

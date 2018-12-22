@@ -82,7 +82,8 @@ struct atag_cmdline {
 
 struct atag {
     uint32_t size;  /* length of tag in words */
-    uint32_t tag;   /* tag value */
+    //uint32_t tag;   /* tag value */
+    enum atag_tag tag;   /* tag value */
     union {
         struct atag_core        core;
         struct atag_mem         mem;

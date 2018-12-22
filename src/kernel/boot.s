@@ -36,9 +36,10 @@ _start:
 
 2:
     cmp r4, r9
-    blo 1b;
+    blo 1b
 
     /* call kernel_main */
+    mov r2, #0x100
     ldr r3, =kernel_main
     blx r3
 
