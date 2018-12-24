@@ -40,8 +40,12 @@ _start:
 
     /* call kernel_main */
     mov r2, #0x100
-    ldr r3, =kernel_main
-    blx r3
+
+    bl kernel_main
+    b halt
+
+    // ldr r3, =kernel_main
+    // blx r3
 
 halt:
     wfe     /* enter low power state */

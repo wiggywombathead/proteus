@@ -18,6 +18,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     printf("Hello world\n");
 
+    act_blink(3);
+
     int c;
     while ((c = getc()) != 0x4) {
         putc(c);

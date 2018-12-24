@@ -23,7 +23,6 @@ int framebuffer_init(void) {
     tags[3].prop_tag = NULL_TAG;
 
     if (send_messages(tags) != 0) {
-        uart_puts("Couldn't send messages\n");
         return -1;
     }
 

@@ -38,6 +38,12 @@ enum property_tag {
     FB_GET_BYTES_PER_ROW        = 0x00040008
 };
 
+enum buf_req_res_code {
+    REQUEST             = 0x00000000,
+    RESPONSE_SUCCESS    = 0x80000000,
+    RESPONSE_ERROR      = 0x80000001
+};
+
 struct fb_allocate_res {
     void    *fb_addr;
     uint32_t fb_size;
@@ -59,12 +65,6 @@ union value_buffer {
 struct property_msg_tag {
     enum property_tag prop_tag;
     union value_buffer value_buffer;
-};
-
-enum buf_req_res_code {
-    REQUEST             = 0x00000000,
-    RESPONSE_SUCCESS    = 0x80000000,
-    RESPONSE_ERROR      = 0x80000001
 };
 
 struct property_msg_buf {
