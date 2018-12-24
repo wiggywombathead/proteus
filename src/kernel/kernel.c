@@ -14,15 +14,9 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) atags;
 
     mem_init((struct atag *) atags);
-
-    uart_init();
     gpu_init();
 
-    int mem = get_total_mem((struct atag *) atags);
-    if (mem == 0) {
-        printf("No memory :(\n");
-        // act_blink(3);
-    }
+    printf("Hello world\n");
 
     int c;
     while ((c = getc()) != 0x4) {
