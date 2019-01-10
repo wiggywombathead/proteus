@@ -11,11 +11,14 @@
  */
 _start:
 
+/* pi 1 has only one core */
+#ifndef MODEL_1
     /* shutdown three cores */
     mrc p15, #0, r1, c0, c0, #5
     and r1, r1, #3
     cmp r1, #0
     bne halt
+#endif
 
     /* setup the stack */
     mov sp, #0x8000

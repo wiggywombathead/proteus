@@ -450,22 +450,6 @@ functioning boot partition, and replace the `.img` file with that built by the
 makefile one. In this
 case I just used the official Raspbian download from the Raspberry Pi website.
 Then you can mount the SD card with Raspbian, rename `kernel7.img` to something
-else, and insert the custom `.img` file, so that this is loaded for execution
-instead.
-
-### The boot process on the Pi
-The boot process relies on closed-source proprietary code programmed into the
-SoC processor, which cannot be modified. Importantly, the ARM CPU is not the
-main CPU - it is a coprocessor to the VideoCore GPU. Upon powerup, the ARM CPU
-is halted and the GPU is run. The firmware then loads the bootloader from ROM to
-the L2 cache and executes it.  This first stage bootloader mounts the FAT32 boot
-partition on the SD card so that the second stage bootloader may be accessed.
-This is its only responsibility, to load `bootcode.bin`. The first stage
-bootloader is programmed into the SoC itself during manufacture and cannot be
-reprogrammed by the user.  Next, the second stage bootloader (`bootcode.bin`)
-then retrieves the GPU firmware from the SD card, programs the firmware, then
-starts the GPU. The GPU firmware (`start.elf`) is loaded, and allows the GPU to
-start up the CPU. An additional file `fixup.dat` is used to configure the SDRAM
 partition between the GPU and CPU. Here the kernel image is loaded, the CPU is
 released from reset, and control is transferred to it to execute the kernel.
 
@@ -505,3 +489,18 @@ following assembly: TODO
 
 [Massively helpful
 reference](https://www.raspberrypi.org/forums/viewtopic.php?p=852703)
+
+## Switched to Raspi 1
+Could not resolve issue of displaying to HDMI on Pi 2, so switched to Pi 1 where
+the process is much simpler. Had to include the `-lgcc` linking flag for some
+reason, other compilation threw the error `undefined reference to
+__aeabi_uidivmod`. Searching around, this is because 
+    
+```
+The ARM family of CPUs does not have a native integer division instruction. So, division needs to be implemented by a library function. GCC knows this, and creates a reference to (in your case) __aeabi_uidiv (for unsigned int division).
+
+You will need to link with an appropriate runtime support library that contains this function.
+```
+[Source](https://stackoverflow.com/questions/6576517/what-is-the-cause-of-not-being-able-to-divide-numbers-in-gcc).
+To resolve this, I linked with the `-lgcc` flag.
+
