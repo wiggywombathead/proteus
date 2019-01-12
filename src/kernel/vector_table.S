@@ -1,6 +1,6 @@
 .section ".text"
 
-.global move_exception_vector:
+.global move_exception_vector
 
 /* match layout of Interrupt Vector Table */
 exception_vector:
@@ -29,7 +29,7 @@ data_abort_handler_abs_addr:
     .word data_abort_handler
 
 irq_handler_abs_addr:
-    .word irq_handler
+    .word irq_handler_wrapper
 
 fiq_handler_abs_addr:
     .word fiq_handler
@@ -51,7 +51,7 @@ irq_handler_wrapper:
     cpsid if, #0x13
     push {r0-r3, r12, lr}
     and r1, sp, #4
-    sub sp, sp, rl
+    sub sp, sp, r1
     push {r1}
     bl irq_handler
     pop {r1}

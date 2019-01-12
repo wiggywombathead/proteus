@@ -98,7 +98,7 @@ struct atag {
 };
 
 uint32_t get_total_mem(struct atag *);
-uint32_t get_serialnr_hi(struct atag *);
-uint32_t get_serialnr_lo(struct atag *);
+uint32_t get_serial_hi(struct atag *);
+uint32_t get_serial_lo(struct atag *);
 
 #endif

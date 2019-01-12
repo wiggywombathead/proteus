@@ -35,7 +35,7 @@ void __attribute__((interrupt("SWI"))) software_interrupt_handler(void) {
         ;
 }
 
-void __attribute__((interrupt("FIQ"))) fast_irq_handler(void) {
+void __attribute__((interrupt("FIQ"))) fiq_handler(void) {
     printf("RESET handler\n");
     while (1)
         ;
