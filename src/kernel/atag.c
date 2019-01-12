@@ -2,8 +2,6 @@
 
 uint32_t get_total_mem(struct atag *atag) {
     
-    int blinks = 0;
-
     while (atag->tag != ATAG_NONE) {
         if (atag->tag == ATAG_MEM)
             return atag->mem.size;
@@ -12,8 +10,8 @@ uint32_t get_total_mem(struct atag *atag) {
         atag = (struct atag *) (((uint32_t *) atag) + atag->size);
     }
 
-    return 1024 * 1024 * 256;
-    //return 0;
+    // return 1024 * 1024 * 256;
+    return 0;
 }
 uint32_t get_serialnr_hi(struct atag *atag) {
     

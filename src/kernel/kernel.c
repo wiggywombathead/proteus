@@ -5,20 +5,17 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
-#include <kernel/debug.h>
-
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     (void) r0;
     (void) r1;
     (void) atags;
 
+    act_init();
+    act_on();
+
     mem_init((struct atag *) atags);
     gpu_init();
-
-    printf("Hello world\n");
-
-    act_blink(3);
 
     int c;
     while ((c = getc()) != 0x4) {

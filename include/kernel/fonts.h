@@ -139,6 +139,7 @@ static const char dhepper8x8[128][8] = {
 return (uint8_t *) dhepper8x8[c];
 }
 
+/*
 static const unsigned char font_8x16[256][16] = {
 
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -910,5 +911,5 @@ static const unsigned char font_8x16[256][16] = {
 	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
 
 };
-
+*/
 #endif

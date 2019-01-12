@@ -497,10 +497,25 @@ reason, other compilation threw the error `undefined reference to
 __aeabi_uidivmod`. Searching around, this is because 
     
 ```
-The ARM family of CPUs does not have a native integer division instruction. So, division needs to be implemented by a library function. GCC knows this, and creates a reference to (in your case) __aeabi_uidiv (for unsigned int division).
+The ARM family of CPUs does not have a native integer division instruction. So,
+division needs to be implemented by a library function. GCC knows this, and
+creates a reference to (in your case) __aeabi_uidiv (for unsigned int division).
 
 You will need to link with an appropriate runtime support library that contains this function.
 ```
 [Source](https://stackoverflow.com/questions/6576517/what-is-the-cause-of-not-being-able-to-divide-numbers-in-gcc).
 To resolve this, I linked with the `-lgcc` flag.
 
+Okay now I had set everything up, including configuring which model to compile
+for in the `Makefile`, but the ACT was not blinking to show the kernel
+successfully booted as had been programmed on the Pi 2. Both the Pi 2 and the Pi
+1 I purchased were B+ boards, meaning their GPIO layout was identical, so it
+could not have been a problem with the code. I eventually found that assembly
+files ending in `.s` do not have the preprocessor invoked before assembly,
+while those ending in `.S` (capital S) do. This meant that the kernel wasn't
+booting as it was trying to execute instructions which did not exist - these
+were enclosed in a preprocessor `ifdef` which was being ignored as the file was
+named `boot.s`. Changing this to `boot.S` and the appropriate references to it
+in the `Makefile` fixed this and the ACT was now blinking successfully, showing
+the kernel was booting.
+[Source](https://stackoverflow.com/questions/6359293/is-it-possible-to-use-ifdef-like-checks-in-assembler).

@@ -58,23 +58,25 @@ void uart_puts(const char* str) {
 }
 
 void act_init(void) {
-    mmio_write(GPFSEL4, 1 << 21);
+    mmio_write(ACT_GPFSEL, 1 << ACT_GPFBIT);
 }
 
 void act_on(void) {
-    mmio_write(GPCLR1, 0 << 15);
-    mmio_write(GPSET1, 1 << 15);
+    mmio_write(ACT_GPSET, 1 << ACT_GPBIT);
 }
 
 void act_off(void) {
-    mmio_write(GPSET1, 0 << 15);
-    mmio_write(GPCLR1, 1 << 15);
+    mmio_write(ACT_GPCLR, 1 << ACT_GPBIT);
 }
 
-// void act_blink(uint32_t n) {
-//     while (n--) {
-//         act_on();
-//         delay(0xf000);
-//         act_off();
-//     };
-// }
+void act_blink(uint32_t n) {
+    volatile unsigned int t;
+    while (n--) {
+        act_on();
+        for (t = 0; t < 500000; t++)
+            ;
+        act_off();
+        for (t = 0; t < 500000; t++)
+            ;
+    };
+}

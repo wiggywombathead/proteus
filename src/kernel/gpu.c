@@ -14,6 +14,7 @@ int gpu_init(void) {
     while ((res = framebuffer_init()))
         ;
 
+    // clear the screen (fill in black)
     for (uint32_t j = 0; j < fb_info.height; j++) {
         for (uint32_t i = 0; i < fb_info.width; i++) {
             write_pixel(i, j, &BLACK);
@@ -22,9 +23,9 @@ int gpu_init(void) {
     return res;
 }
 
-void write_pixel(uint32_t x, uint32_t y, const struct pixel *p) {
+void write_pixel(uint32_t x, uint32_t y, const struct pixel *pix) {
     uint8_t *loc = fb_info.buffer + y * fb_info.pitch + x * BYTES_PER_PIXEL;
-    memcpy(loc, p, BYTES_PER_PIXEL);
+    memcpy(loc, pix, BYTES_PER_PIXEL);
 }
 
 void gpu_putc(char c) {

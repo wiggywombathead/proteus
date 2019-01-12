@@ -11,8 +11,8 @@
  */
 _start:
 
-/* pi 1 has only one core */
-#ifndef MODEL_1
+/* instructions don't exist on pi 1 - single core */
+#ifndef RPIBPLUS
     /* shutdown three cores */
     mrc p15, #0, r1, c0, c0, #5
     and r1, r1, #3

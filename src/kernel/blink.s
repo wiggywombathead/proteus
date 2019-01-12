@@ -4,7 +4,7 @@
  *  void blink(uint32_t n)
  *      blink ACT LED n times
  */
-act_blink:
+act_blink_n:
     /* check passed value non-negative */
     cmp r0, #0
     blt halt

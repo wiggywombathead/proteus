@@ -1,12 +1,29 @@
 #ifndef _GPIO_H
 #define _GPIO_H
 
+#include <kernel/peripheral.h>
 #include <stdint.h>
+
+#if defined ( RPI1 )
+    #define ACT_GPFSEL GPFSEL1
+    #define ACT_GPFBIT 18
+    #define ACT_GPSET GPSET0
+    #define ACT_GPCLR GPCLR0
+    #define ACT_GPBIT 16
+
+#elif defined( RPIBPLUS ) || defined( RPI2 )
+    #define ACT_GPFSEL GPFSEL4
+    #define ACT_GPFBIT 21
+    #define ACT_GPSET GPSET1
+    #define ACT_GPCLR GPCLR1
+    #define ACT_GPBIT 15
+
+#endif
 
 enum {
 
     /* GPIO register's base address */
-    GPIO_BASE = 0x3f200000,
+    GPIO_BASE = PERIPHERAL_BASE + GPIO_OFFSET,
 
     /* GPIO function select */
     GPFSEL0 = (GPIO_BASE + 0x00),
@@ -25,7 +42,7 @@ enum {
     GPPUDCLK0 = (GPIO_BASE + 0x98),
 
     /* UART base address */
-    UART0_BASE = 0x3f201000,
+    UART0_BASE = PERIPHERAL_BASE + UART_OFFSET,
 
     UART0_DR     = (UART0_BASE + 0x00),
     UART0_RSRECR = (UART0_BASE + 0x04),
@@ -55,6 +72,6 @@ void uart_puts(const char* str);
 void act_init(void);
 void act_on(void);
 void act_off(void);
-// void act_blink(uint32_t);
+void act_blink(uint32_t);
 
 #endif

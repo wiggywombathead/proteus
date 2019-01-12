@@ -5,18 +5,19 @@ OBJCOPY = $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
 GDB = $(TOOLCHAIN)-gdb
 
 # set constants based on pi model
-ifeq ($(RASPI_MODEL),1)
+ifeq ($(model),1)
 	CPU = arm1176jzf-s
-	DIRECTIVES = -D MODEL_1
 	ARCHDIR = model1
+	DIRECTIVES = -DRPIBPLUS
 else
-CPU = cortex-a7
-ARCHDIR = model2
+	CPU = cortex-a7
+	ARCHDIR = model2
+	DIRECTIVES = -DRPI2
 endif
 
-CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding $(DIRECTIVES) -g
+CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
-LFLAGS = -ffreestanding -O2 -nostdlib #-lgcc
+LFLAGS = -ffreestanding -O2 -nostdlib -lgcc
 
 KERN_HEAD = ../include
 KERN_SRC = ../src/kernel
@@ -27,11 +28,11 @@ KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
 
 CSOURCES = $(wildcard $(COMMON_SRC)/*.c)
-ASOURCES = $(wildcard $(KERN_SRC)/*.s)
+ASOURCES = $(wildcard $(KERN_SRC)/*.S)
 
 OBJECTS  = $(patsubst $(KERN_SRC)/%.c, $(OBJ_DIR)/%.o, $(KSOURCES))
 OBJECTS += $(patsubst $(COMMON_SRC)/%.c, $(OBJ_DIR)/%.o, $(CSOURCES))
-OBJECTS += $(patsubst $(KERN_SRC)/%.s, $(OBJ_DIR)/%.o, $(ASOURCES))
+OBJECTS += $(patsubst $(KERN_SRC)/%.S, $(OBJ_DIR)/%.o, $(ASOURCES))
 
 HEADERS = $(wildcard $(KERN_HEAD)/*.h)
 
@@ -51,7 +52,7 @@ $(OBJ_DIR)/%.o: $(KERN_SRC)/$(ARCHDIR)/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(KERN_HEAD) -c $< -o $@ $(CSRCFLAGS)
 
-$(OBJ_DIR)/%.o: $(KERN_SRC)/%.s
+$(OBJ_DIR)/%.o: $(KERN_SRC)/%.S
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -c $< -o $@
 

@@ -47,7 +47,7 @@
     }                                                                           \
     struct type *next_##type##_list(struct type *data) {                        \
         return data->next_##type;                                               \
-    }                                                                           \
+    }                                                                           
 
 
 #endif
