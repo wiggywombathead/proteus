@@ -1,13 +1,18 @@
 # proteus checklist
 ## Todo
-- [ ] Debug rainbow screen at boot
-- [ ] Display to real HDMI (works on QEMU but not IRL :/ )
-- [ ] Look through Baking Pi code and translate to C
-- [ ] Boot on real pi
+### Functional
 - [ ] Interrupts
 - [ ] Processes
 - [ ] Filesystem
 - [ ] IPC
+- [x] Boot on real pi
+- [x] Look through Baking Pi code and translate to C
+  - unecessary
+- [x] Display to real HDMI
+- [x] Debug rainbow screen at boot
+
+### Polish
+- [ ] Font color must be backwards(???) - fix
 
 ## CPU scheduling
   * FCFS

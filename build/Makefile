@@ -66,7 +66,7 @@ clean:
 	rm $(IMG).img
 
 run: build
-	qemu-system-arm -m 128 -M raspi2 -serial stdio -kernel $(IMG).elf
+	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
 
 dbginit:
 	echo "target remote loalhost:1234" > .gdbinit

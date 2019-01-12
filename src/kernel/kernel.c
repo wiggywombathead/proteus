@@ -12,10 +12,12 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) atags;
 
     act_init();
-    act_on();
+    act_blink(3);
 
-    mem_init((struct atag *) atags);
+    // mem_init((struct atag *) atags);
     gpu_init();
+
+    printf("Feelin' fine.\n");
 
     int c;
     while ((c = getc()) != 0x4) {

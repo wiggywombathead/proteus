@@ -29,7 +29,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *pix) {
 }
 
 void gpu_putc(char c) {
-    static const struct pixel ORANGE = { 0xff, 0x66, 0x00 };
+    static const struct pixel ORANGE = { 0x00, 0x66, 0xff };
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
 
     bool printable = true;
@@ -101,8 +101,7 @@ void gpu_putc(char c) {
         } 
     }
 
-    // const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
-    const uint8_t *bmp = font(c);
+    const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];
 
     uint8_t w, h;
     uint8_t mask;
