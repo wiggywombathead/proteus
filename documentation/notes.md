@@ -496,13 +496,13 @@ the process is much simpler. Had to include the `-lgcc` linking flag for some
 reason, other compilation threw the error `undefined reference to
 __aeabi_uidivmod`. Searching around, this is because 
     
-```
-The ARM family of CPUs does not have a native integer division instruction. So,
-division needs to be implemented by a library function. GCC knows this, and
-creates a reference to (in your case) __aeabi_uidiv (for unsigned int division).
 
-You will need to link with an appropriate runtime support library that contains this function.
-```
+> The ARM family of CPUs does not have a native integer division instruction. So,
+> division needs to be implemented by a library function. GCC knows this, and
+> creates a reference to (in your case) `__aeabi_uidiv` (for unsigned int division).
+> 
+> You will need to link with an appropriate runtime support library that contains this function.
+
 [Source](https://stackoverflow.com/questions/6576517/what-is-the-cause-of-not-being-able-to-divide-numbers-in-gcc).
 To resolve this, I linked with the `-lgcc` flag.
 
@@ -519,3 +519,55 @@ named `boot.s`. Changing this to `boot.S` and the appropriate references to it
 in the `Makefile` fixed this and the ACT was now blinking successfully, showing
 the kernel was booting.
 [Source](https://stackoverflow.com/questions/6359293/is-it-possible-to-use-ifdef-like-checks-in-assembler).
+
+## Interrupts and Exceptions
+### Exceptions
+Exception - event triggered when something exceptional occurs during normal
+execution, e.g. hardware giving new data to CPU, user code asking to perform and
+privileged action, or bad instruction
+
+On Pi, when exception occurs, a specific address is loaded into Program Counter
+and execution branches to this point. Branch instructions need to be written at
+these locations to branch to correct exception handling routines. This set of
+Address is the **Vector Table**, and starts at address `0x0`. The table is as
+follows:
+
+| Address | Exception | Source | Action |
+|---------|-----------|--------|--------|
+|`0x00` | Reset | Hardware reset | Restart kernel |
+|`0x04` | Undefined instruction | Executing garbage instruction | Kill offender |
+|`0x08` | Sofware Interrupt (SWI) | Software wants to execute privileged operation | Perform op and return to caller
+|`0x0c` | Prefetch Abort | Bad memory access of instruction | Kill offender |
+|`0x10` | Data Abort | Bad memory access of data | Kill offender |
+|`0x14` | Reserved | Reserved | Reserved |
+|`0x18` | Interrupt Request (IRQ) | Hardware telling CPU something | Determine hardware that triggered and respond appropriately |
+|`0x1c` | Fast Interrupt Request (FIQ) | Piece of hardware can do this faster than all others | Determine device that triggerend and respond appropriately |
+
+### Interrupt Requests
+IRQ is a notification to the CPU that something happened in the hardware that
+the CPU should know about e.g. keypress, accessing privileged memory, receiving
+network packet. To determine which device can trigger interrupts and which has
+triggered one, we use the IRG peripheral, located at offset `0xb000` from the
+peripheral base address. The peripheral has three types of registers - pending,
+enable, and disable.
+Pending - indicate whether a given interrupt has been triggered. Used to
+determine which hardware device has triggered the IRQ exception.
+Enable - enable certain intterupts to be triggered by setting the appropriate
+bit.
+Disable - disable certain interrupts by setting appropriate bit
+
+Pi has 72 possible IRQs.
+- 0 to 63 are shared by CPU and GPU
+- 64 to 71 are specific to the CPU
+
+Timer is IRQ 1, and USB controller is IRQ 9
+
+Notes: when you see an interrupt is pending, do not clear the bit. Each
+peripheral has its own mechanism for clearing the bit that should be done in
+handler for that peripheral's IRQ. Clearing a bit in the enable register does
+not disable the IRQ. An IRQ should only be disabled by setting the bit in the
+disable register.
+
+### Setting up the Exception Vector Table
+Exception handlers are functions, but not normal ones. They need more advanced
+prologue and epilogue code than usual. 

@@ -2,6 +2,8 @@
 ## Todo
 ### Functional
 - [ ] Interrupts
+  - [ ] Finish `vector_table.S`
+  - [ ] Write up notes
 - [ ] Processes
 - [ ] Filesystem
 - [ ] IPC

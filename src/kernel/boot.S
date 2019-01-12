@@ -47,9 +47,6 @@ _start:
     bl kernel_main
     b halt
 
-    // ldr r3, =kernel_main
-    // blx r3
-
 halt:
     wfe     /* enter low power state */
     b halt

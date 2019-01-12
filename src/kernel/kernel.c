@@ -14,10 +14,13 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     act_init();
     act_blink(3);
 
-    // mem_init((struct atag *) atags);
+    mem_init((struct atag *) atags);
     gpu_init();
 
     printf("Feelin' fine.\n");
+
+    int mem = get_total_mem(atags);
+    printf("Total memory: %dMB\n", mem / (1024 * 1024));
 
     int c;
     while ((c = getc()) != 0x4) {
