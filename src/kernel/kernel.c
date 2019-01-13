@@ -1,7 +1,10 @@
 #include <kernel/atag.h>
 #include <kernel/memory.h>
-#include <kernel/gpio.h>
 #include <kernel/gpu.h>
+#include <kernel/interrupt.h>
+#include <kernel/timer.h>
+#include <kernel/gpio.h>
+
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
@@ -11,23 +14,29 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) r1;
     (void) atags;
 
-    act_init();
-    act_blink(3);
-
     gpu_init();
     printf("GPU initialised\n");
 
     mem_init((struct atag *) atags);
     printf("Memory initialised\n");
 
-    int mem = get_total_mem(atags) / (1024 * 1024);
-    int hi, lo;
-    hi = get_serial_hi(atags);
-    lo = get_serial_lo(atags);
+    interrupts_init();
+    timer_init();
 
+    act_init();
+
+    /*
     printf("Welcome to proteus v0.1\n");
     printf("Board: %d.%d\n", hi, lo);
     printf("Memory: %dMB\n", mem);
+    */
+
+    while (1) {
+        act_on();
+        timer_set(500000);
+        act_off();
+        timer_set(500000);
+    }
 
     int c;
     while ((c = getc()) != 0x4) {

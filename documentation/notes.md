@@ -109,7 +109,7 @@ ldr r9, =__bss_end
 ```
 Loads start and end of BSS (Basic Service Set) into registers. This is where
 statically allocated global variables that are not initialized explicitly to a
-particular valuea are stored. The C runtime environment requires uninitialized
+particular values are stored. The C runtime environment requires uninitialized
 global variables to be zeroed, done by moving the value 0 to registers 5 to 8.
 
 ```assembly
@@ -246,7 +246,7 @@ C program sections:
 * `.text` - executable code
 * `.rodata` - read-only data (global constants)
 * `.data` - global variables initialised at compile-time
-* `.bss` - uninitialised gloabal variables
+* `.bss` - uninitialised global variables
 
 **N.B:** In linker scripts, `.` stands for current address.
 
@@ -273,7 +273,7 @@ Only a few things to note. `CC = arm-none-eabi-gcc` uses the ARM cross-compiler
 cross-compiling, we specify our target CPU, namely `cortex-a7` for the Raspberry
 Pi 2.
 
-* `-fpic` - generate position inedependent code, for use in a shared library
+* `-fpic` - generate position independent code, for use in a shared library
 * `-ffreestanding` - compile for freestanding, as opposed to hosted, environment
 
 For now, we use the target `run` to emulate the Raspberry Pi 2 on QEMU.
@@ -322,7 +322,7 @@ memory that user code may want.
 ### Implementing `kmalloc()`
 Associate each allocation with a header, which will all form a linked list. It
 includes the allocation size, and whether it is currently in use. To allocate,
-we must find an allocaion that is at least the number of requested bytes and not
+we must find an allocation that is at least the number of requested bytes and not
 currently in use. If the allocation being inspected is large relative to the
 request, we can split it up (i.e. if allocation is >= 2 times the header -
 avoids having too many allocations that are half header, half data).
@@ -331,7 +331,7 @@ avoids having too many allocations that are half header, half data).
 Need to mark free'd segments as unallocated, and merge adjacent free segments
 into one big one (avoid internal fragmentation). We do this with a while loop,
 incrementally increasing the `segment_size` of the free'd segment, effectively
-mergin free segments to the right.
+merging free segments to the right.
 
 ### Initialising the heap
 We must reserve the pages we are going to use, put a header stating there is a
@@ -395,7 +395,7 @@ A message must be 16-byte aligned buffer of 4-byte words. The response
 overwrites the original message.
 
 A message begins with a 4 byte size of the message, plus 4 bytes for the size
-itself. This is followed by a 4 byte request/respnse code. When sending a
+itself. This is followed by a 4 byte request/response code. When sending a
 message, this must be 0. When receiving, it will be either 0x80000000
 (indicating success) or 0x80000001 (indicating error).
 
@@ -536,12 +536,12 @@ follows:
 |---------|-----------|--------|--------|
 |`0x00` | Reset | Hardware reset | Restart kernel |
 |`0x04` | Undefined instruction | Executing garbage instruction | Kill offender |
-|`0x08` | Sofware Interrupt (SWI) | Software wants to execute privileged operation | Perform op and return to caller
+|`0x08` | Software Interrupt (SWI) | Software wants to execute privileged operation | Perform op and return to caller
 |`0x0c` | Prefetch Abort | Bad memory access of instruction | Kill offender |
 |`0x10` | Data Abort | Bad memory access of data | Kill offender |
 |`0x14` | Reserved | Reserved | Reserved |
 |`0x18` | Interrupt Request (IRQ) | Hardware telling CPU something | Determine hardware that triggered and respond appropriately |
-|`0x1c` | Fast Interrupt Request (FIQ) | Piece of hardware can do this faster than all others | Determine device that triggerend and respond appropriately |
+|`0x1c` | Fast Interrupt Request (FIQ) | Piece of hardware can do this faster than all others | Determine device that triggered and respond appropriately |
 
 ### Interrupt Requests
 IRQ is a notification to the CPU that something happened in the hardware that
@@ -552,7 +552,7 @@ peripheral base address. The peripheral has three types of registers - pending,
 enable, and disable.
 Pending - indicate whether a given interrupt has been triggered. Used to
 determine which hardware device has triggered the IRQ exception.
-Enable - enable certain intterupts to be triggered by setting the appropriate
+Enable - enable certain interrupts to be triggered by setting the appropriate
 bit.
 Disable - disable certain interrupts by setting appropriate bit
 
@@ -571,3 +571,154 @@ disable register.
 ### Setting up the Exception Vector Table
 Exception handlers are functions, but not normal ones. They need more advanced
 prologue and epilogue code than usual. 
+
+#### `vector_table.S`
+Approach is to write each branch instruction and copy the instructions from the
+`.text` section to address `0x0` at runtime. Notice we have
+
+```assembly
+    ldr pc, irq_handler_abs_addr
+    ...
+    irq_handler_abs_addr:
+        .word irq_handler
+```
+
+as opposed to
+
+```assembly
+    ldr pc, irq_handler_abs_addr
+```
+
+This is because we use the `-fpic` flag during compilation, which creates
+Position Independent Code. This means writing `ldr pc, irq_handler` would get
+compiled to `ldr pc, [pc, #irq_handler_offset]`, loading the address relative to
+its current position. Then when we move the instruction to address `0x0` the
+handler would be at the same relative offset. So instead, we put the absolute
+address of the handler in memory, and load this address relative to the current
+position, address `0x0`.
+
+`move_exception_vector` is a function called from `interrupts_init`. `push
+{r4-r9}` saves registers four to nine, the ones which the function will be
+using. C function expect these registers to be saved for them, so we save them
+to restore them later. `ldr r0, =exception_vector` loads the address of the
+exception vector in register 0. We `mov r1, #0x0000` as register 1 is the
+destination address.
+
+```assembly
+    ldmia r0!, {r2-r9}
+    stmia r1!, {r2-r9}
+```
+First, we store the data in register 0 in registers 2 to 9. `ia` means that
+after storing the data in each register, we increment the address so that the
+next register gets the next of memory. `!` means to store the address after the
+last word of memory copied into register 0, so we may start from there again
+later. So these instructions load the 8 exception words from their starting
+location into registers. The next instructions do the same thing but in reverse,
+writing the register values to address `0x0`. It copies the absolute addresses
+to sit above the exception instructions in memory:
+
+```assembly
+    ldmia r0!, {r2-r8}
+    stmia r1!, {r2-r8}
+```
+
+Then
+```assembly
+    pop {r4-r9}
+    blx lr
+```
+restores the saved registers and returns control to the caller.
+
+### IRQ handler wrapper
+Exceptions cannot simply jump to normal functions - certain things must be dealt
+with before and after the normal function is executed, which we can't assume
+when using interrupt routines. By using `__attribute__((interrupt("FIQ")))`, we
+embed a default version of the special prologue and epilogue directly into the
+function. This is very minimal, and for our IRQ handler we need some
+customisation.
+
+Due to a quirk with how ARM handles exceptions, we adjust the return address to
+be one instruction back with `sub lr, lr, #4`. The instruction
+`srsdb sp!, #0x13` stores the return address `lr` and the `spsr` (the general
+`cspr` register that is shadowed by IRQ mode's own version of it) registers to
+the stack of mode `0x13` (supervisor mode) and then uses that mode's stack
+pointer.
+
+N.B: When an exception occurs, the CPU switches from whatever mode it was in to
+IRQ mode - this has its own stack and its own versions of a few registters, such
+as `sp` and `cpsr`, which are separate from normal registers.
+
+`cpsid if, #0x13` switches to supervisor mode with interrupts disabled.
+`push {r0-r3, r12, lr}` saves all of the caller's registers. Any function we
+call saves registers 4-11 and restores them for us. We have to save r0-r3, r12,
+and `lr`. Normal functions usually accept that these registers are garbage and
+may not save them, but since interrupts mean we are interrupting some other code
+that did not consent to calling a function, we must preserve all of the
+registers so it is as if nothing happened when we return control to it.
+
+```assembly
+    and r1, sp, #4
+    sub sp, sp, r1
+```
+ARM documentation states that the stack must be 8-byte aligned when calling
+functions, but the exception handler may leave us with a stack that is not. The
+code above fixes this.
+
+`bl irq_handler` calls our C code handler.
+`add sp, sp, r1` restores the stack alignment.
+`pop {r0-r3, r12, lr}` restores the caller's saved registers.
+`rfeia sp!` restores the saved `cpsr` and returns to the address stored in `lr`
+
+### Handling IRQs
+Now the IRQ exception handler is set up, we need the ability to determine which
+IRQ was triggered, and to handle. We do this using the IRQ Peripheral.
+
+For each IRQ, we need a specialised handler function. We do this by defining the
+type of an interrupt handler, then declaring a static array of handlers. There
+are three 4-byte words to represent possible interrupts, and the last 3 bytes of
+the basic interrupts are repeats of others, so there are 72 different interrupts
+that could be handled. We therefore decelare an array of 72 handlers.
+
+Pi documentation says that the interrupt pending flag may not be cleared using
+the interrupt peripheral, but instead using the hardware peripheral that
+triggered the interrupt. Therefore, we define the fnuction type
+`interrupt_clearer` to deal with this.
+
+We then register an IRQ handler by inspecting its IRQ number, and setting the
+appropriate data.
+
+To check which IRQs have been triggered and execute the handler, we chack the
+enabled bits of the IRQ peripheral and execute the correct handler accordingly.
+We iterate over all pending interrupts, and if there exists a corresponding
+handler, the clearer is called. Interrupts are then enabled to allow for nesting
+of interrupts. Then the handler is called and interrupts are disabled to finish
+the interrupt.
+
+### Initialising interrupts
+We zero out the handlers and callers arrays and disable all interrupts by
+writing `0xffffffff` to each `disable` entry in the array.
+`move_exception_vector()` is then called to copy the exception vector table to
+address 0. Then interrupts are enabled.
+
+`INTERRUPTS_ENABLED()` loads the `cpsr` then checks bit 7. If it is clear, then
+interrupts are enabled.
+`ENABLE_INTERRUPTS()` executes `cps` (**C**hange **P**rocessor **S**tate) with
+the `ie` (**I**nterrupts **E**nable) suffix. The argument `i` enables IRQs
+(while `f` would enable FIQs)
+`DISABLE_INTERRUPTS()` works like `ENABLE_INTERRUPTS()`, except the suffix is
+`id` (**I**nterrupts **D**isable)
+
+### System Timer
+The system timer is a hardware clock that can keep time and generate interrupts
+after a certain time. It is located at offset `0x3000` from the peripheral base.
+It is a Free Running Timer (TODO: what does this mean??) that increments a
+64-bit counter every microsecond. It starts as soon as the Pi boots, and is
+constantly running in the background while the Pi is on.
+
+There are four compare registers which the timer compares the low 32 bits with
+each counter tick. If any compare register matches the counter, an IRQ is
+triggered. Each compare register has its own interrupt, numbers 0-3. Registers 0
+and 2 are used by the GPU, but 1 and 3 are available to use.
+The control register contains flags in its least-significant 4 bits to indicate
+whether or not an interrupt has been triggered. Clearing this bit clears the
+interrupt pending flag for that timer.

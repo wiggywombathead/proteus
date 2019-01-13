@@ -1,8 +1,8 @@
 #ifndef _GPIO_H
 #define _GPIO_H
 
-#include <kernel/peripheral.h>
 #include <stdint.h>
+#include <kernel/peripheral.h>
 
 #if defined ( RPI1 )
     #define ACT_GPFSEL GPFSEL1
