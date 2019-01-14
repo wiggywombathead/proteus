@@ -15,7 +15,7 @@ struct timer_ctrl {
     uint32_t reserved : 28;
 };
 
-/* system timer peripheral */
+/* system timer peripheral register */
 struct sys_timer {
     struct timer_ctrl control;
     uint32_t counter_low;
@@ -29,5 +29,8 @@ struct sys_timer {
 void timer_init(void);
 void timer_set(uint32_t);
 void udelay(uint32_t);
+
+// TODO: remove
+void wait_us(uint32_t);
 
 #endif

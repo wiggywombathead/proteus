@@ -33,9 +33,11 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     while (1) {
         act_on();
-        timer_set(500000);
+        wait_us(1000);
         act_off();
-        timer_set(500000);
+        wait_us(1000);
+
+        act_blink(4);
     }
 
     int c;

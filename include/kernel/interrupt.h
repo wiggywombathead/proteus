@@ -69,7 +69,7 @@ __inline__ void ENABLE_INTERRUPTS(void) {
 }
 
 __inline__ void DISABLE_INTERRUPTS(void) {
-    if (!INTERRUPTS_ENABLED()) {
+    if (INTERRUPTS_ENABLED()) {
         __asm__ __volatile__("cpsid i");
     }
 }

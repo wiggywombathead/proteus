@@ -35,7 +35,7 @@ fiq_handler_abs_addr:
     .word fiq_handler
 
 move_exception_vector:
-    push {r4, r5, r6, r7, r8, r9}
+    push {r4-r9}
     ldr r0, =exception_vector
     mov r1, #0x0000
     ldmia r0!, {r2-r9}

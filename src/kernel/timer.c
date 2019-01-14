@@ -2,7 +2,7 @@
 #include <kernel/interrupt.h>
 #include <common/stdio.h>
 
-static struct sys_timer *timer_registers;
+static struct sys_timer *systimer;
 
 static void timer_irq_handler(void) {
     printf("Time, gentlemen!\n");
@@ -10,14 +10,21 @@ static void timer_irq_handler(void) {
 }
 
 static void timer_irq_clearer(void) {
-    timer_registers->control.matched1 = 1;
+    systimer->control.matched1 = 1;
 }
 
 void timer_init(void) {
-    timer_registers = (struct sys_timer *) SYSTIMER_BASE;
+    systimer = (struct sys_timer *) SYSTIMER_BASE;
     register_irq_handler(SYS_TIMER, timer_irq_handler, timer_irq_clearer);
 }
 
 void timer_set(uint32_t usecs) {
-    timer_registers->compare1 = timer_registers->counter_low + usecs;
+    systimer->compare1 = systimer->counter_low + usecs;
+}
+
+void wait_us(uint32_t usecs) {
+    volatile uint32_t ts = systimer->counter_low;
+
+    while ((systimer->counter_low - ts) < usecs)
+        ;
 }

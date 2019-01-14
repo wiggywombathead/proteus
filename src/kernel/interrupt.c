@@ -3,6 +3,7 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
+/* interrupt handlers and pending-bit clearers */
 static interrupt_handler handlers[NUM_IRQS];
 static interrupt_clearer clearers[NUM_IRQS];
 
@@ -19,8 +20,8 @@ void interrupts_init(void) {
 
     // disable all interrupts - enable as they are registered
     interrupt_regs->irq_basic_disable = 0xffffffff;
-    interrupt_regs->irq_gpu_enable_1 = 0xffffffff;
-    interrupt_regs->irq_gpu_enable_2 = 0xffffffff;
+    interrupt_regs->irq_gpu_disable_1 = 0xffffffff;
+    interrupt_regs->irq_gpu_disable_2 = 0xffffffff;
 
     // copy exception vector table to address 0
     move_exception_vector();
@@ -89,15 +90,17 @@ void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_
         clearers[num] = clearer;
         interrupt_regs->irq_basic_enable |= (1 << irq_pos);
     } else if (IRQ_IS_GPU1(num)) {
-        irq_pos = num - 32;
+        irq_pos = num;
         handlers[num] = handler;
         clearers[num] = clearer;
         interrupt_regs->irq_gpu_enable_1 |= (1 << irq_pos);
     } else if (IRQ_IS_GPU2(num)) {
-        irq_pos = num;
+        irq_pos = num - 32;
         handlers[num] = handler;
         clearers[num] = clearer;
         interrupt_regs->irq_gpu_enable_2 |= (1 << irq_pos);
+    } else {
+        printf("Error registering IRQ handler: invalid number (%d)\n", num);
     }
 
 }
