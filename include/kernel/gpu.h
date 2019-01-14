@@ -15,5 +15,6 @@ struct pixel {
 int gpu_init(void);
 void write_pixel(uint32_t, uint32_t, const struct pixel *);
 void gpu_putc(char);
+void clrs(void);
 
 #endif

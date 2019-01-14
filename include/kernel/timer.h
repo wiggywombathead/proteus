@@ -28,9 +28,7 @@ struct sys_timer {
 
 void timer_init(void);
 void timer_set(uint32_t);
+void uwait(uint32_t);
 void udelay(uint32_t);
-
-// TODO: remove
-void wait_us(uint32_t);
 
 #endif

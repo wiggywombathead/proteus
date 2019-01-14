@@ -21,23 +21,27 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Memory initialised\n");
 
     interrupts_init();
+    printf("Interrupts initialised\n");
+
     timer_init();
+    printf("System Timer initialised\n");
 
     act_init();
 
-    /*
     printf("Welcome to proteus v0.1\n");
-    printf("Board: %d.%d\n", hi, lo);
+
+    int mem = get_total_mem((struct atag *) atags) / (1024 * 1024);
     printf("Memory: %dMB\n", mem);
-    */
 
+    int board_hi, board_lo;
+    board_hi = get_serial_hi((struct atag *) atags);
+    board_lo = get_serial_lo((struct atag *) atags);
+    printf("Serial no.: %d.%d\n", board_hi, board_lo);
+
+    int secs = 0;
     while (1) {
-        act_on();
-        wait_us(1000);
-        act_off();
-        wait_us(1000);
-
-        act_blink(4);
+        clrs();
+        printf("%d", ++secs);
     }
 
     int c;

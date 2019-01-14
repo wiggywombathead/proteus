@@ -5,7 +5,7 @@
 static struct sys_timer *systimer;
 
 static void timer_irq_handler(void) {
-    printf("Time, gentlemen!\n");
+    printf("Timer handler called\n");
     timer_set(3000000);
 }
 
@@ -22,9 +22,8 @@ void timer_set(uint32_t usecs) {
     systimer->compare1 = systimer->counter_low + usecs;
 }
 
-void wait_us(uint32_t usecs) {
-    volatile uint32_t ts = systimer->counter_low;
-
-    while ((systimer->counter_low - ts) < usecs)
+void uwait(uint32_t usecs) {
+    volatile uint32_t t = systimer->counter_low;
+    while ((systimer->counter_low - t) < usecs)
         ;
 }
