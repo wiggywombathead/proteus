@@ -1,0 +1,25 @@
+.section ".text"
+
+.global switch_context
+
+/*
+ * switch_context(struct proc *old, struct proc *new)
+ *     take CPU use from old and give to new
+ *     old thread must be put back in queue before calling
+ */
+
+switch_context:
+    /* save current process' state */
+    push {lr}
+    push {sp}
+    mrs r12, cpsr   /* get current status register */
+    push {r0-r12}   /* save general purpose regs and state */
+    str sp, [r0]    /* store stack pointer in the state field of proc */
+
+    /* load new process' state */
+    ldr sp, [r1]
+    ldr r0, =#(10000)
+    bl timer_set
+    pop {r0-r12}
+    msr cpsr_c, r12
+    pop {lr, pc}

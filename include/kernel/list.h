@@ -49,5 +49,4 @@
         return data->next_##type;                                               \
     }                                                                           
 
-
 #endif

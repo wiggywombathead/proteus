@@ -1,12 +1,15 @@
 # proteus checklist
 ## Todo
 ### Functional
-- [ ] Interrupts
-  - [ ] Finish `vector_table.S`
-  - [ ] Write up notes
 - [ ] Processes
+  - [x] Round Robin
+  - [ ] Make `schedule()` take algorithm as parameter
+  - [ ] Write up notes on creating new process
 - [ ] Filesystem
 - [ ] IPC
+- [x] Interrupts
+  - [x] Finish `vector_table.S`
+  - [x] Write up notes
 - [x] Boot on real pi
 - [x] Look through Baking Pi code and translate to C
   - unecessary

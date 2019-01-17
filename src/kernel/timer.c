@@ -1,14 +1,13 @@
 #include <kernel/timer.h>
+
 #include <kernel/interrupt.h>
+#include <kernel/proc.h>
 #include <common/stdio.h>
 
 static struct sys_timer *systimer;
 
-static int uptime = 0;
-
 static void timer_irq_handler(void) {
-    printf("%d ", uptime++);
-    timer_set(1000000);
+    schedule();
 }
 
 static void timer_irq_clearer(void) {
@@ -24,8 +23,10 @@ void timer_set(uint32_t usecs) {
     systimer->compare1 = systimer->counter_low + usecs;
 }
 
-void uwait(uint32_t usecs) {
-    volatile uint32_t t = systimer->counter_low;
-    while ((systimer->counter_low - t) < usecs)
-        ;
+void __attribute__((optimize(0))) uwait(uint32_t usecs) {
+    volatile uint32_t curr = systimer->counter_low;
+    volatile uint32_t t = systimer->counter_low - curr;
+    while (t < usecs) {
+        t = systimer->counter_low - curr;
+    }
 }

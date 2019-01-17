@@ -722,3 +722,60 @@ and 2 are used by the GPU, but 1 and 3 are available to use.
 The control register contains flags in its least-significant 4 bits to indicate
 whether or not an interrupt has been triggered. Clearing this bit clears the
 interrupt pending flag for that timer.
+
+We can set a timer by setting the `compare1` register to the current value plus
+some number of microseconds. This effectively counts down this number of
+microseconds, and when it is done it calls the timer IRQ handler. 
+TODO: probably more on this
+
+## Processes
+To initialise processes, we must initialise the run queue, allocate a PCB for
+the main process, mark this as the current process, and call the scheduler.
+
+We create a new process for the main process, `init`, and set it as the current
+one. We initialise it to start directly after the end of the stack (`__end`),
+and give it a process ID and name. We then create the lists `all_procs` and
+`run_queue` for use in scheduling.
+
+### Scheduling
+Normal processes have no consideration for other processes - they would hog the
+CPU until they are finished with their job. We have to implement a way to
+systematically boot them off the CPU. The first way we do this is by
+implementing the Round Robin scheduler, which gives each process a set quantum
+of time for which they may run, and after this use of the CPU is then passed to
+the next waiting process, regardless of whether the current process has
+terminated.
+
+### Context Switching
+We must save the process' registers onto its stack, save the stack pointer to
+the PCB, and load the saved stack pointer of the other process and popping the
+registers. In `switch_context`, we save the link register and stack pointer onto
+the stack, then get the current program state register and save it into the
+register 12, a caller-save register, meaning its value need not be preserved.
+The general purpose registers are then pushed.
+
+The context switch occurs in the instructions:
+```assembly
+    str sp, [r0]
+    ldr sp, [r1]
+```
+We can access the saved stack pointers of each process by simply reading and
+storing from the memory addresses in register 0 and register 1, as in the
+`proc` structure, the first field is the saved stack pointer. `r0` is the
+stack pointer of the old process, and `r1` is that of the new process.
+
+Before completely loading the new process, we reset the timer so that it goes
+off in another quantum. Then we pop off all general purpose registers and load
+the current program state register.
+
+The last thing to do is to resume execution of the new process, by loading the
+saved link register into the program counter. `lr` is caller-save, meaning an
+existing process will overwrite whater we put there when it is time t return
+from the exception - a new process jumps straight into execution without
+returning from an exception (as it technically never experienced one). The new
+process does not have anywhere to return to, so when it exits it will use `lr`
+to return. We take advantage of this to have a process jump automatically to
+cleanup code when it dies.
+
+### Creating a new process
+

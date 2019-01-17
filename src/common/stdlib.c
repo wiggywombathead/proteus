@@ -28,12 +28,24 @@ uint32_t atoi(const char *nstr) {
     return ans;
 }
 
-size_t strncpy(char *dst, const char *src, size_t n) {
-    size_t len = 0;
-    size_t i;
+size_t strcpy(char *dst, const char *src) {
 
+    size_t i;
+    for (i = 0; src[i] != '\0'; i++)
+        dst[i] = src[i];
+
+    dst[i] = '\0';
+    return i;
+}
+
+size_t strncpy(char *dst, const char *src, size_t n) {
+
+    size_t i;
     for (i = 0; i < n && src[i] != '\0'; i++)
         dst[i] = src[i];
+
+    size_t len = i;
+
     for ( ; i < n; i++)
         dst[i] = '\0';
 
