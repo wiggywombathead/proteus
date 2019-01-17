@@ -29,11 +29,8 @@ void interrupts_init(void) {
 }
 
 void irq_handler(void) {
-    printf("IRQ handler\n");
-
     for (int i = 0; i < NUM_IRQS; i++) {
-        
-        if (IRQ_IS_PENDING(interrupt_regs, i) && handlers[i] != 0) {
+        if (IRQ_IS_PENDING(interrupt_regs, i) && (handlers[i] != 0)) {
             clearers[i]();
             ENABLE_INTERRUPTS();
             handlers[i]();
@@ -41,8 +38,32 @@ void irq_handler(void) {
             
             return;
         }
-
     }
+}
+
+void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_clearer clearer) {
+
+    uint32_t irq_pos;
+
+    if (IRQ_IS_BASIC(num)) {
+        irq_pos = num - 64;
+        handlers[num] = handler;
+        clearers[num] = clearer;
+        interrupt_regs->irq_basic_enable |= (1 << irq_pos);
+    } else if (IRQ_IS_GPU1(num)) {
+        irq_pos = num;
+        handlers[num] = handler;
+        clearers[num] = clearer;
+        interrupt_regs->irq_gpu_enable_1 |= (1 << irq_pos);
+    } else if (IRQ_IS_GPU2(num)) {
+        irq_pos = num - 32;
+        handlers[num] = handler;
+        clearers[num] = clearer;
+        interrupt_regs->irq_gpu_enable_2 |= (1 << irq_pos);
+    } else {
+        printf("Error registering IRQ handler: invalid number (%d)\n", num);
+    }
+
 }
 
 void __attribute__((interrupt("ABORT"))) reset_handler(void) {
@@ -78,29 +99,4 @@ void __attribute__((interrupt("FIQ"))) fiq_handler(void) {
     printf("RESET handler\n");
     while (1)
         ;
-}
-
-void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_clearer clearer) {
-
-    uint32_t irq_pos;
-
-    if (IRQ_IS_BASIC(num)) {
-        irq_pos = num - 64;
-        handlers[num] = handler;
-        clearers[num] = clearer;
-        interrupt_regs->irq_basic_enable |= (1 << irq_pos);
-    } else if (IRQ_IS_GPU1(num)) {
-        irq_pos = num;
-        handlers[num] = handler;
-        clearers[num] = clearer;
-        interrupt_regs->irq_gpu_enable_1 |= (1 << irq_pos);
-    } else if (IRQ_IS_GPU2(num)) {
-        irq_pos = num - 32;
-        handlers[num] = handler;
-        clearers[num] = clearer;
-        interrupt_regs->irq_gpu_enable_2 |= (1 << irq_pos);
-    } else {
-        printf("Error registering IRQ handler: invalid number (%d)\n", num);
-    }
-
 }

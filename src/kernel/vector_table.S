@@ -4,35 +4,23 @@
 
 /* match layout of Interrupt Vector Table */
 exception_vector:
-    ldr pc, reset_handler_abs_addr
-    ldr pc, undefined_instruction_handler_abs_addr
-    ldr pc, software_interrupt_handler_abs_addr
-    ldr pc, prefetch_abort_handler_abs_addr
-    ldr pc, data_abort_handler_abs_addr
-    nop     /* reserved */
-    ldr pc, irq_handler_abs_addr
-    ldr pc, fiq_handler_abs_addr
+    /* load absolute addresses of handlers */
+    ldr pc, _reset_h
+    ldr pc, _undefined_instruction_h
+    ldr pc, _software_interrupt_h
+    ldr pc, _prefetch_abort_h
+    ldr pc, _data_abort_h
+    nop /* reserved */
+    ldr pc, _irq_h
+    ldr pc, _fiq_h
 
-reset_handler_abs_addr:
-    .word reset_handler
-
-undefined_instruction_handler_abs_addr:
-    .word undefined_instruction_handler
-
-software_interrupt_handler_abs_addr:
-    .word software_interrupt_handler
-
-prefetch_abort_handler_abs_addr:
-    .word prefetch_abort_handler
-
-data_abort_handler_abs_addr:
-    .word data_abort_handler
-
-irq_handler_abs_addr:
-    .word irq_handler_wrapper
-
-fiq_handler_abs_addr:
-    .word fiq_handler
+_reset_h:                   .word reset_handler
+_undefined_instruction_h:   .word undefined_instruction_handler
+_software_interrupt_h:      .word software_interrupt_handler
+_prefetch_abort_h:          .word prefetch_abort_handler
+_data_abort_h:              .word data_abort_handler
+_irq_h:                     .word irq_handler_wrapper
+_fiq_h:                     .word fiq_handler
 
 move_exception_vector:
     push {r4-r9}

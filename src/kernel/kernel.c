@@ -24,6 +24,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Interrupts initialised\n");
 
     timer_init();
+    timer_set(3000000);
     printf("System Timer initialised\n");
 
     act_init();
@@ -37,12 +38,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     board_hi = get_serial_hi((struct atag *) atags);
     board_lo = get_serial_lo((struct atag *) atags);
     printf("Serial no.: %d.%d\n", board_hi, board_lo);
-
-    int secs = 0;
-    while (1) {
-        clrs();
-        printf("%d", ++secs);
-    }
 
     int c;
     while ((c = getc()) != 0x4) {

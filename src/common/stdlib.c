@@ -45,7 +45,7 @@ int32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
     uint32_t i = 0;
 
     if (n == 0) {
-        return strncpy(buf, "0", 1);
+        return strncpy(buf, "0", 2);
     }
         
     while (n > 0) {

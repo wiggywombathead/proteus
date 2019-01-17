@@ -4,9 +4,11 @@
 
 static struct sys_timer *systimer;
 
+static int uptime = 0;
+
 static void timer_irq_handler(void) {
-    printf("Timer handler called\n");
-    timer_set(3000000);
+    printf("%d ", uptime++);
+    timer_set(1000000);
 }
 
 static void timer_irq_clearer(void) {
