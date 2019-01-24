@@ -81,24 +81,6 @@ void gpu_putc(char c) {
     if (c == '\n' || c == '\r') {
         fb_info.col = 0;
         fb_info.row++;
-
-        /* perform another scroll */
-        if (fb_info.row >= fb_info.max_row) {
-
-            // shift all characters up one row
-            for (i = 0; i < fb_info.max_row - 1; i++) {
-                memcpy(
-                        fb_info.buffer + fb_info.pitch * i * CHAR_HEIGHT,
-                        fb_info.buffer + fb_info.pitch * (i+1) * CHAR_HEIGHT,
-                        fb_info.pitch * CHAR_HEIGHT
-                      );
-            }
-
-            // zero out the last row
-            bzero(fb_info.buffer + fb_info.pitch * i * CHAR_HEIGHT, fb_info.pitch * CHAR_HEIGHT);
-
-            fb_info.row--;
-        } 
     }
 
     const uint8_t *bmp = (uint8_t *) dhepper8x8[(int) c];

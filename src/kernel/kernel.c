@@ -3,25 +3,25 @@
 #include <kernel/gpu.h>
 #include <kernel/interrupt.h>
 #include <kernel/memory.h>
+#include <kernel/mutex.h>
 #include <kernel/proc.h>
 #include <kernel/timer.h>
 
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
-void test1(void) {
-    int i = 0;
-    while (1) {
-        printf("test1 %d\n", i++);
-        uwait(1000000);
-    }
-}
+mutex_t mutex;
 
-void test2(void) {
+void test(void) {
     int i = 0;
     while (1) {
-        printf("test2 %d\n", i++);
-        uwait(100000);
+//         if (i % 10 == 0)
+//             mutex_lock(&mutex);
+//         else if (i % 10 == 9)
+//             mutex_unlock(&mutex);
+// 
+        printf("TEST: %d\n", i++);
+        uwait(1000000);
     }
 }
 
@@ -64,12 +64,17 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     int mem = get_total_mem((struct atag *) atags) / (1024 * 1024);
     printf("Memory: %dMB\n", mem);
 
-    create_kthread(test1, "test1", 5);
-    create_kthread(test2, "test2", 5);
+    mutex_init(&mutex);
+    create_kthread(test, "Test", 5);
 
     int i = 0;
     while (1) {
-        printf("main %d\n", i++);
+//         if (i % 10 == 0)
+//             mutex_lock(&mutex);
+//         else if (i % 10 == 9)
+//             mutex_unlock(&mutex);
+// 
+        printf("main: %d\n", i++);
         uwait(1000000);
     }
 

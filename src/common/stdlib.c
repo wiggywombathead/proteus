@@ -5,10 +5,14 @@
 #include <stdint.h>
 #include <common/stdlib.h>
 
-void bzero(void *ptr, int bytes) {
-    char *p = ptr;
+void memset(void *ptr, uint8_t c, size_t bytes) {
+    uint8_t *p = ptr;
     while (bytes--)
-        *p++ = 0;
+        *p++ = c;
+}
+
+void bzero(void *ptr, int bytes) {
+    memset(ptr, 0, bytes);
 }
 
 void *memcpy(void *dst, const void *src, size_t bytes) {

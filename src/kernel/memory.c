@@ -153,8 +153,9 @@ void kfree(void *ptr) {
 
     /* merge segments to the right */
     while (seg->next != NULL && !seg->next->allocated) {
-        seg->segment_size += seg->next->segment_size;
+        seg->next->next->prev = seg;
         seg->next = seg->next->next;
+        seg->segment_size += seg->next->segment_size;
     }
 
 }
