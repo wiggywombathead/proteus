@@ -18,8 +18,8 @@ switch_context:
 
     /* load new process' state */
     ldr sp, [r1]
-    ldr r0, =#(10000)
-    bl timer_set
+    ldr r0, =#(10000)   /* quantum time of 10ms */
+    bl timer_set        /* set timer to go off in one quantum */
     pop {r0-r12}
     msr cpsr_c, r12
     pop {lr, pc}

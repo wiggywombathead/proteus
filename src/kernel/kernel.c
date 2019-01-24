@@ -48,7 +48,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     printf("\n"
             "=====================================\n"
-            "*      Welcome to proteus v0.1      *\n"
+            "*     Welcome to proteus v0.001     *\n"
             "=====================================\n"
             "\n"
         );

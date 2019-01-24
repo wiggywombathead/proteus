@@ -13,8 +13,8 @@ IMPLEMENT_LIST(proc);
 struct proc_list all_procs;
 struct proc_list ready_queue;
 
-static uint32_t current_pid;
 struct proc *current_process;
+static uint32_t current_pid;
 
 void proc_init(void) {
     struct proc *main;
@@ -29,6 +29,8 @@ void proc_init(void) {
 
     append_proc_list(&all_procs, main);
 
+    // current_process = main;
+
     timer_set(10000);
 }
 
@@ -37,7 +39,9 @@ void schedule(void) {
     DISABLE_INTERRUPTS();
     struct proc *old_thread, *new_thread;
 
+    /* if no other processes ready, just continue */
     if (size_proc_list(&ready_queue) == 0) {
+        timer_set(10000);
         ENABLE_INTERRUPTS();
         return;
     }

@@ -5,14 +5,15 @@ OBJCOPY = $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
 GDB = $(TOOLCHAIN)-gdb
 
 # set constants based on pi model
-ifeq ($(model),1)
+ifeq ($(model), 1)
 	CPU = arm1176jzf-s
 	ARCHDIR = model1
 	DIRECTIVES = -DRPIBPLUS
-else
+else ifeq ($(model),2)
 	CPU = cortex-a7
 	ARCHDIR = model2
 	DIRECTIVES = -DRPI2
+else $(error Please specify Raspberry Pi model (model={1|2}))
 endif
 
 CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding -g $(DIRECTIVES)
