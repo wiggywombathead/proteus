@@ -9,11 +9,19 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
-void function(void) {
+void test1(void) {
     int i = 0;
     while (1) {
-        printf("test %d\n", i++);
+        printf("test1 %d\n", i++);
         uwait(1000000);
+    }
+}
+
+void test2(void) {
+    int i = 0;
+    while (1) {
+        printf("test2 %d\n", i++);
+        uwait(100000);
     }
 }
 
@@ -56,7 +64,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     int mem = get_total_mem((struct atag *) atags) / (1024 * 1024);
     printf("Memory: %dMB\n", mem);
 
-    create_kthread(function, "test", 4);
+    create_kthread(test1, "test1", 5);
+    create_kthread(test2, "test2", 5);
 
     int i = 0;
     while (1) {

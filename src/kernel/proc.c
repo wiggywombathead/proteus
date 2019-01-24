@@ -29,6 +29,7 @@ void proc_init(void) {
 
     append_proc_list(&all_procs, main);
 
+    /* TODO: why does uncommenting this break scheduling */
     // current_process = main;
 
     timer_set(10000);
