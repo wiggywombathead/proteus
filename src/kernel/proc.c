@@ -17,7 +17,7 @@ struct proc_list all_procs;
 struct proc_list ready_queue;
 
 struct proc *current_process;
-static uint32_t current_pid;
+static uint32_t current_pid = 1;
 
 void proc_init(void) {
     struct proc *main;
@@ -33,9 +33,9 @@ void proc_init(void) {
     append_proc_list(&all_procs, main);
 
     /* TODO: why does uncommenting this break scheduling */
-    // current_process = main;
+    current_process = main;
 
-    timer_set(10000);
+    timer_set(20000);
 }
 
 void schedule(void) {
@@ -45,7 +45,7 @@ void schedule(void) {
 
     /* if no other processes ready, just continue */
     if (size_proc_list(&ready_queue) == 0) {
-        timer_set(10000);
+        timer_set(20000);
         ENABLE_INTERRUPTS();
         return;
     }
@@ -71,9 +71,13 @@ static void cleanup(void) {
     old_thread = current_process;
     current_process = new_thread;
 
+    /* free resources used by process */
     free_page(old_thread->stack_page);
     kfree(old_thread);
 
+    // remove_proc(&all_procs, old_thread);
+
+    /* context switch */
     switch_context(old_thread, new_thread);
 }
 
@@ -112,13 +116,14 @@ void spin_lock(spinlock_t *lock) {
 void spin_unlock(spinlock_t *lock) {
     *lock = 1;
 }
+
 void mutex_init(struct mutex *mutex) {
     mutex->lock = 1;
     mutex->locker = 0;
     INIT_LIST(mutex->wait_queue);
 }
 
-void mutex_lock(struct mutex *mutex) {
+void mutex_lock(mutex_t *mutex) {
     struct proc *old_thread, *new_thread;
 
     /* if lock unavailable, stop execution and go to wait queue */
@@ -138,7 +143,7 @@ void mutex_lock(struct mutex *mutex) {
     mutex->locker = current_process;
 }
 
-void mutex_unlock(struct mutex *mutex) {
+void mutex_unlock(mutex_t *mutex) {
     struct proc *proc;
 
     mutex->lock = 1;

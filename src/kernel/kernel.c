@@ -15,11 +15,11 @@ mutex_t mutex;
 void test(void) {
     int i = 0;
     while (1) {
-//         if (i % 10 == 0)
-//             mutex_lock(&mutex);
-//         else if (i % 10 == 9)
-//             mutex_unlock(&mutex);
-// 
+        if (i % 10 == 0)
+            mutex_lock(&mutex);
+        else if (i % 10 == 9)
+            mutex_unlock(&mutex);
+
         printf("TEST: %d\n", i++);
         uwait(1000000);
     }
@@ -56,7 +56,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     printf("\n"
             "=====================================\n"
-            "*     Welcome to proteus v0.001     *\n"
+            "*  Welcome to PLACEHOLDEROS v0.001  *\n"
             "=====================================\n"
             "\n"
         );
@@ -64,16 +64,21 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     int mem = get_total_mem((struct atag *) atags) / (1024 * 1024);
     printf("Memory: %dMB\n", mem);
 
+    /*
+     * SUCCESSFULLY INTIALISED
+     */
+
     mutex_init(&mutex);
     create_kthread(test, "Test", 5);
 
     int i = 0;
     while (1) {
-//         if (i % 10 == 0)
-//             mutex_lock(&mutex);
-//         else if (i % 10 == 9)
-//             mutex_unlock(&mutex);
-// 
+
+        if (i % 10 == 0)
+            mutex_lock(&mutex);
+        else if (i % 10 == 9)
+            mutex_unlock(&mutex);
+
         printf("main: %d\n", i++);
         uwait(1000000);
     }
