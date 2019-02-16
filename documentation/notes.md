@@ -778,4 +778,265 @@ to return. We take advantage of this to have a process jump automatically to
 cleanup code when it dies.
 
 ### Creating a new process
+Involves allocating space for the PCB and the process' stack, setting up the
+process stack to be context-switched to, and adding it to the run queue.
 
+### TODO: finish writing this up (spinlocks, list, mutexes)
+
+## Keyboard input
+### Status register
+| Bit |             type             |                           values                            |
+|-----|------------------------------|-------------------------------------------------------------|
+|   0 | output buffer status         | empty (don't read yet)                                      |
+|     |                              | full (please read)                                          |
+|   1 | input buffer status          | empty (can be written)                                      |
+|     |                              | full (don't write yet)                                      |
+|   2 | system flag                  | set after power on reset                                    |
+|     |                              | set after successful completion of kbd controller self-test |
+|   3 | command data                 | last write to input buffer was data (via 0x60)              |
+|     |                              | last write to input buffer was command (via 0x64)           |
+|   4 | keyboard locked              | locked                                                      |
+|     |                              | not locked                                                  |
+|   5 | auxiliary output buffer full | determines if read from 0x60 is valid (0 = keyboard data)   |
+|     |                              | mouse data (only if you can read 0x60)                      |
+|   6 | timeout                      | OK flag                                                     |
+|     |                              | timeout                                                     |
+|   7 | parity error                 | OK (no error)                                               |
+|     |                              | parity error with last byte                                 |
+
+### Keyboard Encoder commands
+| Command |                                  Descripton                                  |
+|---------|------------------------------------------------------------------------------|
+| 0xed    | Set LEDs                                                                     |
+| 0xee    | Echo command. Returns 0xEE to port 0x60 as a diagnostic test                 |
+| 0xf0    | Set alternate scan code set                                                  |
+| 0xf2    | Send 2 byte keyboard ID code as the next two bytes to be read from port 0x60 |
+| 0xf3    | Set autorepeat delay and repeat rate                                         |
+| 0xf4    | Enable keyboard                                                              |
+| 0xf5    | Reset to power on condition and wait for enable command                      |
+| 0xf6    | Reset to power on condition and begin scanning keyboard                      |
+| 0xf7    | Set all keys to autorepeat (PS/2 only)                                       |
+| 0xf8    | Set all keys to send make code and break code (PS/2 only)                    |
+| 0xf9    | Set all keys to generate only make codes                                     |
+| 0xfa    | Set all keys to autorepeat and generate make/break codes                     |
+| 0xfb    | Set a single key to autorepeat                                               |
+| 0xfc    | Set a single key to generate make and break codes                            |
+| 0xfd    | Set a single key to generate only break codes                                |
+| 0xfe    | Resend last result                                                           |
+| 0xff    | Reset keyboard to power on state and start self test                         |
+
+#### 0xed Set LEDs
+Sets LEDs on keyboard. Next byte written to 0x60 updates LEDs on keyboard.
+Bit 0 - Scroll lock LED
+Bit 1 - Num lock LED
+Bit 2 - Caps lock LED
+
+#### 0xf0 Set alternate scancode (PS/2 only)
+Sets scancode set to use. Next byte written to 0x60 must be:
+Bit 0 - returns current scancode set to 0x60
+Bit 1 - sets scancode set 1
+Bit 2 - sets scancode set 2
+Bit 3 - sets scancode set 3
+All other bits should be 0
+
+#### 0xf3 Set autorepeat delay and repeat rate
+Sets autorepeat delay and repeat rate. Next byte written to 0x60 must be:
+Bit 0-4 - repeat rate. 0 ~ 30 chars/sec. 0x1f ~ 2 chars/sec
+Bit 5-6 - repeat delay. 0 ~ 1/4 sec. 01 - 1/2 sec. 11 - 1 sec
+All other bits must be 0.
+
+#### Return codes
+These codes are sent from decoder to system through port 0x60. Returned value is
+one of:
+
+|        Value        |                                     Descripton                                      |
+|---------------------|-------------------------------------------------------------------------------------|
+| 0x0                 | Internal buffer overrun                                                             |
+| 0x1-0x58, 0x81-0xd8 | Keypress scan code                                                                  |
+| 0x83ab              | Keyboard ID code returned from F2 command                                           |
+| 0xaa                | Returned during Basic Assurance Test (BAT) after reset. Also L. shift key make code |
+| 0xee                | Returned from the ECHO command                                                      |
+| 0xf0                | Prefix of certain make codes (Does not apply to PS/2)                               |
+| 0xfa                | Keyboard acknowledge to keyboard command                                            |
+| 0xfc                | Basic Assurance Test (BAT) failed (PS/2 only)                                       |
+| 0xfd                | Diagonstic failure (Except PS/2)                                                    |
+| 0xfe                | Keyboard requests for system to resend last command                                 |
+| 0xff                | Key error (PS/2 only)                                                               |
+
+### Keyboard Controller commands
+|        Command        |              Descripton              |
+|-----------------------|--------------------------------------|
+| Common Commands       |                                      |
+| 0x20                  | Read command byte                    |
+| 0x60                  | Write command byte                   |
+| 0xaa                  | Self Test                            |
+| 0xab                  | Interface Test                       |
+| 0xad                  | Disable Keyboard                     |
+| 0xae                  | Enable Keyboard                      |
+| 0xc0                  | Read Input Port                      |
+| 0xd0                  | Read Output Port                     |
+| 0xd1                  | Write Output Port                    |
+| 0xe0                  | Read Test Inputs                     |
+| 0xfe                  | System Reset                         |
+| 0xa7                  | Disable Mousr Port                   |
+| 0xa8                  | Enable Mouse Port                    |
+| 0xa9                  | Test Mouse Port                      |
+| 0xd4                  | Write To Mouse                       |
+| Non Standard Commands |                                      |
+| 0x00-0x1f             | Read Controller RAM                  |
+| 0x20-0x3f             | Read Controller RAM                  |
+| 0x40-0x5f             | Write Controller RAM                 |
+| 0x60-0x7f             | Write Controller RAM                 |
+| 0x90-0x93             | Synaptics Multiplexer Prefix         |
+| 0x90-0x9f             | Write port 13-Port 10                |
+| 0xa0                  | Read Copyright                       |
+| 0xa1                  | Read Firmware Version                |
+| 0xa2                  | Change Speed                         |
+| 0xa3                  | Change Speed                         |
+| 0xa4                  | Check if password is installed       |
+| 0xa5                  | Load Password                        |
+| 0xa6                  | Check Password                       |
+| 0xac                  | Disagnostic Dump                     |
+| 0xaf                  | Read Keyboard Version                |
+| 0xb0-0xb5             | Reset Controller Line                |
+| 0xb8-0xbd             | Set Controller Line                  |
+| 0xc1                  | Continuous input port poll, low      |
+| 0xc2                  | Continuous input port poll, high     |
+| 0xc8                  | Unblock Controller lines P22 and P23 |
+| 0xc9                  | Block Controller lines P22 and P23   |
+| 0xca                  | Read Controller Mode                 |
+| 0xcb                  | Write Controller Mode                |
+| 0xd2                  | Write Output Buffer                  |
+| 0xd3                  | Write Mouse Output Buffer            |
+| 0xdd                  | Disable A20 address line             |
+| 0xdf                  | Enable A20 address line              |
+| 0xf0-0xff             | Pulse output bit                     |
+
+#### 0x20 Read command byte and Read Controller RAM
+Commands 0x20 - 0x3f are for reading command byte *and* reading controller RAM?
+What's going on there? They refer to same thing - command byte is stored in
+controller's RAM, so to read the command byte you read from RAM. When reading
+from RAM, the last 6 bits of the command refer to the location in RAM to read
+from.
+
+| Bit |                Function                |                     Values                     |
+|-----|----------------------------------------|------------------------------------------------|
+|   0 | Keyboard interrupt enable              | Disables interrupt                             |
+|     |                                        | Sends IRQ1 when keyboard output buffer is full |
+|   1 | Mouse interrupt enable                 | Disables mouse interrupts                      |
+|     |                                        | Sends IRQ12 when mouse output buffer full      |
+|   2 | System flag (also bit 2 of status reg) | Cold reboot                                    |
+|     |                                        | Warm reboot (BAT already completed)            |
+|   3 | Ignore keyboard lock                   | Unused on PS/2                                 |
+|   4 | Keyboard enable                        | Enable keyboard                                |
+|     |                                        | Disable keyboard by driving clock line low     |
+|   5 | Mouse enable                           | Enable mouse                                   |
+|     |                                        | Disable mouse by driving clock line low        |
+|   6 | Translation                            | No translation                                 |
+|     |                                        | Translate key scancodes                        |
+|   7 | Unused                                 | -                                              |
+
+#### 0x60 Write command byte and Write controller RAM
+Reading byte 0 of RAM is done by sending command byte 0x60
+
+#### 0xaa Self-test
+Causes the controller to perform a self-test. Returns result in output buffer
+(which can be read through port 0x60) - 0x55 if test passed successfully, 0xfc
+if it failed.
+
+#### 0xab Interface test
+Causes the controller to test the serial interface between controller and
+keyboard. Result is placed in output buffer, read on 0x60. Results:
+0 - success
+1 - keyboard clock line stuck low
+2 - keyboard clock line stuck high
+3 - keyboard data line stuck high
+0xff - general error (who?)
+
+These are all hardware errors; disable and reset it if occurs.
+
+#### 0xad Disable keyboard
+Causes controller to disable keyboard clock line and set bit 4 (keyboard enable)
+of the command byte.
+
+#### 0xc0 Read input port
+Reads input port (lines p10-17 on the controller) and copies the binary value to
+the output buffer which can be read through port 0x64. This is the layout of the
+lines on this port:
+
+| Bit | Line |            Function             |
+|-----|------|---------------------------------|
+|   0 |   10 | Keyboard data in, Unused in ISA |
+|   1 |   11 | Mouse data in, Unused in ISA    |
+|   2 |   12 | Unused in ISA, EISA, PS/2       |
+|   3 |   13 | Unused in ISA, EISA, PS/2       |
+|   4 |   14 | 512 KB motherboard RAM          |
+|     |      | 256K RAM                        |
+|   5 |   15 | Manufacturing jumper installed  |
+|     |      | Not installed                   |
+|   6 |   16 | CGA display                     |
+|     |      | MDA display                     |
+|   7 |   17 | Keyboard locked                 |
+|     |      | Not locked                      |
+
+#### 0xd0 Read output port
+Tells the controller to read from the output port (p2) and place the result in
+the output buffer at port 0x64. By reading from 0x64 after issuing this command,
+we can check the bits of the controllers output port. The controllers output
+port is the p20-27 lines of the controller. The binary value on these lines is
+then stored in the output buffer when the command is executed. The output port
+pins are as follows:
+
+| Bit | Line |          Function          |
+|-----|------|----------------------------|
+|   0 |   20 | Reset CPU                  |
+|     |      | Normal operation           |
+|   1 |   21 | A20 line is forced         |
+|     |      | Enabled                    |
+|   2 |   22 | Mouse data. Unused in ISA  |
+|   3 |   23 | Mouse clock. Unused in ISA |
+|   4 |   24 | IRQ 1 not active           |
+|     |      | IRQ 1 active               |
+|   5 |   25 | IRQ 12 not active          |
+|     |      | IRQ 12 active              |
+|   6 |   26 | Keyboard Clock             |
+|   7 |   27 | Data to Keyboard           |
+
+Bits 2 and 3 no longer used in **ISA** (Industry Standard Architecture)
+computers, which is most modern computers. Bits 4 and 5 are connected to the
+Programmable Interrupt Controller (PIC) on PIC lines IR1 and IR12. If the line
+is active, the interrupt line is also active on the PIC (meaning the interrupt
+may be executing or pending execution). Bits 6 and 7 contain the current
+keyboard clock and data signal (whether the line is active or not).
+
+When this command is issued on port 0x64, the resulting byte is placed in the
+output buffer and may be read by reading the byte from port 0x60.
+
+#### 0xd1 Write output port
+Copies the byte from the output buffer (port 0x60) and places it on the
+controller's output port lines. Useful for enabling and disabling IRQ used by
+controller, enable or disable the A20 gate, or reset system by setting bit 0.
+
+#### 0xe0 Read test input
+Takes binary value from test port lines on controller and places it into output
+buffer, so it can be read through port 0x60. The test port lines are TEST0 and
+TEST1 of the microcontroller:
+
+| Bit | Line  |                        Function                        |
+|-----|-------|--------------------------------------------------------|
+|   0 | TEST0 | Keyboard clock (input)                                 |
+|   1 | TEST1 | PS/2 - Mouse clock (input). AT - Keyboard data (input) |
+
+All other bits should be assumed undefined and not read.
+
+#### 0xfe System Reset
+Causes controller to pulse bit 0 of controllers input port (p0) which resets the
+CPU. Same as sending the `Write Output Port` command and resetting bit 0. This
+is to reset the system in a nice way.
+
+
+## Memory
+### Shared
+### Message passing
+
+## Filesystem

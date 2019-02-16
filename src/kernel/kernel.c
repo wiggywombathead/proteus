@@ -21,7 +21,42 @@ void test(void) {
             mutex_unlock(&mutex);
 
         printf("TEST: %d\n", i++);
+        uwait(2000000);
+    }
+}
+
+void fib(void) {
+    int32_t a, b, c;
+    a = 0;
+    b = 1;
+
+    uint32_t i = 3;
+
+    while (1) {
+        c = a + b;
+        a = b;
+        b = c;
+
+        // overflowed - start again
+        if (c < 0) {
+            a = 0;
+            b = 1;
+            c = 1;
+            i = 3;
+        }
+
+        printf("Fib[%d]: %d\n", i++, c);
         uwait(1000000);
+    }
+}
+
+void flash(void) {
+    uint32_t hertz = 5;
+    while (1) {
+        act_on();
+        uwait(500000 / hertz);
+        act_off();
+        uwait(500000 / hertz);
     }
 }
 
@@ -65,11 +100,17 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Memory: %dMB\n", mem);
 
     /*
-     * SUCCESSFULLY INTIALISED
+     * SUCCESSFULLY INITIALISED
      */
 
     mutex_init(&mutex);
+
     create_kthread(test, "Test", 5);
+    create_kthread(fib, "fib", 4);
+    create_kthread(flash, "act_flash", 10);
+
+    uint32_t max = UINT32_MAX;
+    printf("MAX: %d\n", max);
 
     int i = 0;
     while (1) {
@@ -80,7 +121,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
             mutex_unlock(&mutex);
 
         printf("main: %d\n", i++);
-        uwait(1000000);
+
+        uwait(2000000);
     }
 
     int c;

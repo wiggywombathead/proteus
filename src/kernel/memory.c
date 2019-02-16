@@ -64,7 +64,7 @@ void mem_init(struct atag *atags) {
 void *alloc_page(void) {
 
     struct page *page;
-    void *page_mem;
+    void *page_addr;
 
     if (size_page_list(&free_pages) == 0)
         return 0;
@@ -75,10 +75,10 @@ void *alloc_page(void) {
     page->flags.allocated = 1;
 
     // find the physical address of this page in memory
-    page_mem = (void *) ((page - all_pages) * PAGE_SIZE);
-    bzero(page_mem, PAGE_SIZE);
+    page_addr = (void *) ((page - all_pages) * PAGE_SIZE);
+    bzero(page_addr, PAGE_SIZE);
 
-    return page_mem;
+    return page_addr;
 }
 
 void free_page(void *ptr) {

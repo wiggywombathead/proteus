@@ -12,7 +12,8 @@ struct page_flags {
     uint8_t allocated : 1;
     uint8_t kernel_page : 1;
     uint8_t kernel_heap_page : 1;
-    uint32_t reserved : 29;
+    uint8_t share : 1;
+    uint32_t reserved : 28;
 };
 
 DEFINE_LIST(page);
