@@ -44,7 +44,7 @@ enum usb_dev_class {
     DEV_VEND_SPEC  = 0xff, // vendor specific
 };
 
-struct usb_dev_descriptor {
+struct usb_dev_desc {
     uint8_t desc_length;
     enum usb_desc_type desc_type : 8;
     uint16_t usb_version;

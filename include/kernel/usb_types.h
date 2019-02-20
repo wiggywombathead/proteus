@@ -13,7 +13,7 @@ typedef enum {
     ERR_MEM          = -7,  // memory exhausted
     ERR_TIMEOUT      = -8,  // max delay reached
     ERR_DC           = -9   // dev d/c during transfer
-} result_t;
+} devcall;
 
 /* direction of information flow */
 typedef enum {
