@@ -1,5 +1,6 @@
 #include <kernel/keyboard.h>
 
+/*
 uint8_t kbd_ctrl_read_status(void) {
     return (KBD_CTRL_STATUS_REG);
 }
@@ -71,3 +72,4 @@ static void kbd_irq_handler(void) {
 static void kbd_irq_clearer(void) {
 
 }
+*/

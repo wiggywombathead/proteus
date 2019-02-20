@@ -1,6 +1,7 @@
 #ifndef _KEYBOARD_H
 #define _KEYBOARD_H
 
+#include <stdint.h>
 #include <stdbool.h>
 
 #define KBD_ENC_INPUT_BUF   0x60    /* read input buffer */
