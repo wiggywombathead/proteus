@@ -1,4 +1,4 @@
-.section ".text.boot"
+.section .text.boot
 
 .global _start  /* make _start visible outside file */
 

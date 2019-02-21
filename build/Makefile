@@ -1,11 +1,11 @@
-TOOLCHAIN = arm-none-eabi
+TOOLCHAIN ?= arm-none-eabi
 
-CC = $(TOOLCHAIN)-gcc			# ARM cross compiler
-OBJCOPY = $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
-GDB = $(TOOLCHAIN)-gdb
+CC := $(TOOLCHAIN)-gcc			# ARM cross compiler
+OBJCOPY := $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
+GDB := $(TOOLCHAIN)-gdb
 
 # set constants based on pi model
-ifeq ($(model), 1)
+ifeq ($(model),1)
 	CPU = arm1176jzf-s
 	ARCHDIR = model1
 	DIRECTIVES = -DRPIBPLUS
@@ -19,9 +19,11 @@ else
 	DIRECTIVES = -DRPIBPLUS
 endif
 
+LIBRARIES := gcc csud
+
 CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
-LFLAGS = -ffreestanding -O2 -nostdlib -lgcc
+LFLAGS = -ffreestanding -O2 -nostdlib $(patsubst %,-l%,$(LIBRARIES))
 
 KERN_HEAD = ../include
 KERN_SRC = ../src/kernel
@@ -45,7 +47,7 @@ IMG = proteus
 .PHONY: build clean gdbinit
 
 build: $(OBJECTS) $(HEADERS)
-	$(CC) -T linker.ld -o $(IMG).elf $(OBJECTS) $(LFLAGS) 
+	$(CC) -T linker.ld -o $(IMG).elf $(OBJECTS) -L. $(LFLAGS) 
 	$(OBJCOPY) $(IMG).elf -O binary $(IMG).img
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
@@ -73,7 +75,7 @@ run: build
 	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
 
 dbginit:
-	echo "target remote loalhost:1234" > .gdbinit
+	echo "target remote localhost:1234" > .gdbinit
 	echo "break kernel_main" > .gdbinit
 
 dbg:

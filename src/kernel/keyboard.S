@@ -86,7 +86,7 @@ get_kbd$:
     beq return$
     mov kbd, r0
 
-have_kbd$:
+kbd_found$:
     mov r5, #0
 
     /* loop through all keys and store in kbd_down_prev */
@@ -100,7 +100,7 @@ have_kbd$:
         strh r0, [r1]
         add r5, #1
         cmp r5, #6
-        blt save_keys
+        blt save_keys$
 
     /* get the new keys */
     mov r0, kbd
@@ -139,7 +139,7 @@ key_was_down:
     mov r0, #0
     mov pc, lr
 
-.gloabl kbd_getchar
+.global kbd_getchar
 kbd_getchar:
     /* check we have a keyboard */
     ldr r0, =kbd_addr

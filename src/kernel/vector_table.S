@@ -1,4 +1,4 @@
-.section ".text"
+.section .text
 
 .global move_exception_vector
 
