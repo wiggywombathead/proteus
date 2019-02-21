@@ -19,16 +19,17 @@ else
 	DIRECTIVES = -DRPIBPLUS
 endif
 
-LIBRARIES := gcc csud
-
-CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding -g $(DIRECTIVES)
-CSRCFLAGS = -O2 -Wall -Wextra
-LFLAGS = -ffreestanding -O2 -nostdlib $(patsubst %,-l%,$(LIBRARIES))
-
 KERN_HEAD = ../include
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
+LIBS = ../libs
 OBJ_DIR = objects
+
+LIBRARIES := $(wildcard $(LIBS)/*.a)
+
+CFLAGS = -mcpu=$(CPU) -fpic -ffreestanding -g $(DIRECTIVES)
+CSRCFLAGS = -O2 -Wall -Wextra
+LFLAGS = -ffreestanding -O2 -nostdlib -lgcc $(patsubst $(LIBS)/lib%.a,-l%,$(LIBRARIES))
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
@@ -47,7 +48,8 @@ IMG = proteus
 .PHONY: build clean gdbinit
 
 build: $(OBJECTS) $(HEADERS)
-	$(CC) -T linker.ld -o $(IMG).elf $(OBJECTS) -L. $(LFLAGS) 
+	@echo "Building $(IMG)"
+	$(CC) -T linker.ld -o $(IMG).elf $(OBJECTS) -L$(LIBS) $(LFLAGS) 
 	$(OBJCOPY) $(IMG).elf -O binary $(IMG).img
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
@@ -67,6 +69,7 @@ $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(KERN_HEAD) -c $< -o $@ $(CSRCFLAGS)
 
 clean:
+	@echo "Cleaning up..."
 	rm -rf $(OBJ_DIR)
 	rm $(IMG).elf
 	rm $(IMG).img

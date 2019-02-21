@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <kernel/gpio.h>
+#include <kernel/timer.h>
 #include <common/stdio.h>
 
 static inline void mmio_write(uint32_t reg, uint32_t data) {
@@ -70,13 +71,10 @@ void act_off(void) {
 }
 
 void act_blink(uint32_t n) {
-    volatile unsigned int t;
     while (n--) {
         act_on();
-        for (t = 0; t < 500000; t++)
-            ;
+        uwait(200000);
         act_off();
-        for (t = 0; t < 500000; t++)
-            ;
+        uwait(200000);
     };
 }

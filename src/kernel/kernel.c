@@ -11,6 +11,10 @@
 #include <common/stdio.h>
 
 void UsbInitialise(void);
+int KeyboardCount(void);
+uint32_t KeyboardGetAddress(uint32_t);
+void KeyboardSetLeds(uint32_t addr, struct KeyboardLeds);
+
 void usb_init(void) {
     UsbInitialise();
 }
@@ -121,8 +125,16 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     // create_kthread(fib, "fib", 4);
     // create_kthread(flash, "act_flash", 10);
 
-    uint32_t max = UINT32_MAX;
-    printf("MAX: %d\n", max);
+    // KeyboardLeds leds;
+
+    int keebs = KeyboardCount();
+    act_blink(keebs);
+
+    // uint32_t kbd = KeyboardGetAddress(0);
+    // if (kbd != 0)
+    //     act_blink(10);
+
+    // KeyboardSetLeds(kbd, leds);
 
     while (1) {
         kbd_update();
@@ -130,6 +142,9 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         char c = kbd_getchar();
 
         if (!c) continue;
+
+        if (c == 'a')
+            act_blink(1);
 
         putc(c);
     }

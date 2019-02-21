@@ -123,8 +123,8 @@ void gpu_putc(char c) {
 }
 
 void clrs(void) {
-    for (int i = 0; i < fb_info.max_col; i++)
-        for (int j = 0; j < fb_info.max_row; j++)
+    for (uint32_t i = 0; i < fb_info.max_col; i++)
+        for (uint32_t j = 0; j < fb_info.max_row; j++)
             gpu_putc(' ');
     fb_info.col = fb_info.row = 0;
 }
