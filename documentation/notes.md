@@ -1034,9 +1034,173 @@ Causes controller to pulse bit 0 of controllers input port (p0) which resets the
 CPU. Same as sending the `Write Output Port` command and resetting bit 0. This
 is to reset the system in a nice way.
 
+## Static linking
+Experimented with using pre-compiled library, so had to modify makefile to
+support static linking. TODO finish explanation when modifications done.
+
+The functions provided by the shared library are as follows:
+
+|         Function         |            Arguments             |        Returns        |
+|--------------------------|----------------------------------|-----------------------|
+| UsbInitialise            | None                             | r0 is result code     |
+| UsbCheckForChange        | None                             | None                  |
+| KeyboardCount            | None                             | r0 is count           |
+| KeyboardGetAddress       | r0 is index                      | r0 is address         |
+| KeyboardPoll             | r0 is address                    | r0 is result code     |
+| KeyboardGetModifiers     | r0 is address                    | r0 is modifier state  |
+| KeyboardGetKeyDownCount  | r0 is address                    | r0 is count           |
+| KeyboardGetKeyDown       | r0 is address, r1 is key number  | r0 is scan code       |
+| KeyboardGetKeyIsDown     | r0 is address, r1 is scan code   | r0 is status          |
+| KeyboardGetLedSupport    | r0 is address                    | r0 is LEDs            |
+| KeyboardSetLeds          | r0 is address, r1 is LEDs        | r0 is result code     |
+
+#### UsbInitialise
+Loads USB driver, enumerates all devices and attempts to communicate with them.
+Takes about a second to execute. After this method returns methods in the
+keyboard driver become available, regardless of whether or not a keyboard is
+inserted.
+
+#### UsbCheckForChange        
+Essentially provides the same effect as UsbInitialise, but does not provide the
+same one time initialisation. This method checks every port on every connected
+hub recursively, and adds new devices if they have been added. This should be
+very quick if there are no changes, but can take up to a few seconds if a hub
+with many devices is attached.
+
+#### KeyboardCount            
+Returns the number of keyboards currently connected and detected.
+UsbCheckForChange may update this. Up to 4 keyboards are supported by default.
+Up to this many keyboards may be accessed through this driver.
+
+#### KeyboardGetAddress       
+Retrieves the address of a given keyboard. All other functions take a keyboard
+address in order to know which keyboard to access. Thus, to communicate with a
+keyboard, first check the count, then retrieve the address, then use other
+methods. Note, the order of keyboards that this method returns may change after
+calls to UsbCheckForChange.
+
+#### KeyboardPoll             
+Reads in the current key state from the keyboard. This operates via polling the
+device directly, contrary to the best practice. This means that if this method
+is not called frequently enough, a key press could be missed. All reading
+methods simply return the value as of the last poll.
+
+#### KeyboardGetModifiers     
+Retrieves the status of the modifier keys as of the last poll. These are the
+shift, alt control and GUI keys on both sides. This is returned as a bit field,
+such that a 1 in the bit 0 means left control is held, bit 1 means left shift,
+bit 2 means left alt, bit 3 means left GUI and bits 4 to 7 mean the right
+versions of those previous. If there is a problem r0 contains 0.
+
+#### KeyboardGetKeyDownCount  
+Retrieves the number of keys currently held down on the keyboard. This excludes
+modifier keys. Normally, this cannot go above 6. If there is an error this
+method returns 0.
+
+
+
+#### KeyboardGetKeyDown       
+Retrieves the scan code of a particular held down key. Normally, to work out
+which keys are down, call KeyboardGetKeyDownCount and then call
+KeyboardGetKeyDown up to that many times with increasing values of r1 to
+determine which keys are down. Returns 0 if there is a problem. It is safe (but
+not recommended) to call this method without calling KeyboardGetKeyDownCount and
+interpret 0s as keys not held. Note, the order or scan codes can change randomly
+(some keyboards sort numerically, some sort temporally, no guarantees are made).
+
+#### KeyboardGetKeyIsDown     
+Alternative to KeyboardGetKeyDown, checks if a particular scan code is among the
+held down keys. Returns 0 if not, or a non-zero value if so. Faster when
+detecting particular scan codes (e.g. looking for ctrl+c). On error, returns 0.
+
+#### KeyboardGetLedSupport    
+Checks which LEDs a particular keyboard supports. Bit 0 being 1 represents
+Number Lock, bit 1 represents Caps Lock, bit 2 represents Scroll Lock, bit 3
+represents Compose, bit 4 represents Kana, bit 5 represents Power, bit 6
+represents Mute and bit 7 represents Compose. As per the USB standard, none of
+these LEDs update automatically (e.g. Caps Lock must be set manually when the
+Caps Lock scan code is detected).
+
+#### KeyboardSetLeds          
+Attempts to turn on/off the specified LEDs on the keyboard. See below for result
+code values. See KeyboardGetLedSupport for LEDs' values.
+
+### Result codes
+| Code  |                               Description                               |
+|-------|-------------------------------------------------------------------------|
+|    0  | Method completed successfully.                                          |
+|   -2  | Argument: A method was called with an invalid argument.                 |
+|   -4  | Device: The device did not respond correctly to the request.            |
+|   -5  | Incompatible: The driver is not compatible with this request or device. |
+|   -6  | Compiler: The driver was compiled incorrectly, and is broken.           |
+|   -7  | Memory: The driver ran out of memory.                                   |
+|   -8  | Timeout: The device did not respond in the expected time.               |
+|   -9  | Disconnect: The device requested has disconnected, and cannot be used.  |
+
+### Driver flow
+1. Call UsbInitialise
+2. Call UsbCheckForChange
+3. Call KeyboardCount
+4. If this is 0, go to 2.
+5. For each keyboard you support:
+  1. Call KeyboardGetAddress
+  2. Call KeybordGetKeyDownCount
+  3. For each key down:
+    1. Check whether or not it has just been pushed
+    2. Store that the key is down
+  4. For each key stored:
+    1. Check whether or not key is released
+    2. Remove key if released
+6. Perform actions based on keys pushed/released
+7. Go to 2.
+
+### Getting input
+1. Retrieve a stored keyboard address (initially 0).
+2. If this is not 0, go to 9.
+3. Call UsbCheckForChange to detect new keyboards.
+4. Call KeyboardCount to detect how many keyboards are present.
+5. If this is 0 store the address as 0 and return; we can't do anything with no keyboard.
+6. Call KeyboardGetAddress with parameter 0 to get the first keyboard's address.
+7. Store this address.
+8. If this is 0, return; there is some problem.
+9. Call KeyboardGetKeyDown 6 times to get each key currently down and store them
+10. Call KeyboardPoll
+11. If result non-zero go to 3. There is some problem (such as disconnected keyboard).
+
+To check for input, it becomes as simple as calling `kbd_update()` at regular
+intervals, and also checks for disconnections.
+
+### kbd\_getchar()
+Will need to:
+1. Check if KeyboardAddress is 0. If so, return 0.
+2. Call KeyboardGetKeyDown up to 6 times. Each time:
+  1. If key is 0, exit loop.
+  2. Call KeyWasDown. If it was, go to the next key.
+  3. If the scan code is more than 103, go to the next key.
+  4. Call KeyboardGetModifiers
+  5. If shift is held, load the address of KeysShift. Otherwise load KeysNormal.
+  6. Read the ASCII value from the table.
+  7. If it is 0, go to the next key otherwise return this ASCII code and exit.
+3. Return 0.
+
+`tst` computes logical AND and compares result to 0, so `r0` is zero iff both
+shift keys are not down (i.e. `tst r0, 0x22` returns 0)
 
 ## Memory
 ### Shared
 ### Message passing
 
 ## Filesystem
+
+## References
+[ARM syntax](http://www.davespace.co.uk/arm/introduction-to-arm/)
+[ARM directives](https://sourceware.org/binutils/docs/as/ARM-Directives.html)
+[LDR r0, =x](https://azeria-labs.com/memory-instructions-load-and-store-part-4/)
+
+#### teq - test equivalence
+Unlike `cmp`, the `V` flag is not updated. Equivalent of an internal OR of the
+two operands. Operand 1 is a register, operand 2 may be a register, shifted
+register, or an immediate value (which may be shifted). Also documented in
+`cheatsheet.png` and `cheatsheet.pdf`.
+[TEQ](http://www.keil.com/support/man/docs/armasm/armasm_dom1361289912729.htm)
+[TEQ](https://www.heyrick.co.uk/armwiki/TEQ)
