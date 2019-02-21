@@ -10,6 +10,14 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
+void UsbInitialise(void);
+void usb_init(void) {
+    UsbInitialise();
+}
+
+extern void kbd_update(void);
+extern char kbd_getchar(void);
+
 mutex_t mutex;
 
 void test(void) {
@@ -89,6 +97,10 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     proc_init();
     printf("DONE\n");
 
+    printf("Initialising keyboard... ");
+    usb_init();
+    printf("DONE\n");
+
     printf("\n"
             "=====================================\n"
             "*  Welcome to PLACEHOLDEROS v0.001  *\n"
@@ -105,12 +117,24 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    create_kthread(test, "Test", 5);
-    create_kthread(fib, "fib", 4);
-    create_kthread(flash, "act_flash", 10);
+    // create_kthread(test, "Test", 5);
+    // create_kthread(fib, "fib", 4);
+    // create_kthread(flash, "act_flash", 10);
 
     uint32_t max = UINT32_MAX;
     printf("MAX: %d\n", max);
+
+    while (1) {
+        kbd_update();
+
+        char c = kbd_getchar();
+
+        if (!c) continue;
+
+        putc(c);
+    }
+
+
 
     int i = 0;
     while (1) {
@@ -120,7 +144,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         else if (i % 10 == 9)
             mutex_unlock(&mutex);
 
-        printf("main: %d\n", i++);
+        // printf("main: %d\n", i++);
 
         uwait(2000000);
     }

@@ -1186,6 +1186,9 @@ Will need to:
 `tst` computes logical AND and compares result to 0, so `r0` is zero iff both
 shift keys are not down (i.e. `tst r0, 0x22` returns 0)
 
+#### Note on static linking
+[Here](https://stackoverflow.com/questions/11344965/how-to-include-static-library-in-makefile)
+
 ## Memory
 ### Shared
 ### Message passing
