@@ -2,6 +2,7 @@
 #include <kernel/interrupt.h>
 #include <kernel/memory.h>
 #include <kernel/mutex.h>
+#include <kernel/sched.h>
 #include <kernel/spinlock.h>
 #include <kernel/timer.h>
 
@@ -19,6 +20,8 @@ struct proc_list ready_queue;
 struct proc *current_process;
 static uint32_t current_pid = 1;
 
+schedulerfn scheduler;
+
 void proc_init(void) {
     struct proc *main;
 
@@ -35,14 +38,23 @@ void proc_init(void) {
     current_process = main;
 
     timer_set(20000);
+
+#ifdef SCHED_FCFS
+    scheduler = sched_fcfs;
+#else
+    scheduler = sched_round_robin;
+#endif
 }
 
 void schedule(void) {
 
+    scheduler();
+    
+    /*
     DISABLE_INTERRUPTS();
     struct proc *old_thread, *new_thread;
 
-    /* if no other processes ready, just continue */
+    // if no other processes ready, just continue
     if (size_proc_list(&ready_queue) == 0) {
         timer_set(20000);
         ENABLE_INTERRUPTS();
@@ -57,6 +69,7 @@ void schedule(void) {
 
     switch_context(old_thread, new_thread);
     ENABLE_INTERRUPTS();
+    */
 }
 
 static void cleanup(void) {
@@ -153,4 +166,29 @@ void mutex_unlock(mutex_t *mutex) {
         proc = dequeue_proc_list(&mutex->wait_queue);
         prepend_proc_list(&ready_queue, proc);
     }
+}
+
+void sched_round_robin(void) {
+    DISABLE_INTERRUPTS();
+    struct proc *old_thread, *new_thread;
+
+    /* if no other processes ready, just continue */
+    if (size_proc_list(&ready_queue) == 0) {
+        timer_set(20000);
+        ENABLE_INTERRUPTS();
+        return;
+    }
+
+    new_thread = dequeue_proc_list(&ready_queue);
+    old_thread = current_process;
+    current_process = new_thread;
+
+    append_proc_list(&ready_queue, old_thread);
+
+    switch_context(old_thread, new_thread);
+    ENABLE_INTERRUPTS();
+}
+
+void sched_fcfs(void) {
+    return;
 }

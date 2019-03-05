@@ -19,6 +19,13 @@ else
 	DIRECTIVES = -DRPIBPLUS
 endif
 
+# scheduler
+ifeq ($(sched),fcfs)
+	DIRECTIVES += -DSCHED_FCFS
+else ifeq ($(sched),robin)
+	DIRECTIVES += -DSCHED_ROUNDROBIN
+endif
+
 KERN_HEAD = ../include
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common

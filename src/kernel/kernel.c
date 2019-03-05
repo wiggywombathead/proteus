@@ -44,7 +44,7 @@ void fib(void) {
 
     uint32_t i = 3;
 
-    while (1) {
+    while (i < 1000000) {
         c = a + b;
         a = b;
         b = c;
@@ -121,20 +121,21 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    // create_kthread(test, "Test", 5);
-    // create_kthread(fib, "fib", 4);
-    // create_kthread(flash, "act_flash", 10);
+    create_kthread(test, "Test", 5);
+    create_kthread(fib, "fib", 4);
+    create_kthread(flash, "act_flash", 10);
 
-    // KeyboardLeds leds;
+    /*
+    KeyboardLeds leds;
 
     int keebs = KeyboardCount();
     act_blink(keebs);
 
-    // uint32_t kbd = KeyboardGetAddress(0);
-    // if (kbd != 0)
-    //     act_blink(10);
+    uint32_t kbd = KeyboardGetAddress(0);
+    if (kbd != 0)
+        act_blink(10);
 
-    // KeyboardSetLeds(kbd, leds);
+    KeyboardSetLeds(kbd, leds);
 
     while (1) {
         kbd_update();
@@ -148,8 +149,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
         putc(c);
     }
-
-
+    */
 
     int i = 0;
     while (1) {
@@ -159,7 +159,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         else if (i % 10 == 9)
             mutex_unlock(&mutex);
 
-        // printf("main: %d\n", i++);
+        printf("main: %d\n", i++);
 
         uwait(2000000);
     }

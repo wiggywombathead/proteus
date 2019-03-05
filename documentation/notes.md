@@ -230,11 +230,11 @@ kernel via registers 0, 1, and 2, and boot.s makes sure to preserve these
 registers (no line of code touches them). Register 0 contains a code for the
 device from which the Raspberry Pi was booted (usually 0, but dependent on the
 board firmware). Register 1 contains the 'ARM Linux Machine Type', which for the
-Raspberry Pi 2 is 0x12dc, identifying the BCM2835 CPU (found [here]
-(http://www.arm.linux.org.uk/developer/machines/)). When the bootloader loads
-the kernel, it also passes some information about the hardware in order to run
-it, called 'atags'. A pointer to this information is passed in register 2 just
-before boot.s runs. Since register 2 contains the atags pointer, the third
+Raspberry Pi 2 is 0x12dc, identifying the BCM2835 CPU (found
+[here](http://www.arm.linux.org.uk/developer/machines/)). When the bootloader
+loads the kernel, it also passes some information about the hardware in order to
+run it, called 'atags'. A pointer to this information is passed in register 2
+just before boot.s runs. Since register 2 contains the atags pointer, the third
 argument to `kernel_main` is the atags pointer.
 
 ### linker.ld
@@ -495,7 +495,6 @@ Could not resolve issue of displaying to HDMI on Pi 2, so switched to Pi 1 where
 the process is much simpler. Had to include the `-lgcc` linking flag for some
 reason, other compilation threw the error `undefined reference to
 __aeabi_uidivmod`. Searching around, this is because 
-    
 
 > The ARM family of CPUs does not have a native integer division instruction. So,
 > division needs to be implemented by a library function. GCC knows this, and
@@ -547,7 +546,7 @@ follows:
 IRQ is a notification to the CPU that something happened in the hardware that
 the CPU should know about e.g. keypress, accessing privileged memory, receiving
 network packet. To determine which device can trigger interrupts and which has
-triggered one, we use the IRG peripheral, located at offset `0xb000` from the
+triggered one, we use the IRQ peripheral, located at offset `0xb000` from the
 peripheral base address. The peripheral has three types of registers - pending,
 enable, and disable.
 Pending - indicate whether a given interrupt has been triggered. Used to
@@ -770,7 +769,7 @@ the current program state register.
 
 The last thing to do is to resume execution of the new process, by loading the
 saved link register into the program counter. `lr` is caller-save, meaning an
-existing process will overwrite whater we put there when it is time t return
+existing process will overwrite whatever we put there when it is time t return
 from the exception - a new process jumps straight into execution without
 returning from an exception (as it technically never experienced one). The new
 process does not have anywhere to return to, so when it exits it will use `lr`
@@ -1187,7 +1186,7 @@ shift keys are not down (i.e. `tst r0, 0x22` returns 0)
 #### Note on static linking
 [Here](https://stackoverflow.com/questions/11344965/how-to-include-static-library-in-makefile)
 
-## Memory
+## Interprocess Communication
 ### Shared
 ### Message passing
 
