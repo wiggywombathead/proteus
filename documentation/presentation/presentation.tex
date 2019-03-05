@@ -2,7 +2,6 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{graphicx}
-\usepackage{minted}     % syntax highlighting
 \usepackage{listings}
 \usepackage{tabu}
 
@@ -33,11 +32,15 @@
 
 \begin{columns}[c]
     \column{.5\textwidth}
-    Operating systems are some of the most pervasive pieces of software around, but also some of the most complex \\~\\
+    Operating systems are some of the most pervasive pieces of software around,
+    but also some of the most complex \\~\\
 
-    The introduction of the Raspberry Pi has made computers much more accessible - allows and encourages experimenting at all levels \\~\\
+    The introduction of the Raspberry Pi has made computers much more accessible
+    - allows and encourages experimenting at all levels \\~\\
 
-    There are several official operating systems for the Pi - NOOBS, Raspbian, Windows IoT core, PiNET - but none provide a resource to learn about the operating system itself
+    There are several official operating systems for the Pi - NOOBS, Raspbian,
+    Windows IoT core, PiNET - but none provide a resource to learn about the
+    operating system itself
 
     \column{.5\textwidth}
     \begin{figure}
@@ -49,23 +52,32 @@
 
 \begin{frame}{Objectives}
     \textbf{Main goal:}
-    to write a configurable operating system for the Raspberry Pi capable on booting on real hardware for educational and hobbyist use. \\~\\
+    to write a configurable operating system for the Raspberry Pi capable of
+    booting on real hardware for educational and hobbyist use. \\~\\
 
     Specifically, this involves:
     \begin{itemize}
-        \item providing different approaches for tasks such as scheduling, interprocess communication, and permanent storage
-        \item allowing the user to configure the system at compile time to use different combinations of these approaches, and
-        \item exposing a simple and easily extensible interface for additional features
+        \item providing different approaches for tasks such as scheduling,
+            interprocess communication, and permanent storage
+        \item allowing the user to configure the system at compile time to use
+            different combinations of these approaches, and
+        \item exposing a simple and easily extensible interface for additional
+            features
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Background material}
     \begin{itemize}
-        \item Pintos - Stanford's instructional x86 operating system, used to teach their CS140 course
-        \item Baking Pi - Cambridge's tutorial on writing an operating system for the Raspberry Pi in assembly
-        \item MINIX - Tanenbaum and Woohull's illustrative operating system for ``Operating Systems: Design and Implementation''
-        \item The little book about OS development - Helin and Renberg's ``practical guide to writing your own x86 operating system''
-        \item \url{osdev.org/} - community of hobbyist operating system developers, containing information, tutorials, advice, etc.
+        \item Pintos - Stanford's instructional x86 operating system, used to
+            teach their CS140 course
+        \item Baking Pi - Cambridge's tutorial on writing an operating system
+            for the Raspberry Pi in assembly
+        \item MINIX - Tanenbaum and Woodhull's illustrative operating system for
+            ``Operating Systems: Design and Implementation''
+        \item The little book about OS development - Helin and Renberg's
+            ``practical guide to writing your own x86 operating system''
+        \item \url{osdev.org/} - community of hobbyist operating system
+            developers, containing information, tutorials, advice, etc.
     \end{itemize}
 \end{frame}
 
@@ -74,17 +86,23 @@
     It is more difficult to get into low-level/systems programming \\
     $\Rightarrow$ focus is on clear code to aid understanding \\~\\
 
-    The project attempts to demystify aspects of operating system development - able to see the theory in practise \\~\\
+    The project attempts to demystify aspects of operating system development -
+    able to see the theory in practise \\~\\
 
-    It will provide an accessible platform to further tinker and experiment with operating system development, with little to lose
+    It will provide an accessible platform to further tinker and experiment with
+    operating system development, with little to lose
 \end{frame}
 
 \begin{frame}{Useful concepts - compilation}
     \only<1>{
     \textbf{Operating System} - program that manages a computer's hardware \\~\\
-    \textbf{Freestanding environment} - little access to C standard library, and program entry point not necessarily at \texttt{main()} \\ $\quad \Rightarrow$ must implement most of standard library ourselves \\~\\
-    \textbf{Cross-compiler} - allows us to compile code that will run on the target architecture from our own machine \\~\\
-    \textbf{Linker} - responsible for linking all compiled \texttt{.o} files into one executable \\
+    \textbf{Freestanding environment} - little access to C standard library, and
+    program entry point not necessarily at \texttt{main()} \\ $\quad
+    \Rightarrow$ must implement most of standard library ourselves \\~\\
+    \textbf{Cross-compiler} - allows us to compile code that will run on the
+    target architecture from our own machine \\~\\
+    \textbf{Linker} - responsible for linking all compiled \texttt{.o} files
+    into one executable \\
     Defines the following sections:
     \begin{itemize}
         \item \code{.text} - executable code
@@ -104,25 +122,35 @@
 \end{frame}
 
 \begin{frame}{Useful concepts - general}
-    \textbf{Kernel} - the core of the operating system; the one program which is running at all times throughout execution \\
+    \textbf{Kernel} - the core of the operating system; the one program which is
+    running at all times throughout execution \\
 
-    \textbf{Exception} - an event triggered when something exceptional happens during normal execution (hardware giving CPU data, privileged action, bad instruction) \\
+    \textbf{Exception} - an event triggered when something exceptional happens
+    during normal execution (hardware giving CPU data, privileged action, bad
+    instruction) \\
 
-    \textbf{Process} - a program that has been loaded into memory and is executing \\
+    \textbf{Process} - a program that has been loaded into memory and is
+    executing \\
 
-    \textbf{Concurrency} - the ability for multiple processes to make progress seemingly simultaneously, as a result of some scheduling algorithm \\
+    \textbf{Concurrency} - the ability for multiple processes to make progress
+    seemingly simultaneously, as a result of some scheduling algorithm \\
 
     \textbf{Context Switch} - switching execution to another process. Involves:
     \begin{enumerate}
-        \item saving the state of the currently executing process (\textbf{state save})
-        \item loading the saved state of a different process (\textbf{state restore})
+        \item saving the state of the currently executing process (\textbf{state
+            save})
+        \item loading the saved state of a different process (\textbf{state
+            restore})
     \end{enumerate}
 \end{frame}
 
 \begin{frame}{Useful concepts - general contd.}
-    \textbf{Synchronisation} - the prevention of \textbf{race conditions}: when the outcome of two concurrently executing processes depends on the order in which data access took place \\
+    \textbf{Synchronisation} - the prevention of \textbf{race conditions}: when
+    the outcome of two concurrently executing processes depends on the order in
+    which data access took place \\
 
-    \textbf{Interprocess Communication} - mechanism by which cooperating processes may exchange data and information
+    \textbf{Interprocess Communication} - mechanism by which cooperating
+    processes may exchange data and information
 
     \begin{figure}[h]
         \includegraphics[width=.5\textwidth]{ipc.png}
@@ -131,16 +159,22 @@
 \end{frame}
 
 \begin{frame}{Useful concepts - Pi specific}
-    \textbf{Peripheral} - a device with a specific address that it may read and write data to and from
+    \textbf{Peripheral} - a device with a specific address that it may read and
+    write data to and from
     \begin{itemize}
-        \item All peripherals may be described by an offset from the Peripheral Base Address (\code{0x20000000} on the Raspberry Pi 1 Model B+)
+        \item All peripherals may be described by an offset from the Peripheral
+            Base Address (\code{0x20000000} on the Raspberry Pi 1 Model B+)
         \item Peripherals include: timers, interrupt controller, GPIO, USB, UART
     \end{itemize} ~
 
-    \textbf{Memory Mapped I/O} - uses same address space to address both memory and I/O devices $\Rightarrow$ the memory and registers of the I/O devices are mapped to address values
+    \textbf{Memory Mapped I/O} - uses same address space to address both memory
+    and I/O devices $\Rightarrow$ the memory and registers of the I/O devices
+    are mapped to address values
     \begin{itemize}
-        \item e.g. to turn the ACT LED on, we simply write a bit at the correct offset: \code{mmio\_write(ACT\_GPSET, 1 << ACT\_GPBIT)}
-        \item where \code{mmio\_write()} is simply \code{*(volatile uint32\_t *) reg = data;}
+        \item e.g. to turn the ACT LED on, we simply write a bit at the correct
+            offset: \code{mmio\_write(ACT\_GPSET, 1 << ACT\_GPBIT)}
+        \item where \code{mmio\_write()} is simply \code{*(volatile uint32\_t *)
+            reg = data;}
     \end{itemize}
 \end{frame}
 
@@ -177,8 +211,10 @@
     % or \only
     \onslide<2->{\textbf{Why the Pi in particular?}} \\
     \onslide<3->{Simple boot process - handled entirely by SoC} \\
-        \onslide<4->{Underlying architecture of BCM2835 chip is identical to BCM2836/7} \\
-        \onslide<5->{Standard set of hardware $\Rightarrow$ more widely accessible}
+        \onslide<4->{Underlying architecture of BCM2835 chip is identical to
+        BCM2836/7} \\
+        \onslide<5->{Standard set of hardware $\Rightarrow$ more widely
+        accessible}
 \end{frame}
 
 \begin{frame}{Project overview}
@@ -205,9 +241,11 @@
 
     Term 1:
     \begin{itemize}
-        \item reading technical documentation (Technical Reference Manuals, etc.)
+        \item reading technical documentation (Technical Reference Manuals,
+            etc.)
         \item barebones kernel followed by extension
-        \item ended term having written dynamic memory allocator (\code{kmalloc, kfree}
+        \item ended term having written dynamic memory allocator (\code{kmalloc,
+            kfree}
     \end{itemize} ~
 
     Term 2:
@@ -228,7 +266,8 @@
     \textbf{Testing} \\
     Almost entirely manual - exists little infrastructure to debug \\
     In most early cases this was done through blinking the ACT LED \\
-    $\Rightarrow$ vital to implement \code{printf()} soon after printing to HDMI \\
+    $\Rightarrow$ vital to implement \code{printf()} soon after printing to HDMI
+    \\
 
     Incremental/waterfall approach has helped in this regard
     \begin{itemize}
@@ -247,15 +286,21 @@
     \frametitle{Design overview - boot}
     \textbf{Booting}
     \begin{itemize}
-        \item Bootloading handled by SoC, so just need to set up system and initialise C runtime
-        \item \texttt{boot.S} initialises stack pointer at \texttt{0x8000}, zeroes \texttt{bss} segment, then loads C kernel entry point \texttt{kernel\_main()} to begin execution
+        \item Bootloading handled by SoC, so just need to set up system and
+            initialise C runtime
+        \item \texttt{boot.S} initialises stack pointer at \texttt{0x8000},
+            zeroes \texttt{bss} segment, then loads C kernel entry point
+            \texttt{kernel\_main()} to begin execution
     \end{itemize} ~
 
     \textbf{Memory management - atags}
     \begin{itemize}
-        \item Bootloader creates list of information about the hardware called \textbf{atags}
+        \item Bootloader creates list of information about the hardware called
+            \textbf{atags}
         \item Each tag consists of a header and tag-specific data
-        \item To find the amount of memory available to the system, simply iterate over list of tags until the \texttt{tag == ATAG\_MEM}, at which point return \texttt{atag\_mem.size}
+        \item To find the amount of memory available to the system, simply
+            iterate over list of tags until the \texttt{tag == ATAG\_MEM}, at
+            which point return \texttt{atag\_mem.size}
     \end{itemize}
 
     \begin{columns}[t]
@@ -285,9 +330,12 @@ struct atag_mem {
     \textbf{Memory - paging}
     \begin{itemize}
         \item Memory split into 4kiB pages
-        \item Each page contains metadata (allocated, kernel page, kernel heap page, shared), metadata for \code{all\_pages} stored just after \code{\_\_end}
+        \item Each page contains metadata (allocated, kernel page, kernel heap
+            page, shared), metadata for \code{all\_pages} stored just after
+            \code{\_\_end}
         \item Maintain two lists: \code{all\_pages} and \code{free\_pages}
-        \item Allocating and freeing pages - simply dequeue/append page to \code{free\_pages} and alter flags
+        \item Allocating and freeing pages - simply dequeue/append page to
+            \code{free\_pages} and alter flags
     \end{itemize}
     }
 
@@ -300,8 +348,10 @@ struct atag_mem {
             \item allocation size
             \item ``in-use'' flag
         \end{itemize}
-        \item \code{kmalloc(bytes)} - traverse list to find best-fitting unused segment
-        \item \code{kfree(ptr)} - unset \code{allocated} bit and coalesce adjacent segments
+        \item \code{kmalloc(bytes)} - traverse list to find best-fitting unused
+            segment
+        \item \code{kfree(ptr)} - unset \code{allocated} bit and coalesce
+            adjacent segments
     \end{itemize}
     }
 \end{frame}
@@ -310,8 +360,10 @@ struct atag_mem {
     \frametitle{Design overview - HDMI output}
 
     \textbf{Printing to screen} \\
-    Must ask GPU for \textbf{framebuffer} - piece of memory shared between CPU and GPU \\
-    Process differs slightly between Pi 1 and Pi 2 - both use the mailbox peripheral
+    Must ask GPU for \textbf{framebuffer} - piece of memory shared between CPU
+    and GPU \\
+    Process differs slightly between Pi 1 and Pi 2 - both use the mailbox
+    peripheral
     \begin{itemize}
         \item Pi 1 - uses framebuffer mailbox channel
         \item Pi 2 - uses property mailbox channel (more abstract)
@@ -338,9 +390,12 @@ struct fb_init {
     \column{.5\textwidth}
         \textbf{Asking for a framebuffer:}
         \begin{itemize}
-            \item Set desired framebuffer attributes by initialising \code{fb\_init}
-            \item Send 16-byte aligned structure as message through framebuffer mailbox to GPU
-            \item On success, initialise \code{fb\_info} struct using values from \code{fb\_init}
+            \item Set desired framebuffer attributes by initialising
+                \code{fb\_init}
+            \item Send 16-byte aligned structure as message through framebuffer
+                mailbox to GPU
+            \item On success, initialise \code{fb\_info} struct using values
+                from \code{fb\_init}
         \end{itemize}
     \end{columns}
 \end{frame}
@@ -375,8 +430,12 @@ struct framebuffer_info {
 
 \begin{frame}{Design overview - interrupts}
     \textbf{Interrupts and Exceptions} \\
-    \onslide<1->{When an exception occurs, a specific address is loaded into the Program Counter \\
-    Branch instructions must be written at these locations to branch to correct exception-handling routines}
+    \onslide<1->{
+        When an exception occurs, a specific address is loaded into the Program
+        Counter \\
+        Branch instructions must be written at these locations to branch to
+        correct exception-handling routines
+    }
 
     \onslide<2->{
     \begin{center}
@@ -399,7 +458,10 @@ struct framebuffer_info {
 
 \begin{frame}{Design overview - IRQs}
     Exception handlers are functions, but not normal ones \\
-    \onslide<2->{$ \quad \Rightarrow$ \code{void \_\_attribute\_\_((interrupt("ABORT"))) reset\_handler(void);}} \\
+    \onslide<2->{
+        $ \quad \Rightarrow$
+        \code{void \_\_attribute\_\_((interrupt("ABORT"))) reset\_handler(void);}
+    } \\
 
     \textbf{IRQ peripheral} used to determine device that triggered IRQ
     \begin{itemize}
@@ -426,33 +488,42 @@ struct framebuffer_info {
     QEMU does not simulate a system timer, at least for the Raspberry Pi \\
     $ \quad \Rightarrow$ at this point it is vital to switch to real hardware \\
 
-    The system timer is a hardware clock which can keep time and generate interrupts after a certain time
+    The system timer is a hardware clock which can keep time and generate
+    interrupts after a certain time
     \begin{itemize}
-        \item starts when Pi boots and increments 64-bit counter every microsecond
-        \item it is a peripheral that is located at offset \code{0x3000} from peripheral base
+        \item starts when Pi boots and increments 64-bit counter every
+            microsecond
+        \item it is a peripheral that is located at offset \code{0x3000} from
+            peripheral base
     \end{itemize} ~
 
-    Four registers which the timer compares the low 32 bits with each counter tick
+    Four registers which the timer compares the low 32 bits with each counter
+    tick
     \begin{itemize}
         \item if any compare register matches the counter, an IRQ is triggered
     \end{itemize} ~
 
-    Timer is set by setting \code{compare1} register to the current value plus some number of microseconds
+    Timer is set by setting \code{compare1} register to the current value plus
+    some number of microseconds
 \end{frame}
 
 \begin{frame}{Design overview - Processes}
-    \textbf{Process Control Block (PCB)} - structure which holds all of the information about a process
+    \textbf{Process Control Block (PCB)} - structure which holds all of the
+    information about a process
     \begin{itemize}
-        \item State save is done simply by pushing all of the registers onto the stack
+        \item State save is done simply by pushing all of the registers onto the
+            stack
     \end{itemize} ~
 
     We maintain two lists:
     \begin{itemize}
         \item job queue - holds all processes in the system
-        \item ready queue - holds all processes residing in main memory and waiting to execute
+        \item ready queue - holds all processes residing in main memory and
+            waiting to execute
     \end{itemize} ~
 
-    Creating a new process as simple as allocating space for PCB and process' stack and adding it to the ready queue
+    Creating a new process as simple as allocating space for PCB and process'
+    stack and adding it to the ready queue
     \begin{itemize}
         \item simple interface: \\
         \code{void create\_kthread(kthreadfn func, char *name, int name\_len);}
@@ -510,7 +581,8 @@ struct proc {
     \textbf{Round Robin}
     \begin{itemize}
         \item each process given a set quantum of time to use CPU
-        \item CPU use then given to another waiting process, regardless of process' progress
+        \item CPU use then given to another waiting process, regardless of
+            process' progress
     \end{itemize}
     \begin{figure}
         \centering
@@ -549,7 +621,8 @@ struct proc {
     \frametitle{Design overview - synchronisation}
     With concurrency, there is the opportunity for race-conditions \\
 
-    We use the concept of an \textbf{atomic swap} to implement spinlocks and mutexes - cannot be preempted while trying to take lock
+    We use the concept of an \textbf{atomic swap} to implement spinlocks and
+    mutexes - cannot be preempted while trying to take lock
 
     \lstset{language=C,basicstyle=\ttfamily}
     \begin{lstlisting}
@@ -575,7 +648,8 @@ if (lock == 1)
         $\Rightarrow$ \code{DIRECTIVES = -DRPIBPLUS -DSCHED\_ROUNDROBIN}
     \end{itemize} ~
 
-    Once interprocess communication is implemented, this will similarly configured
+    Once interprocess communication is implemented, this will similarly
+    configured
 \end{frame}
 
 \begin{frame}{Next steps}
@@ -585,18 +659,22 @@ if (lock == 1)
         \item interprocess communication
     \end{itemize} ~
 
-    After this, the final core feature will be permanent storage i.e. filesystems and interacting with microSD card
+    After this, the final core feature will be permanent storage i.e.
+    filesystems and interacting with microSD card
 \end{frame}
 
 \begin{frame}{Evaluation}
-    Overall the project has been success - despite the difficulty in sticking to schedule, much progress has been made \\
+    Overall the project has been success - despite the difficulty in sticking to
+    schedule, much progress has been made \\
 
     Gained a lot of experience in systems programming
     \begin{itemize}
         \item process (preprocessing, compilation, linking)
-        \item C and ARM competency improved (ability to switch between \code{.S} and \code{.c}, more advanced C)
+        \item C and ARM competency improved (ability to switch between \code{.S}
+            and \code{.c}, more advanced C)
         \item confidence in Make (conditional compilation, well-structured)
-        \item ability to digest technical documentation (deep knowledge of Pi required)
+        \item ability to digest technical documentation (deep knowledge of Pi
+            required)
     \end{itemize}
 \end{frame}
 

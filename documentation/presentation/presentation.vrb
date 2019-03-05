@@ -1,9 +1,0 @@
-\frametitle{Configuration}
-    Configuration done at compile-time
-    \begin{itemize}
-        \item based on command-line arguments, send different directives \\
-        e.g. \code{make model=1 sched=roundrobin} \\
-        $\Rightarrow$ \code{DIRECTIVES = -DRPIBPLUS -DSCHED\_ROUNDROBIN}
-    \end{itemize} ~
-
-    Once interprocess communication is implemented, this will similarly configured

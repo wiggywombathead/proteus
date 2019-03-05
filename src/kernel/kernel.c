@@ -33,7 +33,7 @@ void test(void) {
             mutex_unlock(&mutex);
 
         printf("TEST: %d\n", i++);
-        uwait(2000000);
+        uwait(1000000);
     }
 }
 
@@ -44,7 +44,7 @@ void fib(void) {
 
     uint32_t i = 3;
 
-    while (i < 1000000) {
+    while (i < 10) {
         c = a + b;
         a = b;
         b = c;
@@ -105,6 +105,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     usb_init();
     printf("DONE\n");
 
+    uwait(10000000);
+
     printf("\n"
             "=====================================\n"
             "*  Welcome to PLACEHOLDEROS v0.001  *\n"
@@ -121,8 +123,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    create_kthread(test, "Test", 5);
     create_kthread(fib, "fib", 4);
+    create_kthread(test, "Test", 5);
     create_kthread(flash, "act_flash", 10);
 
     /*
@@ -161,7 +163,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
         printf("main: %d\n", i++);
 
-        uwait(2000000);
+        uwait(1000000);
     }
 
     int c;

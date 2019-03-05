@@ -9,6 +9,13 @@
 *.blg
 *.log
 
+# presentation
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+
 # reference/admin
 admin
 fonts
