@@ -10,22 +10,17 @@ extern struct proc_list ready_queue;
 
 extern struct proc *current_process;
 
-schedulerfn scheduler;
-
+/* set the scheduling algorithm */
 void sched_init(void) {
 
 #if defined ( SCHED_FCFS )
-    scheduler = sched_fcfs;
+    schedule = sched_fcfs;
 #elif defined ( SCHED_ROUNDROBIN )
-    scheduler = sched_round_robin;
+    schedule = sched_round_robin;
 #else
-    scheduler = sched_round_robin;
+    schedule = sched_round_robin;
 #endif
 
-}
-
-void schedule(void) {
-    scheduler();
 }
 
 void sched_round_robin(void) {

@@ -3,10 +3,10 @@
 
 #define QUANTUM 20000
 
-typedef void (*schedulerfn)(void);
+/* scheduler to use */
+void (*schedule)(void);
 
 void sched_init(void);
-void schedule(void);
 
 /* scheduling algorithms */
 void sched_round_robin(void);

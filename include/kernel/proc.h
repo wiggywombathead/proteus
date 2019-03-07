@@ -36,7 +36,6 @@ struct proc {
 typedef void (*kthreadfn)(void);
 
 void proc_init(void);
-void schedule(void);
 void create_kthread(kthreadfn, char *, int);
 
 #endif

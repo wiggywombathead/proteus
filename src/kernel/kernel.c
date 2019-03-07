@@ -126,6 +126,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
+    create_kthread(fib, "fib", 4);
     create_kthread(flash, "act_flash", 10);
 
     /*

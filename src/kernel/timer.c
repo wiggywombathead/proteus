@@ -1,11 +1,11 @@
 #include <kernel/timer.h>
 #include <kernel/interrupt.h>
-#include <kernel/proc.h>
 #include <kernel/sched.h>
 
 #include <common/stdio.h>
 
 static struct sys_timer *systimer;
+static int uptime;
 
 static void timer_irq_handler(void) {
     schedule();

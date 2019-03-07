@@ -2,6 +2,7 @@
 #include <kernel/interrupt.h>
 #include <kernel/memory.h>
 #include <kernel/mutex.h>
+#include <kernel/sched.h>
 #include <kernel/spinlock.h>
 #include <kernel/timer.h>
 
@@ -36,7 +37,7 @@ void proc_init(void) {
 
     current_process = main;
 
-    timer_set(20000);
+    timer_set(QUANTUM);
 
 }
 
@@ -134,48 +135,4 @@ void mutex_unlock(mutex_t *mutex) {
         proc = dequeue_proc_list(&mutex->wait_queue);
         prepend_proc_list(&ready_queue, proc);
     }
-}
-
-void sched_fcfs(void) {
-
-    /*
-    DISABLE_INTERRUPTS();
-
-    if (size_proc_list(&ready_queue) > 1) {
-
-        if (current_process->executing) {
-            timer_set(200000);
-            ENABLE_INTERRUPTS();
-            return;
-        }
-
-        new_thread = dequeue_proc_list(&ready_queue);
-        old_thread = current_process;
-        current_process = new_thread;
-
-        switch_context(old_thread, new_thread);
-        ENABLE_INTERRUPTS();
-        return;
-
-    }
-
-    timer_set(200000);
-    ENABLE_INTERRUPTS();
-    */
-
-    struct proc *new_thread, *old_thread;
-
-    DISABLE_INTERRUPTS();
-
-    if (size_proc_list(&ready_queue) > 1) {
-        new_thread = dequeue_proc_list(&ready_queue);
-        old_thread = current_process;
-        current_process = new_thread;
-
-        switch_context(old_thread, new_thread);
-        ENABLE_INTERRUPTS();
-        return;
-    }
-
-    ENABLE_INTERRUPTS();
 }
