@@ -1,5 +1,5 @@
-#ifndef _PERIPHERAL_H_
-#define _PERIPHERAL_H_
+#ifndef _PERIPHERAL_H
+#define _PERIPHERAL_H
 
 #ifdef RPIBPLUS
 #define PERIPHERAL_BASE 0x20000000

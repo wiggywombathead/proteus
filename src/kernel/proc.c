@@ -2,7 +2,6 @@
 #include <kernel/interrupt.h>
 #include <kernel/memory.h>
 #include <kernel/mutex.h>
-#include <kernel/sched.h>
 #include <kernel/spinlock.h>
 #include <kernel/timer.h>
 
@@ -14,62 +13,31 @@ extern int try_lock(spinlock_t *);
 
 IMPLEMENT_LIST(proc);
 
-struct proc_list all_procs;
+struct proc_list job_queue;
 struct proc_list ready_queue;
 
 struct proc *current_process;
+
 static uint32_t current_pid = 1;
 
-schedulerfn scheduler;
-
 void proc_init(void) {
+
     struct proc *main;
 
     INIT_LIST(ready_queue);
-    INIT_LIST(all_procs);
+    INIT_LIST(job_queue);
 
     main = kmalloc(sizeof(struct proc));
     main->stack_page = (void *) &__end;
     main->pid = current_pid++;
     strcpy(main->name, "init");
 
-    append_proc_list(&all_procs, main);
+    append_proc_list(&job_queue, main);
 
     current_process = main;
 
     timer_set(20000);
 
-#ifdef SCHED_FCFS
-    scheduler = sched_fcfs;
-#else
-    scheduler = sched_round_robin;
-#endif
-}
-
-void schedule(void) {
-
-    scheduler();
-    
-    /*
-    DISABLE_INTERRUPTS();
-    struct proc *old_thread, *new_thread;
-
-    // if no other processes ready, just continue
-    if (size_proc_list(&ready_queue) == 0) {
-        timer_set(20000);
-        ENABLE_INTERRUPTS();
-        return;
-    }
-
-    new_thread = dequeue_proc_list(&ready_queue);
-    old_thread = current_process;
-    current_process = new_thread;
-
-    append_proc_list(&ready_queue, old_thread);
-
-    switch_context(old_thread, new_thread);
-    ENABLE_INTERRUPTS();
-    */
 }
 
 static void cleanup(void) {
@@ -87,7 +55,7 @@ static void cleanup(void) {
     free_page(old_thread->stack_page);
     kfree(old_thread);
 
-    // remove_proc(&all_procs, old_thread);
+    // remove_proc(&job_queue, old_thread);
 
     /* context switch */
     switch_context(old_thread, new_thread);
@@ -110,7 +78,7 @@ void create_kthread(kthreadfn func, char *name, int name_len) {
     new_state->sp = (uint32_t) cleanup;
     new_state->cpsr = 0x13 | (8 << 1);
 
-    append_proc_list(&all_procs, pcb);
+    append_proc_list(&job_queue, pcb);
     append_proc_list(&ready_queue, pcb);
 }
 
@@ -168,27 +136,46 @@ void mutex_unlock(mutex_t *mutex) {
     }
 }
 
-void sched_round_robin(void) {
-    DISABLE_INTERRUPTS();
-    struct proc *old_thread, *new_thread;
+void sched_fcfs(void) {
 
-    /* if no other processes ready, just continue */
-    if (size_proc_list(&ready_queue) == 0) {
-        timer_set(20000);
+    /*
+    DISABLE_INTERRUPTS();
+
+    if (size_proc_list(&ready_queue) > 1) {
+
+        if (current_process->executing) {
+            timer_set(200000);
+            ENABLE_INTERRUPTS();
+            return;
+        }
+
+        new_thread = dequeue_proc_list(&ready_queue);
+        old_thread = current_process;
+        current_process = new_thread;
+
+        switch_context(old_thread, new_thread);
+        ENABLE_INTERRUPTS();
+        return;
+
+    }
+
+    timer_set(200000);
+    ENABLE_INTERRUPTS();
+    */
+
+    struct proc *new_thread, *old_thread;
+
+    DISABLE_INTERRUPTS();
+
+    if (size_proc_list(&ready_queue) > 1) {
+        new_thread = dequeue_proc_list(&ready_queue);
+        old_thread = current_process;
+        current_process = new_thread;
+
+        switch_context(old_thread, new_thread);
         ENABLE_INTERRUPTS();
         return;
     }
 
-    new_thread = dequeue_proc_list(&ready_queue);
-    old_thread = current_process;
-    current_process = new_thread;
-
-    append_proc_list(&ready_queue, old_thread);
-
-    switch_context(old_thread, new_thread);
     ENABLE_INTERRUPTS();
-}
-
-void sched_fcfs(void) {
-    return;
 }

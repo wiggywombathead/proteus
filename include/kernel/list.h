@@ -4,13 +4,19 @@
 #include <stddef.h>
 #include <kernel/spinlock.h>
 
-#define DEFINE_LIST(type)               \
-    struct type##_list {                \
-        struct type *head;              \
-        struct type *tail;              \
-        spinlock_t lock;                \
-        uint32_t size;                  \
-    };
+#define DEFINE_LIST(type)  \
+    struct type##_list {   \
+        struct type *head; \
+        struct type *tail; \
+        spinlock_t lock;   \
+        uint32_t size;     \
+    };                     \
+    void append_##type##_list(struct type##_list *, struct type *);      \
+    void prepend_##type##_list(struct type##_list *list, struct type *); \
+    struct type *peek_##type##_list(struct type##_list *);               \
+    struct type *dequeue_##type##_list(struct type##_list *);            \
+    uint32_t size_##type##_list(struct type##_list *);                   \
+    struct type *next_##type##_list(struct type *);
 
 #define DEFINE_LINK(type)               \
     struct type *next_##type;           \

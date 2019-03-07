@@ -39,10 +39,4 @@ void proc_init(void);
 void schedule(void);
 void create_kthread(kthreadfn, char *, int);
 
-/* scheduling algorithm */
-typedef void (*schedulerfn)(void);
-
-void sched_round_robin(void);
-void sched_fcfs(void);
-
 #endif

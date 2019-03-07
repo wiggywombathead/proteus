@@ -5,6 +5,7 @@
 #include <kernel/memory.h>
 #include <kernel/mutex.h>
 #include <kernel/proc.h>
+#include <kernel/sched.h>
 #include <kernel/timer.h>
 
 #include <common/stdlib.h>
@@ -81,10 +82,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     gpu_init();
     printf("GPU initialised\n");
 
-    printf("Enabling GPIO... ");
-    act_init();
-    printf("DONE\n");
-
     printf("Initialising memory... ");
     mem_init((struct atag *) atags);
     printf("DONE\n");
@@ -97,15 +94,20 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     timer_init();
     printf("DONE\n");
 
+    printf("Enabling GPIO... ");
+    act_init();
+    printf("DONE\n");
+
     printf("Initialising processes... ");
     proc_init();
+    sched_init();
     printf("DONE\n");
+
+    act_blink(10);
 
     printf("Initialising keyboard... ");
     usb_init();
     printf("DONE\n");
-
-    uwait(10000000);
 
     printf("\n"
             "=====================================\n"
@@ -121,10 +123,9 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
      * SUCCESSFULLY INITIALISED
      */
 
+
     mutex_init(&mutex);
 
-    create_kthread(fib, "fib", 4);
-    create_kthread(test, "Test", 5);
     create_kthread(flash, "act_flash", 10);
 
     /*
@@ -156,10 +157,10 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     int i = 0;
     while (1) {
 
-        if (i % 10 == 0)
-            mutex_lock(&mutex);
-        else if (i % 10 == 9)
-            mutex_unlock(&mutex);
+        // if (i % 10 == 0)
+        //     mutex_lock(&mutex);
+        // else if (i % 10 == 9)
+        //     mutex_unlock(&mutex);
 
         printf("main: %d\n", i++);
 

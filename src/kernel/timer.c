@@ -1,7 +1,8 @@
 #include <kernel/timer.h>
-
 #include <kernel/interrupt.h>
 #include <kernel/proc.h>
+#include <kernel/sched.h>
+
 #include <common/stdio.h>
 
 static struct sys_timer *systimer;
