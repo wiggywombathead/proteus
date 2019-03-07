@@ -115,7 +115,7 @@ return$:
     .unreq kbd  // remove the alias
 
 /*
- * key_was_down()
+ * key_was_down(uint16_t scancode)
  * returns r0 = 0 if given scan code not in kbd_down_prev values,
  * else non-zero
  */

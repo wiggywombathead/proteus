@@ -11,13 +11,14 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
+#include <kernel/uspi.h>
+
 void UsbInitialise(void);
-int KeyboardCount(void);
-uint32_t KeyboardGetAddress(uint32_t);
-void KeyboardSetLeds(uint32_t addr, struct KeyboardLeds);
+void UsbCheckForChange(void);
+int KeyboardCount(void); 
 
 void usb_init(void) {
-    UsbInitialise();
+    USPiInitialize();
 }
 
 extern void kbd_update(void);
@@ -34,31 +35,6 @@ void test(void) {
             mutex_unlock(&mutex);
 
         printf("TEST: %d\n", i++);
-        uwait(1000000);
-    }
-}
-
-void fib(void) {
-    int32_t a, b, c;
-    a = 0;
-    b = 1;
-
-    uint32_t i = 3;
-
-    while (i < 10) {
-        c = a + b;
-        a = b;
-        b = c;
-
-        // overflowed - start again
-        if (c < 0) {
-            a = 0;
-            b = 1;
-            c = 1;
-            i = 3;
-        }
-
-        printf("Fib[%d]: %d\n", i++, c);
         uwait(1000000);
     }
 }
@@ -80,7 +56,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) atags;
 
     gpu_init();
-    printf("GPU initialised\n");
+    printf("Initialising GPU... DONE");
 
     printf("Initialising memory... ");
     mem_init((struct atag *) atags);
@@ -103,58 +79,37 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     sched_init();
     printf("DONE\n");
 
-    act_blink(10);
-
     printf("Initialising keyboard... ");
     usb_init();
     printf("DONE\n");
 
     printf("\n"
             "=====================================\n"
-            "*  Welcome to PLACEHOLDEROS v0.001  *\n"
+            "*      Welcome to proteus v0.1      *\n"
             "=====================================\n"
             "\n"
         );
 
-    int mem = get_total_mem((struct atag *) atags) / (1024 * 1024);
-    printf("Memory: %dMB\n", mem);
+    act_blink(3);
 
     /*
      * SUCCESSFULLY INITIALISED
      */
 
-
     mutex_init(&mutex);
 
-    create_kthread(fib, "fib", 4);
-    create_kthread(flash, "act_flash", 10);
+    create_kthread(flash, "flash", 5);
+
+    int a = 0;
+    while (1) {
+        printf("%d\n", a++);
+        uwait(1000000);
+    }
+
+    // if (!USPiKeyboardAvailable())
+    //     printf("No keyboard!\n");
 
     /*
-    KeyboardLeds leds;
-
-    int keebs = KeyboardCount();
-    act_blink(keebs);
-
-    uint32_t kbd = KeyboardGetAddress(0);
-    if (kbd != 0)
-        act_blink(10);
-
-    KeyboardSetLeds(kbd, leds);
-
-    while (1) {
-        kbd_update();
-
-        char c = kbd_getchar();
-
-        if (!c) continue;
-
-        if (c == 'a')
-            act_blink(1);
-
-        putc(c);
-    }
-    */
-
     int i = 0;
     while (1) {
 
@@ -174,5 +129,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     }
 
     puts("\nGoodbye!");
+    */
 
 }

@@ -1,4 +1,0 @@
-LIBRARIES = csud gcc
-
-all:
-	echo $(patsubst %,-l%,$(LIBRARIES))
