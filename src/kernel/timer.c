@@ -5,10 +5,14 @@
 #include <common/stdio.h>
 
 static struct sys_timer *systimer;
-static int uptime;
+
+static uint32_t delay;
 
 static void timer_irq_handler(void) {
     schedule();
+
+    uptime += delay;
+    delay = 0;
 }
 
 static void timer_irq_clearer(void) {
@@ -22,6 +26,7 @@ void timer_init(void) {
 
 void timer_set(uint32_t usecs) {
     systimer->compare1 = systimer->counter_low + usecs;
+    delay = usecs;
 }
 
 void __attribute__((optimize(0))) uwait(uint32_t usecs) {

@@ -6,6 +6,8 @@
 
 #define SYSTIMER_BASE (PERIPHERAL_BASE + SYSTIMER_OFFSET)
 
+uint32_t uptime;
+
 /* system timer control/status register */
 struct timer_ctrl {
     uint8_t matched0 : 1;

@@ -2,6 +2,7 @@
 #define _USB_DESC_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * descriptor type field from header of USB descriptors
@@ -83,7 +84,7 @@ struct usb_dev_qualifier_desc {
  */
 struct usb_config_desc {
     uint8_t desc_length;
-    enum desc_type desc_type : 8;
+    enum usb_desc_type desc_type : 8;
     uint16_t total_length;
     uint8_t interface_count;
     uint8_t config_value;
@@ -113,7 +114,7 @@ struct usb_other_speed_config_desc {
         bool remote_wake : 1;
         bool self_powered : 1;
         enum {
-            valid = 1;
+            valid = 1
         } reserved_7 : 1;
     } __attribute__((packed)) attribs;
     uint8_t max_power;
@@ -188,7 +189,7 @@ struct usb_endpoint_desc {
         uint8_t reserved : 2;   // bits 6-7
     } __attribute__((packed)) attribs;
     struct {
-        uint8_t max_size : 11;
+        unsigned int max_size : 11;
         enum {
             NONE = 0,
             EXTRA1 = 1,

@@ -3,8 +3,9 @@
 ### Functional
 - [ ] Processes
   - [x] Round Robin
-  - [ ] Make `schedule()` take algorithm as parameter
-  - [ ] Write up notes on creating new process
+  - [x] Make `schedule()` take algorithm as parameter
+    - `schedulerfn` is a function pointer which may change
+  - [x] Write up notes on creating new process
   - [ ] Option to create thread with arguments
 - [ ] Filesystem
 - [ ] IPC
@@ -18,8 +19,9 @@
 - [x] Debug rainbow screen at boot
 
 ### Polish
+- [ ] Write more generalised Makefile
 - [ ] Font color must be backwards(???) - fix
-- [ ] Change `act_blink()` to use system timer
+- [x] Change `act_blink()` to use system timer
 
 ## CPU scheduling
   * FCFS

@@ -1,7 +1,7 @@
-#ifndef _USB_DEV_H
-#define _USB_DEV_H
+#ifndef _USB_DEVICE_H
+#define _USB_DEVICE_H
 
-#include <usb_descriptors.h>
+#include <kernel/usb/descriptors.h>
 
 #define MAX_CHILDREN_PER_DEV 10
 #define MAX_INTERFACES_PER_DEV 8
@@ -36,7 +36,7 @@ enum usb_transfer_err {
 
 /* start of a device specific data field */
 struct usb_driver_data_header {
-    uint32_t dev_driver;    // uniquely identifies driver that set data field
+    uint32_t device_driver; // uniquely identifies driver that set data field
     uint32_t data_size;     // size in bytes of dev specific data field
 };
 
@@ -57,13 +57,14 @@ struct usb_device {
     volatile struct usb_dev_desc descriptor __attribute__((aligned(4)));
     volatile struct usb_config_desc config __attribute__((aligned(4)));
     volatile struct usb_interface_desc interfaces[MAX_INTERFACES_PER_DEV] __attribute__((aligned(4)));
-    volatile struct usb_endpoint_desc endpoints[MAX_INTERFACES_PER_DEV][MAX_ENDPOINTS_PER_DEV] __attribute((aligned(4)));
+    volatile struct usb_endpoint_desc endpoints[MAX_INTERFACES_PER_DEV][MAX_ENDPOINTS_PER_DEV] __attribute__((aligned(4)));
     struct usb_device *parent __attribute__((aligned(4)));
     volatile void *full_config;
     volatile struct usb_driver_data_header *driver_data;
     volatile uint32_t last_transfer;
 };
 
-// TODO
+#define INTERFACE_CLASS_ATTACH_COUNT 16
+extern devcall (*interface_attach[INTERFACE_CLASS_ATTACH_COUNT])(struct usb_device *dev, uint32_t num);
 
 #endif

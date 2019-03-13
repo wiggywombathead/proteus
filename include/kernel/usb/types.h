@@ -1,6 +1,8 @@
 #ifndef _USB_TYPES_H
 #define _USB_TYPES_H
 
+#include <stdint.h>
+
 /* result of function call */
 typedef enum {
     OK               = 0,   // success
@@ -30,10 +32,37 @@ typedef enum {
 } usbspeed_t;
 
 typedef enum {
-    USBTFER_CTRL = 0,
-    USBTFER_ISO = 1,
-    USBTFER_BULK = 2,
-    USBTFER_INTERRUPT = 3,
+    TRANSFER_CTRL      = 0,
+    TRANSFER_ISO       = 1,
+    TRANSFER_BULK      = 2,
+    TRANSFER_INTERRUPT = 3,
 } usbtransfer_t;
+
+typedef enum {
+    BITS_8,
+    BITS_16,
+    BITS_32,
+    BITS_64,
+} usbpktsize_t;
+
+static inline usbpktsize_t num_to_size(uint32_t n) {
+    if (n <= 8) return BITS_8;
+    else if (n <= 16) return BITS_16;
+    else if (n <= 32) return BITS_32;
+    else return BITS_64;
+}
+
+static inline uint32_t size_to_num(usbpktsize_t s) {
+    switch (s) {
+    case BITS_8:
+        return 8;
+    case BITS_16:
+        return 16;
+    case BITS_32:
+        return 32;
+    default:
+        return 64;
+    }
+}
 
 #endif

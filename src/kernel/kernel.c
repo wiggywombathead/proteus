@@ -11,49 +11,47 @@
 #include <common/stdlib.h>
 #include <common/stdio.h>
 
-#include <kernel/uspi.h>
-
-void UsbInitialise(void);
-void UsbCheckForChange(void);
-int KeyboardCount(void); 
-
-void usb_init(void) {
-    USPiInitialize();
-}
-
-extern void kbd_update(void);
-extern char kbd_getchar(void);
-
 mutex_t mutex;
 
-void test(void) {
-    int i = 0;
-    while (1) {
-        if (i % 10 == 0)
-            mutex_lock(&mutex);
-        else if (i % 10 == 9)
-            mutex_unlock(&mutex);
-
-        printf("TEST: %d\n", i++);
-        uwait(1000000);
-    }
-}
-
-void flash(void) {
-    uint32_t hertz = 5;
-    while (1) {
-        act_on();
-        uwait(500000 / hertz);
-        act_off();
-        uwait(500000 / hertz);
-    }
-}
+void sys_init(uint32_t r0, uint32_t r1, uint32_t atags);
+void flash(void);
+void test(void);
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
+    sys_init(r0, r1, atags);
+    act_blink(3);
+
+    /*
+     * SUCCESSFULLY INITIALISED
+     */
+
+    printf("\n"
+            "=====================================\n"
+            "*      Welcome to proteus v0.1      *\n"
+            "=====================================\n"
+            "\n"
+        );
+
+
+    mutex_init(&mutex);
+
+    create_kthread(flash, "flash", 6);
+    create_kthread(test, "test", 5);
+
+    while (1) {
+        printf("%ds ", uptime/1000000);
+        uwait(1000000);
+    }
+
+    puts("\nGoodbye!");
+
+}
+
+void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
+
     (void) r0;
     (void) r1;
-    (void) atags;
 
     gpu_init();
     printf("Initialising GPU... DONE");
@@ -80,55 +78,28 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("DONE\n");
 
     printf("Initialising keyboard... ");
-    usb_init();
+    // TODO usb_init();
     printf("DONE\n");
+}
 
-    printf("\n"
-            "=====================================\n"
-            "*      Welcome to proteus v0.1      *\n"
-            "=====================================\n"
-            "\n"
-        );
-
-    act_blink(3);
-
-    /*
-     * SUCCESSFULLY INITIALISED
-     */
-
-    mutex_init(&mutex);
-
-    create_kthread(flash, "flash", 5);
-
-    int a = 0;
+void flash(void) {
+    uint32_t hertz = 5;
     while (1) {
-        printf("%d\n", a++);
-        uwait(1000000);
+        act_on();
+        uwait(500000 / hertz);
+        act_off();
+        uwait(500000 / hertz);
     }
+}
 
-    // if (!USPiKeyboardAvailable())
-    //     printf("No keyboard!\n");
-
-    /*
+void test(void) {
     int i = 0;
     while (1) {
-
-        // if (i % 10 == 0)
-        //     mutex_lock(&mutex);
-        // else if (i % 10 == 9)
-        //     mutex_unlock(&mutex);
-
-        printf("main: %d\n", i++);
+        if (i % 10 == 0)
+            mutex_lock(&mutex);
+        else if (i % 10 == 9)
+            mutex_unlock(&mutex);
 
         uwait(1000000);
     }
-
-    int c;
-    while ((c = getc()) != 0x4) {
-        putc(c);
-    }
-
-    puts("\nGoodbye!");
-    */
-
 }

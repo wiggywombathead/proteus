@@ -2,9 +2,11 @@ TOOLCHAIN ?= arm-none-eabi
 
 CC := $(TOOLCHAIN)-gcc			# ARM cross compiler
 OBJCOPY := $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
+OBJDUMP := $(TOOLCHAIN)-objdump	# get listing file
+LD := $(TOOLCHAIN)-ld
 GDB := $(TOOLCHAIN)-gdb
 
-# set constants based on pi model
+# set model
 ifeq ($(model),1)
 	CPU = arm1176jzf-s
 	ARCHDIR = model1
@@ -13,30 +15,30 @@ else ifeq ($(model),2)
 	CPU = cortex-a7
 	ARCHDIR = model2
 	DIRECTIVES = -DRPI2
-else
-	CPU = arm1176jzf-s
-	ARCHDIR = model1
-	DIRECTIVES = -DRPIBPLUS
 endif
 
-# scheduler
+CPU ?= arm1176jzf-s
+ARCHDIR ?= model1
+DIRECTIVES ?= -DRPIBPLUS
+
+# set scheduler
 ifeq ($(sched),fcfs)
 	DIRECTIVES += -DSCHED_FCFS
 else ifeq ($(sched),robin)
 	DIRECTIVES += -DSCHED_ROUNDROBIN
 endif
 
-KERN_HEAD = ../include
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
-LIBS = ../lib
+INC = ../include
+LIB = ../lib
 OBJ_DIR = objects
 
-LIBRARIES := $(wildcard $(LIBS)/*.a)
+LIBRARIES := $(wildcard $(LIB)/*.a)
 
 CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
-LFLAGS = -ffreestanding -O2 -nostdlib $(patsubst $(LIBS)/lib%.a,-l%,$(LIBRARIES))
+LFLAGS = -ffreestanding -O2 -nostdlib $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
@@ -48,38 +50,68 @@ OBJECTS  = $(patsubst $(KERN_SRC)/%.c, $(OBJ_DIR)/%.o, $(KSOURCES))
 OBJECTS += $(patsubst $(COMMON_SRC)/%.c, $(OBJ_DIR)/%.o, $(CSOURCES))
 OBJECTS += $(patsubst $(KERN_SRC)/%.S, $(OBJ_DIR)/%.o, $(ASOURCES))
 
-HEADERS = $(wildcard $(KERN_HEAD)/*.h)
+HEADERS = $(wildcard $(INC)/*.h)
 
-IMG = proteus
+NAME = proteus
+ELF = $(NAME).elf
+IMG = $(NAME).img
+MAP = $(NAME).map
+LIST = $(NAME).list
+
+LINKER = linker.ld
 
 .PHONY: build clean gdbinit
 
+all: $(IMG) $(LIST)
+
+# make listing file
+$(LIST): $(ELF)
+	$(OBJDUMP) -d $(ELF) > $(LIST)
+
+# make img file
+$(IMG): $(ELF)
+	$(OBJCOPY) $(ELF) -O binary $(IMG)
+
+$(ELF): $(OBJECTS) $(LINKER)
+	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
+
+###########
+# ORIGINAL#
+###########
 build: $(OBJECTS) $(HEADERS)
 	@echo "Building $(IMG)"
-	$(CC) -T linker.ld -o $(IMG).elf $(OBJECTS) -L$(LIBS) $(LFLAGS) 
-	$(OBJCOPY) $(IMG).elf -O binary $(IMG).img
+	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) -L$(LIB) $(LFLAGS)
+	$(OBJCOPY) $(ELF) -O binary $(IMG)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
+	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(KERN_HEAD) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/$(ARCHDIR)/%.c
+	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(KERN_HEAD) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.S
+	@echo "Compiling $<"
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
+	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(KERN_HEAD) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
+
+tidy:
+	@echo "Tidying up..."
+	rm -rf $(OBJ_DIR)
+	rm -f $(ELF)
 
 clean:
-	@echo "Cleaning up..."
+	@echo "Removing $(OBJ_DIR), $(IMG).elf, $(IMG).img"
 	rm -rf $(OBJ_DIR)
-	rm $(IMG).elf
-	rm $(IMG).img
+	rm -f $(ELF) $(IMG)
 
 run: build
 	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
@@ -93,3 +125,5 @@ dbg:
 
 dbgrun: build gdbinit
 	qemu-system-arm -m 256 -no-reboot -M raspi2 -serial stdio -kernel $(IMG).elf -S -s
+
+$(verbose).SILENT:

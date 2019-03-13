@@ -1205,3 +1205,12 @@ register, or an immediate value (which may be shifted). Also documented in
 `cheatsheet.png` and `cheatsheet.pdf`.
 [TEQ](http://www.keil.com/support/man/docs/armasm/armasm_dom1361289912729.htm)
 [TEQ](https://www.heyrick.co.uk/armwiki/TEQ)
+
+### swp{b} is deprecated for ARMv6 and v7
+ARM1176-jzf is ARMv6 ([here](https://en.wikipedia.org/wiki/ARM_architecture)),
+so used `strex` (Store Register Exclusive) instead
+
+```assembly
+    strex r2, r1, [r0]
+```
+
