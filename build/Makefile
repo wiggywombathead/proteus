@@ -31,14 +31,17 @@ endif
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
 INC = ../include
-LIB = ../lib
+#LIB = ../lib
+LIB = 
 OBJ_DIR = objects
 
 LIBRARIES := $(wildcard $(LIB)/*.a)
 
 CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
-LFLAGS = -ffreestanding -O2 -nostdlib $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+
+LLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib 
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)

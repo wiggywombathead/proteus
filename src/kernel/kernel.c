@@ -3,6 +3,7 @@
 #include <kernel/gpu.h>
 #include <kernel/interrupt.h>
 #include <kernel/memory.h>
+#include <kernel/mmu.h>
 #include <kernel/mutex.h>
 #include <kernel/proc.h>
 #include <kernel/sched.h>
@@ -14,13 +15,42 @@
 mutex_t mutex;
 
 void sys_init(uint32_t r0, uint32_t r1, uint32_t atags);
-void flash(void);
-void test(void);
+
+void flash(void) {
+    uint32_t hertz = 5;
+    while (1) {
+        act_on();
+        uwait(500000 / hertz);
+        act_off();
+        uwait(500000 / hertz);
+    }
+}
+
+void print1(void) {
+    mutex_lock(&mutex);
+    for (int i = 0; i < 100; i++) {
+        putc('*');
+        uwait(100000);
+    }
+    putc('\n');
+    mutex_unlock(&mutex);
+}
+
+void print2(void) {
+    mutex_lock(&mutex);
+    for (int i = 0; i < 100; i++) {
+        putc('o');
+        uwait(100000);
+    }
+    putc('\n');
+    mutex_unlock(&mutex);
+}
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     sys_init(r0, r1, atags);
     act_blink(3);
+    uwait(5000000);
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -36,13 +66,11 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    create_kthread(flash, "flash", 6);
-    create_kthread(test, "test", 5);
+    create_kthread(print1, "one", 4);
+    create_kthread(print2, "two", 4);
 
-    while (1) {
-        printf("%ds ", uptime/1000000);
-        uwait(1000000);
-    }
+    while (1)
+        ;
 
     puts("\nGoodbye!");
 
@@ -54,11 +82,15 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) r1;
 
     gpu_init();
-    printf("Initialising GPU... DONE");
+    printf("Initialising GPU... DONE\n");
 
     printf("Initialising memory... ");
     mem_init((struct atag *) atags);
     printf("DONE\n");
+
+    printf("Initialising MMU... ");
+    mmu_init();
+    printf("DONE");
 
     printf("Initialising interrupts... ");
     interrupts_init();
@@ -80,26 +112,4 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Initialising keyboard... ");
     // TODO usb_init();
     printf("DONE\n");
-}
-
-void flash(void) {
-    uint32_t hertz = 5;
-    while (1) {
-        act_on();
-        uwait(500000 / hertz);
-        act_off();
-        uwait(500000 / hertz);
-    }
-}
-
-void test(void) {
-    int i = 0;
-    while (1) {
-        if (i % 10 == 0)
-            mutex_lock(&mutex);
-        else if (i % 10 == 9)
-            mutex_unlock(&mutex);
-
-        uwait(1000000);
-    }
 }
