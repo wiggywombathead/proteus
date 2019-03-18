@@ -83,6 +83,7 @@ void __attribute__((interrupt("ABORT"))) data_abort_handler(void) {
     while (1)
         ;
 }
+
 void __attribute__((interrupt("UNDEF"))) undefined_instruction_handler(void) {
     printf("UNDEFINED INSTRUCTION handler\n");
     while (1)

@@ -41,7 +41,7 @@ CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
 
 LLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
-LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib 
+LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
@@ -78,9 +78,9 @@ $(IMG): $(ELF)
 $(ELF): $(OBJECTS) $(LINKER)
 	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
 
-###########
-# ORIGINAL#
-###########
+############
+# ORIGINAL #
+############
 build: $(OBJECTS) $(HEADERS)
 	@echo "Building $(IMG)"
 	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) -L$(LIB) $(LFLAGS)

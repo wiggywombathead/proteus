@@ -27,6 +27,23 @@ void flash(void) {
     }
 }
 
+void fib(void) {
+    int a, b, c;
+
+    a = 0, b = 1;
+    int i = 2;
+    printf("[0]: 0\n[1]: 1\n");
+    while (i < 20) {
+        c = a + b;
+        a = b;
+        b = c;
+        i++;
+        printf("[%d]: %d\n", i, c);
+        uwait(1000000);
+    }
+    puts("Done!\n");
+}
+
 void print1(void) {
     mutex_lock(&mutex);
     for (int i = 0; i < 100; i++) {
@@ -45,6 +62,14 @@ void print2(void) {
     }
     putc('\n');
     mutex_unlock(&mutex);
+}
+
+void test(void) {
+    int i = 0;
+    while (1) {
+        printf("test %d\n", i++);
+        uwait(1000000);
+    }
 }
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
@@ -66,23 +91,25 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    create_kthread(print1, "one", 4);
-    create_kthread(print2, "two", 4);
+    mmio_write(0x00045678, 0x00045678);
+    mmio_write(0x00145678, 0x00145678);
+    mmio_write(0x00245678, 0x00245678);
+    mmio_write(0x00345678, 0x00345678);
 
-    _put32(0x00045678, 0x00045678);
-    _put32(0x00145678, 0x00145678);
-    _put32(0x00245678, 0x00245678);
-    _put32(0x00345678, 0x00345678);
-
-    printf("%x\n%x\n%x\n%x\n",
-            _get32(0x00045678),
-            _get32(0x00145678),
-            _get32(0x00245678),
-            _get32(0x00345678)
+    printf("0x%x...\n0x%x...\n0x%x...\n0x%x...\n",
+            mmio_read(0x00045678),
+            mmio_read(0x00145678),
+            mmio_read(0x00245678),
+            mmio_read(0x00345678)
           );
 
-    while (1)
-        ;
+    create_kthread(fib, "fib", 4);
+    
+    uint32_t i = 0;
+    while (1) {
+        printf("main : %d\n", i++);
+        uwait(1000000);
+    }
 
     puts("\nGoodbye!");
 
@@ -96,16 +123,16 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     gpu_init();
     printf("Initialising GPU... DONE\n");
 
-    printf("Initialising memory... ");
-    mem_init((struct atag *) atags);
+    printf("Initialising interrupts... ");
+    interrupts_init();
     printf("DONE\n");
 
     printf("Initialising MMU... ");
     mmu_init();
     printf("DONE");
 
-    printf("Initialising interrupts... ");
-    interrupts_init();
+    printf("Initialising memory... ");
+    mem_init((struct atag *) atags);
     printf("DONE\n");
 
     printf("Initialising system timer... ");

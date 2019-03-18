@@ -1,6 +1,3 @@
-#ifndef _STDLIB_H
-#define _STDLIB_H
-
 #include <stddef.h>
 #include <stdint.h>
 #include <common/stdlib.h>
@@ -56,7 +53,7 @@ size_t strncpy(char *dst, const char *src, size_t n) {
     return len;
 }
 
-int32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
+uint32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
     char *symbols = "0123456789abcdef";
     uint32_t i = 0;
 
@@ -89,5 +86,3 @@ size_t strlen(const char *str) {
         len++;
     return len;
 }
-
-#endif

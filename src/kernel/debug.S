@@ -1,7 +1,7 @@
 .section .text
 
 /**
- * _put32(u32 *a, u32 b)
+ * _put32(u32 a, u32 b)
  * store b in address a
  */
 .global _put32
@@ -10,7 +10,7 @@ _put32:
     bx lr
 
 /**
- * u32 _get32(u32 *a)
+ * u32 _get32(u32 a)
  * retrieve value stored in address a
  */
 .global _get32

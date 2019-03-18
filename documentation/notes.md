@@ -1242,3 +1242,16 @@ __aeabi_uidivmod:
     return:
         bx lr
 ```
+
+This did not work when `-lgcc` was removed from the Makefile. In particular, any
+time the function `itoa()` was called, any digit would be represented by a `a`,
+apart from 0 which displayed correctly. Further research highlighted that for
+any variant of division (e.g. `__aeabi_uidivmod`, `__aeabi_idiv`, etc.) required
+that `r0` contain the quotient, and `r1` the remainder. `__aeabi_uidivmod` hence
+became:
+
+```assembly
+
+```
+[Source](http://www.pouet.net/topic.php?which=10915) of information. Now we no
+longer need to link with `-lgcc`. Yay!

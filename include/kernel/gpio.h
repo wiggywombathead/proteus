@@ -64,9 +64,12 @@ enum {
     UART0_TDR    = (UART0_BASE + 0x8c)
 };
 
-void uart_init();
+void mmio_write(uint32_t reg, uint32_t data);
+uint32_t mmio_read(uint32_t reg);
+
+void uart_init(void);
 void uart_putc(unsigned char c);
-unsigned char uart_getc();
+unsigned char uart_getc(void);
 void uart_puts(const char* str);
 
 void act_init(void);

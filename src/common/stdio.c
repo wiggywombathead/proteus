@@ -5,6 +5,24 @@
 #include <common/stdio.h>
 #include <common/stdlib.h>
 
+char getc() {
+    return uart_getc();
+}
+
+void putc(char c) {
+    gpu_putc(c);
+}
+
+static void _puts(const char *str) {
+    for (size_t i = 0; str[i] != '\0'; i++)
+        putc(str[i]);
+}
+
+void puts(const char *str) {
+    _puts(str);
+    putc('\n');
+}
+
 int printf(const char *fmt, ...) {
 
     va_list args;
@@ -45,31 +63,31 @@ int printf(const char *fmt, ...) {
                         int_tmp = -int_tmp;
                     }
                     itoa(int_tmp, 10, buf, 64);
-                    puts(buf);
+                    _puts(buf);
                     written += strlen(buf);
                     break;
                 case 'o':
                     int_tmp = va_arg(args, int);
                     itoa(int_tmp, 8, buf, 64);
-                    puts(buf);
+                    _puts(buf);
                     written += strlen(buf);
                     break;
                 case 'p':
                     int_tmp = va_arg(args, int);
                     itoa(int_tmp, 16, buf, 64);
-                    puts("0x");
-                    puts(buf);
+                    _puts("0x");
+                    _puts(buf);
                     written += strlen(buf);
                     break;
                 case 's':
                     str_tmp = va_arg(args, char *);
-                    puts(str_tmp);
+                    _puts(str_tmp);
                     written += strlen(str_tmp);
                     break;
                 case 'x':
                     int_tmp = va_arg(args, int);
                     itoa(int_tmp, 16, buf, 64);
-                    puts(buf);
+                    _puts(buf);
                     written += strlen(buf);
                     break;
             }
@@ -83,17 +101,4 @@ int printf(const char *fmt, ...) {
     va_end(args);
     return written;
 
-}
-
-char getc() {
-    return uart_getc();
-}
-
-void putc(char c) {
-    gpu_putc(c);
-}
-
-void puts(const char *str) {
-    for (size_t i = 0; str[i] != '\0'; i++)
-        putc(str[i]);
 }
