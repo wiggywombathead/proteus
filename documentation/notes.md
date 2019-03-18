@@ -485,7 +485,7 @@ versions of each, namely GPSET0, GPSET1, GPCLR0, and GPCLR1. GPSET0 and GPCLR0
 deal with register 0 to 31, so we need to use GPSET1 and GPCLR1.
 
 Now the ACT blinks on and off at around a half second delay thanks to the
-following assembly: TODO
+following assembly: **TODO**
 
 [Massively helpful
 reference](https://www.raspberrypi.org/forums/viewtopic.php?p=852703)
@@ -710,7 +710,7 @@ the `ie` (**I**nterrupts **E**nable) suffix. The argument `i` enables IRQs
 ### System Timer
 The system timer is a hardware clock that can keep time and generate interrupts
 after a certain time. It is located at offset `0x3000` from the peripheral base.
-It is a Free Running Timer (TODO: what does this mean??) that increments a
+It is a Free Running Timer (**TODO**: what does this mean??) that increments a
 64-bit counter every microsecond. It starts as soon as the Pi boots, and is
 constantly running in the background while the Pi is on.
 
@@ -725,7 +725,7 @@ interrupt pending flag for that timer.
 We can set a timer by setting the `compare1` register to the current value plus
 some number of microseconds. This effectively counts down this number of
 microseconds, and when it is done it calls the timer IRQ handler. 
-TODO: probably more on this
+**TODO**: probably more on this
 
 ## Processes
 To initialise processes, we must initialise the run queue, allocate a PCB for
@@ -780,7 +780,7 @@ cleanup code when it dies.
 Involves allocating space for the PCB and the process' stack, setting up the
 process stack to be context-switched to, and adding it to the run queue.
 
-### TODO: finish writing this up (spinlocks, list, mutexes)
+### **TODO**: finish writing this up (spinlocks, list, mutexes)
 
 ## Keyboard input
 ### Status register
@@ -1035,7 +1035,7 @@ is to reset the system in a nice way.
 
 ## Static linking
 Experimented with using pre-compiled library, so had to modify makefile to
-support static linking. TODO finish explanation when modifications done.
+support static linking. **TODO** finish explanation when modifications done.
 
 The functions provided by the shared library are as follows:
 
@@ -1214,3 +1214,31 @@ so used `strex` (Store Register Exclusive) instead
     strex r2, r1, [r0]
 ```
 
+This required enabling both caches and the MMU [source](https://www.raspberrypi.org/forums/viewtopic.php?p=1204251), so then moved on to implementing the MMU.
+
+Enabling the MMU is done by:
+**TODO**
+
+## Memory Management Unit
+**TODO**
+
+## stdlib.c
+ARM processors have no native instructions for integer division. That means we
+must link at runtime that implements this, or write the implementation
+ourselves. For completeness, I chose to write it myself, with
+[inspiration](https://thinkingeek.com/2013/08/11/arm-assembler-raspberry-pi-chapter-15/).
+
+Of course, this undefined reference to `__aeabi_uidivmod()` linker error can be
+resolved by linking GCC's implementation, but this is no good, as we are our own
+kernel.
+
+```assembly
+__aeabi_uidivmod:
+    loop:
+        cmp r0, r1
+        blo return
+        sub r0, r1
+        b loop
+    return:
+        bx lr
+```

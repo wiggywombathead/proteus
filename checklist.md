@@ -3,7 +3,6 @@
 ### Functional
 - [ ] Enable MMU
 - [ ] Get `try_lock()` (i.e. mutexes) working with `ldrex/strex`
-  - [ ] MMU and both caches must be enabled [source](https://www.raspberrypi.org/forums/viewtopic.php?p=1204251)
 - [ ] Processes
   - [x] Round Robin
   - [x] Make `schedule()` take algorithm as parameter

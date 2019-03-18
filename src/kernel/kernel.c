@@ -1,4 +1,5 @@
 #include <kernel/atag.h>
+#include <kernel/debug.h>
 #include <kernel/gpio.h>
 #include <kernel/gpu.h>
 #include <kernel/interrupt.h>
@@ -50,7 +51,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     sys_init(r0, r1, atags);
     act_blink(3);
-    uwait(5000000);
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -62,12 +62,24 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
             "=====================================\n"
             "\n"
         );
-
+    uwait(5000000);
 
     mutex_init(&mutex);
 
     create_kthread(print1, "one", 4);
     create_kthread(print2, "two", 4);
+
+    _put32(0x00045678, 0x00045678);
+    _put32(0x00145678, 0x00145678);
+    _put32(0x00245678, 0x00245678);
+    _put32(0x00345678, 0x00345678);
+
+    printf("%x\n%x\n%x\n%x\n",
+            _get32(0x00045678),
+            _get32(0x00145678),
+            _get32(0x00245678),
+            _get32(0x00345678)
+          );
 
     while (1)
         ;

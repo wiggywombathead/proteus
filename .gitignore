@@ -1,7 +1,8 @@
-# object files
+# build files
 *.o
 *.elf
 *.img
+*.list
 
 # documentation
 *.aux

@@ -1,9 +1,28 @@
-.globl act_blink
+.section .text
+
+/**
+ * _put32(u32 *a, u32 b)
+ * store b in address a
+ */
+.global _put32
+_put32:
+    str r1, [r0]
+    bx lr
+
+/**
+ * u32 _get32(u32 *a)
+ * retrieve value stored in address a
+ */
+.global _get32
+_get32:
+    ldr r0, [r0]
+    bx lr
 
 /* 
- *  void blink(uint32_t n)
+ *  void blink(u32 n)
  *      blink ACT LED n times
  */
+.globl act_blink
 act_blink_n:
     /* check passed value non-negative */
     cmp r0, #0

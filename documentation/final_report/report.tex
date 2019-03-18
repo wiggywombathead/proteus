@@ -1,0 +1,71 @@
+\documentclass[10pt,a4paper]{article}
+
+\bibliographystyle{ieeetr}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{pgfgantt}
+\usepackage{pdfpages}
+\usepackage[title]{appendix}
+
+\graphicspath{{./figs/}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+
+        \vspace*{2cm}
+        \includegraphics[width=.25\textwidth]{crest.png}
+
+        \vspace*{1cm}
+        {\Large \textbf{An Educational Kernel for the Raspberry Pi}} \\
+
+        \vspace*{1cm}
+        \textbf{Thomas Archbold} \\
+        1602581 \\
+        Department of Computer Science \\
+        University of Warwick \\~\\
+
+
+        April 29, 2019 \\~\\
+
+        CS310 Project \\
+        supervised by Adam Chester \\~\\
+
+        \vfill
+
+    \end{center}
+\end{titlepage}
+
+% abstract
+\input{sections/abstract}
+
+\tableofcontents
+
+\input{sections/introduction}
+\input{sections/conclusions}
+
+\bibliography{bibliography}
+
+%\begin{appendices}
+%
+%    \pagenumbering{gobble}
+%
+%    % Revised Timetable
+%    \includepdf[landscape=true,pages=1,pagecommand={\section{Revised Timetable}}]{timetable/timetable.pdf}
+%    \includepdf[landscape=true,pages=2,pagecommand={}]{timetable/timetable.pdf}
+%
+%    % Project Specification
+%    \includepdf[pages=1,pagecommand={\section{Project Specification}}]{../specification/specification.pdf}
+%    \includepdf[pages=2-6,pagecommand={}]{../specification/specification.pdf}
+%    \includepdf[landscape=true,pages=7-,pagecommand={}]{../specification/specification.pdf}
+%
+%\end{appendices}
+
+\end{document}
