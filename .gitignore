@@ -3,6 +3,7 @@
 *.elf
 *.img
 *.list
+*.map
 
 # documentation
 *.aux
