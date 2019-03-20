@@ -15,8 +15,6 @@
 
 mutex_t mutex;
 
-void sys_init(uint32_t r0, uint32_t r1, uint32_t atags);
-
 void flash(void) {
     uint32_t hertz = 5;
     while (1) {
@@ -28,6 +26,7 @@ void flash(void) {
 }
 
 void fib(void) {
+    mutex_lock(&mutex);
     int a, b, c;
 
     a = 0, b = 1;
@@ -41,6 +40,7 @@ void fib(void) {
         printf("[%d]: %d\n", i, c);
         uwait(1000000);
     }
+    mutex_unlock(&mutex);
     puts("Done!\n");
 }
 
@@ -74,13 +74,57 @@ void test(void) {
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
-    sys_init(r0, r1, atags);
-    act_blink(3);
+    gpu_init();
+    puts("Initialising GPU... DONE");
+
+    printf("Initialising interrupts... ");
+    interrupts_init();
+    puts("DONE");
+
+    printf("Initialising MMU...");
+    for (uint32_t i = 0x0; ; i += 0x00100000) {
+        mmu_section(i, i, 0x0000);
+        if (i == 0xfff00000) break;
+    }
+
+    mmio_write(0x00045678, 0x00045678);
+    mmio_write(0x00145678, 0x00145678);
+    mmio_write(0x00245678, 0x00245678);
+    mmio_write(0x00345678, 0x00345678);
+
+    mmu_section(0x00100000,0x00300000,0x0000);
+    mmu_section(0x00200000,0x00100000,0x0000);
+    mmu_section(0x00300000,0x00200000,0x0000);
+    tlb_invalidate();
+
+    mmu_start(MMU_TTABLE_BASE, 0x1000|0x4|0x1);
+    puts("DONE");
+
+    printf("Initialising memory... ");
+    mem_init((struct atag *) atags);
+    puts("DONE");
+
+    printf("Initialising system timer... ");
+    timer_init();
+    puts("DONE");
+
+    printf("Enabling GPIO... ");
+    act_init();
+    puts("DONE");
+
+    printf("Initialising processes... ");
+    proc_init();
+    sched_init();
+    puts("DONE");
+
+    printf("Initialising keyboard... ");
+    // TODO usb_init();
+    printf("DONE\n");
 
     /*
      * SUCCESSFULLY INITIALISED
      */
-
+    act_blink(3);
     printf("\n"
             "=====================================\n"
             "*      Welcome to proteus v0.1      *\n"
@@ -91,24 +135,23 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    mmio_write(0x00045678, 0x00045678);
-    mmio_write(0x00145678, 0x00145678);
-    mmio_write(0x00245678, 0x00245678);
-    mmio_write(0x00345678, 0x00345678);
-
-    printf("0x%x...\n0x%x...\n0x%x...\n0x%x...\n",
+    printf("\n0x%x\n"
+            "0x%x\n"
+            "0x%x\n"
+            "0x%x\n",
             mmio_read(0x00045678),
             mmio_read(0x00145678),
             mmio_read(0x00245678),
             mmio_read(0x00345678)
           );
 
+    create_kthread(print1, "p1", 4);
+    create_kthread(print2, "p2", 4);
     create_kthread(fib, "fib", 4);
     
     uint32_t i = 0;
     while (1) {
-        printf("main : %d\n", i++);
-        uwait(1000000);
+        ;
     }
 
     puts("\nGoodbye!");
@@ -126,10 +169,6 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Initialising interrupts... ");
     interrupts_init();
     printf("DONE\n");
-
-    printf("Initialising MMU... ");
-    mmu_init();
-    printf("DONE");
 
     printf("Initialising memory... ");
     mem_init((struct atag *) atags);
@@ -151,4 +190,5 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     printf("Initialising keyboard... ");
     // TODO usb_init();
     printf("DONE\n");
+
 }

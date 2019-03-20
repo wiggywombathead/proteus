@@ -74,6 +74,7 @@ void __attribute__((interrupt("ABORT"))) reset_handler(void) {
 
 void __attribute__((interrupt("ABORT"))) prefetch_abort_handler(void) {
     printf("PREFETCH ABORT handler\n");
+
     while (1)
         ;
 }

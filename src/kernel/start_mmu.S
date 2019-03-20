@@ -1,7 +1,7 @@
 .section .text
 
 /**
- * void mmu_init(uint32_t addr)
+ * void mmu_init(uint32_t addr, uint32_t flags)
  * initialise MMU at address addr
  */
 .global mmu_start

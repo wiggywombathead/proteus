@@ -1215,12 +1215,18 @@ so used `strex` (Store Register Exclusive) instead
 ```
 
 This required enabling both caches and the MMU [source](https://www.raspberrypi.org/forums/viewtopic.php?p=1204251), so then moved on to implementing the MMU.
+[source](https://stackoverflow.com/questions/26013319/raspberry-pi-ldrex-causes-data-abort)
 
 Enabling the MMU is done by:
 **TODO**
 
 ## Memory Management Unit
-**TODO**
+This is "working" - just heaven forbid if you  try anything other than identity
+mapping. The problem is that doing otherwise breaks interrupts, which perhaps I
+will fix at a later date. I think it is because of the exception vector table
+requiring to be loaded where it is, and the MMU messes with this.
+
+Now the problem is the function `mmu\_init()` cannot be called from a function.
 
 ## stdlib.c
 ARM processors have no native instructions for integer division. That means we
