@@ -4,6 +4,7 @@
 char getc(void);
 void putc(char);
 void puts(const char *);
+void hexstring(uint32_t);
 int printf(const char *, ...);
 
 #endif

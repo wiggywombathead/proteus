@@ -87,14 +87,15 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         if (i == 0xfff00000) break;
     }
 
-    mmio_write(0x00045678, 0x00045678);
-    mmio_write(0x00145678, 0x00145678);
-    mmio_write(0x00245678, 0x00245678);
-    mmio_write(0x00345678, 0x00345678);
+    mmio_write(0x00145678, 0x00000001);
+    mmio_write(0x00245678, 0x00000002);
+    mmio_write(0x00345678, 0x00000003);
+    mmio_write(0x00445678, 0x00000004);
 
-    mmu_section(0x00100000,0x00300000,0x0000);
-    mmu_section(0x00200000,0x00100000,0x0000);
-    mmu_section(0x00300000,0x00200000,0x0000);
+    mmu_section(0x00100000, 0x00100000, 0x0000);
+    mmu_section(0x00200000, 0x00200000, 0x0000);
+    mmu_section(0x00300000, 0x00400000, 0x0000);
+    mmu_section(0x00400000, 0x00300000, 0x0000);
     tlb_invalidate();
 
     mmu_start(MMU_TTABLE_BASE, 0x1000|0x4|0x1);
@@ -135,15 +136,10 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     mutex_init(&mutex);
 
-    printf("\n0x%x\n"
-            "0x%x\n"
-            "0x%x\n"
-            "0x%x\n",
-            mmio_read(0x00045678),
-            mmio_read(0x00145678),
-            mmio_read(0x00245678),
-            mmio_read(0x00345678)
-          );
+    hexstring(mmio_read(0x00145678));
+    hexstring(mmio_read(0x00245678));
+    hexstring(mmio_read(0x00345678));
+    hexstring(mmio_read(0x00445678));
 
     create_kthread(print1, "p1", 4);
     create_kthread(print2, "p2", 4);

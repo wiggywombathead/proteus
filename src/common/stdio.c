@@ -23,6 +23,29 @@ void puts(const char *str) {
     putc('\n');
 }
 
+void hexstring(uint32_t n) {
+    char *symbols = "012345678abcdef";
+    char buf[8];
+    uint32_t i = 0;
+
+    while (n > 0) {
+        buf[i++] = symbols[n % 16];
+        n /= 16;
+    }
+
+    _puts("0x");
+    uint32_t len = i;
+    for (i = len; i < 8; i++)
+        putc('0');
+
+    for (i = len - 1; ; i--) {
+        putc(buf[i]);
+        if (i == 0) break;
+    }
+
+    putc('\n');
+}
+
 int printf(const char *fmt, ...) {
 
     va_list args;
