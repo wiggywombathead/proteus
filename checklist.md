@@ -1,7 +1,30 @@
 # proteus checklist
 ## Todo
+### Write-up
+- [ ] Introduction
+- [ ] Background
+  - [ ] Motivation
+  - [ ] Relevant material
+  - [ ] Why useful
+- [ ] Design
+  - [ ] Hardware/architecture overview
+  - [ ] Project Management
+- [ ] Implementation
+    - [ ] Boot
+    - [ ] Memory management
+    - [ ] Framebuffer
+    - [ ] Processes
+    - [ ] Synchronisation
+    - [ ] Keyboard
+- [ ] Testing
+- [ ] Results
+- [ ] Conclusions
+  - [ ] Evaluation
+  - [ ] Further work
+
 ### Functional
-- [ ] Enable MMU
+- [x] Enable MMU
+  - [ ] Not working for `0x00100000`???
 - [ ] Get `try_lock()` (i.e. mutexes) working with `ldrex/strex`
 - [ ] Processes
   - [x] Round Robin
@@ -21,8 +44,8 @@
 - [x] Debug rainbow screen at boot
 
 ### Polish
-- [ ] Write more generalised Makefile
 - [ ] Font color must be backwards(???) - fix
+- [x] Write more generalised Makefile
 - [x] Change `act_blink()` to use system timer
 
 ## CPU scheduling

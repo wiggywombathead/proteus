@@ -8,6 +8,7 @@
 #include <kernel/mutex.h>
 #include <kernel/proc.h>
 #include <kernel/sched.h>
+#include <kernel/shm.h>
 #include <kernel/timer.h>
 
 #include <common/stdlib.h>
@@ -70,6 +71,20 @@ void test(void) {
         printf("test %d\n", i++);
         uwait(1000000);
     }
+}
+
+struct shm_section *shared;
+
+void producer(void) {
+    shared = shm_open("SHARED");
+
+    int data = 69420;
+    shm_write(shared, &data, sizeof(int));
+}
+
+void consumer(void) {
+    void *data = shm_read(shared, "SHARED");
+    printf("SHARED: %s\n", * (int *) data);
 }
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
@@ -141,9 +156,12 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     hexstring(mmio_read(0x00345678));
     hexstring(mmio_read(0x00445678));
 
-    create_kthread(print1, "p1", 4);
-    create_kthread(print2, "p2", 4);
-    create_kthread(fib, "fib", 4);
+    // create_kthread(print1, "p1", 4);
+    // create_kthread(print2, "p2", 4);
+    // create_kthread(fib, "fib", 4);
+    
+    create_kthread(producer, "prod", 5);
+    create_kthread(consumer, "cons", 5);
     
     uint32_t i = 0;
     while (1) {

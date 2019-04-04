@@ -1,5 +1,11 @@
-report.pdf: report.tex bibliography.bib
+SDIR = sections
+SECTIONS = $(SDIR)/*.tex
+
+report.pdf: $(SECTIONS) report.tex bibliography.bib
 	pdflatex report.tex
 	bibtex report.aux
 	pdflatex report.tex
 	pdflatex report.tex
+
+clean:
+	rm -f report.pdf

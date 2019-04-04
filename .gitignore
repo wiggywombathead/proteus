@@ -10,6 +10,7 @@
 *.bbl
 *.blg
 *.log
+*.png
 
 # presentation
 *.nav
