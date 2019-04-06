@@ -22,4 +22,9 @@ void write_pixel(uint32_t, uint32_t, const struct pixel *);
 void gpu_putc(char);
 void clrs(void);
 
+uint32_t get_screen_width(void);
+uint32_t get_screen_height(void);
+uint32_t get_console_width(void);
+uint32_t get_console_height(void);
+
 #endif

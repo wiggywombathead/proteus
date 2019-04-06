@@ -10,6 +10,9 @@
 #define PAGE_SIZE 4096
 #define KERNEL_HEAP_SIZE (1024*1024)
 
+#define KILOBYTE 1024
+#define MEGABYTE (1024*1024)
+
 #include <stdint.h>
 #include <kernel/atag.h>
 #include <kernel/list.h>

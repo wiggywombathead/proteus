@@ -22,7 +22,10 @@ struct proc *current_process;
 static uint32_t current_pid = 1;
 
 /**
- * Initialse ready queue and job queue, and start the init process
+ * @brief Initialse ready queue and job queue, and start the init process
+ *
+ * The main process is created and added to the job queue, the current process
+ * as this process, and the timer is set to go off in one quantum.
  */
 void proc_init(void) {
 
@@ -37,15 +40,19 @@ void proc_init(void) {
     strcpy(main->name, "init");
 
     append_proc_list(&job_queue, main);
+    append_proc_list(&ready_queue, main);
 
     current_process = main;
 
     timer_set(QUANTUM);
-
 }
 
 /**
- * Clean up after a process terminates
+ * @brief Clean up after a process terminates
+ *
+ * This takes a process which has just finished executing and frees all of its
+ * resources. It then removes it from the ready queue and job queue and switches
+ * context so that the next ready process may execute.
  */
 static void cleanup(void) {
     DISABLE_INTERRUPTS();
@@ -62,7 +69,8 @@ static void cleanup(void) {
     free_page(old_thread->stack_page);
     kfree(old_thread);
 
-    // remove_proc(&job_queue, old_thread);
+    remove_proc_list(&job_queue, old_thread);
+    remove_proc_list(&ready_queue, old_thread);
 
     /* context switch */
     switch_context(old_thread, new_thread);
@@ -72,16 +80,21 @@ static void cleanup(void) {
  * Create a new process
  * @param func Name of function the process will execute
  * @param name Name of the process
- * @param name_len Length of process' name
+ *
+ * This creates a new thread of execution by creating a new instance of a
+ * process control block in a new stack page. It is then added to the job queue
+ * and ready queue.
  */
-void create_kthread(kthreadfn func, char *name, int name_len) {
+void create_kthread(kthreadfn func, char *name) {
     struct proc *pcb;
     struct proc_state *new_state;
 
     pcb = kmalloc(sizeof(struct proc));
     pcb->pid = current_pid++;
     pcb->stack_page = alloc_page();
-    strncpy(pcb->name, name, name_len < 20 ? name_len : 19);
+
+    size_t len = strlen(name);
+    strncpy(pcb->name, name, len < 31 ? len : 31);
 
     new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct proc_state);
     pcb->state = new_state;

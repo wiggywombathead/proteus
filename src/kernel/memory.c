@@ -1,5 +1,7 @@
 #include <kernel/memory.h>
 #include <kernel/atag.h>
+
+#include <common/stdio.h>
 #include <common/stdlib.h>
 
 extern uint8_t __end;

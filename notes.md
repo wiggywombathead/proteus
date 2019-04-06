@@ -1227,6 +1227,27 @@ will fix at a later date. I think it is because of the exception vector table
 requiring to be loaded where it is, and the MMU messes with this.
 
 Now the problem is the function `mmu\_init()` cannot be called from a function.
+This is because (I imagine) the function is loaded into the program counter, but
+then since the address map is changed in this function, the kernel does not know
+where to return execution after the function terminates (or it does, but this
+address has now changed).
+
+For testing purposes, a series of `mmio_write()` and `mmio_read()` calls were
+tested. On writing and subsequently reading from address around `0x00100000`,
+the kernel printed out garbage. Upon further testing this was found to be
+because:
+  * the kernel starts at `0x8000` and grows upwards (the stack starts at
+    `0x8000` and grows downwards, i.e. towards `0x0`)
+  * the page metadata starts at `0xe000` (at the time of testing) and spans up
+    to `0x1ce000`
+  * the kernel heap starts at `0x1ce000` hence ends at `0x2ce000`
+
+Thus when trying to write to these low addresses and read them back, we were
+messing up all the data we had put there to manage memory, processes, etc.
+`mmio_write()` and `mmio_read()` are inherently unsafe but vital for debugging
+and in general getting low-level things to work. Hence if they need to be used,
+they must read and write addresses strictly after the end of the heap, `0x2e000`
+at the time of writing.
 
 ## stdlib.c
 ARM processors have no native instructions for integer division. That means we
@@ -1259,5 +1280,12 @@ became:
 ```assembly
 
 ```
+
+When later trying to do `1000000 / get_screen_width()`, the linker complained,
+saying it could not find `_aeabi_uidiv`. To fix this, I simply made the label
+`__aeabi_uidiv` call `__aeabi_uidivmod`, as they are essentially the same, just
+`__aeabi_uidiv` does not use the remainder that is returned in `r1`. This has
+the added likelihood of cache hits, as they both use the same code.
+
 [Source](http://www.pouet.net/topic.php?which=10915) of information. Now we no
 longer need to link with `-lgcc`. Yay!

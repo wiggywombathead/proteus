@@ -3,6 +3,7 @@
 #include <kernel/framebuffer.h>
 #include <kernel/fonts.h>
 
+#include <common/stdio.h>
 #include <common/stdlib.h>
 
 /**
@@ -22,6 +23,7 @@ int gpu_init(void) {
             write_pixel(i, j, &BLACK);
         }
     }
+
     return res;
 }
 
@@ -142,4 +144,32 @@ void clrs(void) {
         for (uint32_t j = 0; j < fb_info.max_row; j++)
             gpu_putc(' ');
     fb_info.col = fb_info.row = 0;
+}
+
+/**
+ * Return screen width in pixels (i.e. screen resolution)
+ */
+uint32_t get_screen_width(void) {
+    return fb_info.width;
+}
+
+/**
+ * Return screen height in pixels (i.e. screen resolution)
+ */
+uint32_t get_screen_height(void) {
+    return fb_info.height;
+}
+
+/**
+ * Return screen width in characters
+ */
+uint32_t get_console_width(void) {
+    return fb_info.max_col;
+}
+
+/**
+ * Return screen height in characters
+ */
+uint32_t get_console_height(void) {
+    return fb_info.max_row;
 }

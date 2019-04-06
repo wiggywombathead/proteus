@@ -27,4 +27,5 @@ reference
 figs
 
 # doxygen
-doc/{latex,html}
+doc/html
+doc/latex

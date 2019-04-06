@@ -3,6 +3,9 @@
 #include <kernel/proc.h>
 #include <kernel/timer.h>
 
+#include <common/stdio.h>
+#include <common/stdlib.h>
+
 extern void switch_context(struct proc *old, struct proc *new);
 
 extern struct proc_list job_queue;
@@ -11,22 +14,32 @@ extern struct proc_list ready_queue;
 extern struct proc *current_process;
 
 /**
- * Define which shceduling algorithm to use
+ * @brief Define which scheduling algorithm to use
+ *
+ * Uses Make's directives supplied at compile-time to specify the option of
+ * scheduling algorithm. The function pointer schedule is set using these
+ * directives.
  */
 void sched_init(void) {
 
+    char sch_str[16];
+
 #if defined ( SCHED_FCFS )
     schedule = sched_fcfs;
+    strcpy(sch_str, "FCFS");
 #elif defined ( SCHED_ROUNDROBIN )
     schedule = sched_round_robin;
+    strcpy(sch_str, "Round Robin");
 #else
     schedule = sched_round_robin;
+    strcpy(sch_str, "Round Robin");
 #endif
 
+    printf("\tScheduler: %s\n", sch_str);
 }
 
 /**
- * Implementation of the round robin scheduling algorithm
+ * @brief Implementation of the round robin scheduling algorithm
  */
 void sched_round_robin(void) {
 
@@ -52,7 +65,7 @@ void sched_round_robin(void) {
 }
 
 /**
- * Implementation of the First Come First Served scheduling algorithm
+ * @brief Implementation of the First Come First Served scheduling algorithm
  */
 void sched_fcfs(void) {
     while (1)

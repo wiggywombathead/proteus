@@ -1,6 +1,7 @@
 #include <kernel/framebuffer.h>
 #include <kernel/mailbox.h>
 #include <kernel/gpu.h>
+#include <kernel/util.h>
 
 struct fb_init {
     uint32_t width;
@@ -15,7 +16,7 @@ struct fb_init {
     uint32_t size;
 };
 
-struct fb_init fbinit __attribute__((aligned(16)));
+struct fb_init fbinit ALIGNED(16); //__attribute__((aligned(16)));
 
 int framebuffer_init(void) {
 

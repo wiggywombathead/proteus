@@ -40,7 +40,13 @@ LIBRARIES := $(wildcard $(LIB)/*.a)
 CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
 
-LLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+# link libraries in lib?
+ifeq ($(lib),1)
+	LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+else
+	LLIBS =
+endif
+
 LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
@@ -70,7 +76,7 @@ LINKER = linker.ld
 ############
 build: $(OBJECTS) $(HEADERS)
 	@echo "Building $(IMG)"
-	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) -L$(LIB) $(LFLAGS)
+	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) $(LFLAGS)
 	$(OBJCOPY) $(ELF) -O binary $(IMG)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
@@ -93,8 +99,6 @@ $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
-$(verbose).SILENT:
-
 documentation:
 	cd $(DOC) && doxygen doxygen.config
 
@@ -108,24 +112,26 @@ clean:
 	rm -rf $(OBJ_DIR)
 	rm -f $(ELF) $(IMG)
 
+$(vb).SILENT:
+
 run: build
 	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
 
 #######################
 # PERHAPS GET WORKING #
 #######################
-all: $(IMG) $(LIST)
-
-# make listing file
-$(LIST): $(ELF)
-	$(OBJDUMP) -d $(ELF) > $(LIST)
-
-# make img file
-$(IMG): $(ELF)
-	$(OBJCOPY) $(ELF) -O binary $(IMG)
-
-$(ELF): $(OBJECTS) $(LINKER)
-	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
+#all: $(IMG) $(LIST)
+#
+## make listing file
+#$(LIST): $(ELF)
+#	$(OBJDUMP) -d $(ELF) > $(LIST)
+#
+## make img file
+#$(IMG): $(ELF)
+#	$(OBJCOPY) $(ELF) -O binary $(IMG)
+#
+#$(ELF): $(OBJECTS) $(LINKER)
+#	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
 
 dbginit:
 	echo "target remote localhost:1234" > .gdbinit

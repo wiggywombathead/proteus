@@ -47,21 +47,19 @@ void fib(void) {
 
 void print1(void) {
     mutex_lock(&mutex);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < get_console_width(); i++) {
         putc('*');
-        uwait(100000);
+        uwait(1000000 / get_console_width());
     }
-    putc('\n');
     mutex_unlock(&mutex);
 }
 
 void print2(void) {
     mutex_lock(&mutex);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < get_console_width(); i++) {
         putc('o');
-        uwait(100000);
+        uwait(1000000 / get_console_width());
     }
-    putc('\n');
     mutex_unlock(&mutex);
 }
 
@@ -89,53 +87,70 @@ void consumer(void) {
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
+    (void) r0;
+    (void) r1;
+
+    /* GPU */
     gpu_init();
-    puts("Initialising GPU... DONE");
+    puts("Initialising GPU");
+    printf("\tScreen: %dx%d\n",
+            get_screen_width(),
+            get_screen_height()
+        );
+    printf("\tConsole: %dx%d\n",
+            get_console_width(),
+            get_console_height()
+        );
 
-    printf("Initialising interrupts... ");
+    /* INTERRUPTS */
+    puts("Initialising interrupts");
     interrupts_init();
-    puts("DONE");
 
-    printf("Initialising MMU...");
+    /* MEMORY MANAGEMENT UNIT */
+    puts("Initialising MMU");
     for (uint32_t i = 0x0; ; i += 0x00100000) {
         mmu_section(i, i, 0x0000);
         if (i == 0xfff00000) break;
     }
 
-    mmio_write(0x00145678, 0x00000001);
-    mmio_write(0x00245678, 0x00000002);
-    mmio_write(0x00345678, 0x00000003);
-    mmio_write(0x00445678, 0x00000004);
+    mmio_write(0x00300000, 0x3);
+    mmio_write(0x00400000, 0x4);
+    mmio_write(0x00500000, 0x5);
 
-    mmu_section(0x00100000, 0x00100000, 0x0000);
-    mmu_section(0x00200000, 0x00200000, 0x0000);
     mmu_section(0x00300000, 0x00400000, 0x0000);
     mmu_section(0x00400000, 0x00300000, 0x0000);
+    mmu_section(0x00500000, 0x00500000, 0x0000);
     tlb_invalidate();
 
     mmu_start(MMU_TTABLE_BASE, 0x1000|0x4|0x1);
-    puts("DONE");
 
-    printf("Initialising memory... ");
+    /* PAGING AND HEAP */
+    puts("Initialising memory");
     mem_init((struct atag *) atags);
-    puts("DONE");
+    printf("\tHeap: %dMiB\n", KERNEL_HEAP_SIZE / MEGABYTE);
+    printf("\tMemory: %dMiB\n",
+            get_total_mem((struct atag *) atags) / MEGABYTE
+        );
 
-    printf("Initialising system timer... ");
+    /* SYSTEM TIMER PERIPHERAL */
+    puts("Initialising system timer");
     timer_init();
-    puts("DONE");
 
-    printf("Enabling GPIO... ");
+    /* GPIO */
+    puts("Initialising GPIO");
+    uart_init();
+    printf("\tUART initialised\n");
     act_init();
-    puts("DONE");
+    printf("\tACT enabled\n");
 
-    printf("Initialising processes... ");
+    /* PROCESSES */
+    puts("Initialising processes");
     proc_init();
     sched_init();
-    puts("DONE");
 
-    printf("Initialising keyboard... ");
+    /* KEYBOARD */
+    puts("Initialising keyboard");
     // TODO usb_init();
-    printf("DONE\n");
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -147,21 +162,20 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
             "=====================================\n"
             "\n"
         );
-    uwait(5000000);
+    uwait(3000000);
+
+    hexstring(mmio_read(0x00300000));
+    hexstring(mmio_read(0x00400000));
+    hexstring(mmio_read(0x00500000));
 
     mutex_init(&mutex);
 
-    hexstring(mmio_read(0x00145678));
-    hexstring(mmio_read(0x00245678));
-    hexstring(mmio_read(0x00345678));
-    hexstring(mmio_read(0x00445678));
-
-    // create_kthread(print1, "p1", 4);
-    // create_kthread(print2, "p2", 4);
-    // create_kthread(fib, "fib", 4);
+    create_kthread(print1, "p1");
+    create_kthread(print2, "p2");
+    create_kthread(fib, "fib");
     
-    create_kthread(producer, "prod", 5);
-    create_kthread(consumer, "cons", 5);
+    // create_kthread(producer, "prod");
+    // create_kthread(consumer, "cons");
     
     uint32_t i = 0;
     while (1) {
@@ -178,7 +192,7 @@ void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
     (void) r1;
 
     gpu_init();
-    printf("Initialising GPU... DONE\n");
+    printf("Initialising GPU\n");
 
     printf("Initialising interrupts... ");
     interrupts_init();

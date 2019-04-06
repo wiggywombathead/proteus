@@ -1,7 +1,10 @@
 #!/bin/bash
 if ! mountpoint -q $HOME/SD; then
     echo "mounting $HOME/SD"
-    sudo -E mount /dev/mmcblk0p1 $HOME/SD
+    if ! sudo -E mount /dev/mmcblk0p1 $HOME/SD; then
+        echo "mounting failed, exiting"
+        exit
+    fi
 else
     echo "$HOME/SD already mounted"
 fi
