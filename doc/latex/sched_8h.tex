@@ -1,0 +1,55 @@
+\hypertarget{sched_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/sched.h File Reference}
+\label{sched_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/sched.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/sched.h}}
+
+
+File containing all scheduling algorithms available to the system.  
+
+
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{sched_8h_abc4f0f9abea1b5443308e4ea84b52b21}\label{sched_8h_abc4f0f9abea1b5443308e4ea84b52b21}} 
+\#define {\bfseries Q\+U\+A\+N\+T\+UM}~20000
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{sched_8h_ac76f0bd4fbafc057a2f780869968e3ed}{sched\+\_\+init}} (void)
+\item 
+void \mbox{\hyperlink{sched_8h_a99bb68e68f6b614ba9e1bd9a1f4e7a09}{sched\+\_\+round\+\_\+robin}} (void)
+\item 
+void \mbox{\hyperlink{sched_8h_a512adafd438b6efee2d06dc3d120c8cc}{sched\+\_\+fcfs}} (void)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{sched_8h_a2dd86dfce4094b480dae17d9e0e1f608}\label{sched_8h_a2dd86dfce4094b480dae17d9e0e1f608}} 
+void($\ast$ {\bfseries schedule} )(void)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+File containing all scheduling algorithms available to the system. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{sched_8h_a512adafd438b6efee2d06dc3d120c8cc}\label{sched_8h_a512adafd438b6efee2d06dc3d120c8cc}} 
+\index{sched.h@{sched.h}!sched\_fcfs@{sched\_fcfs}}
+\index{sched\_fcfs@{sched\_fcfs}!sched.h@{sched.h}}
+\subsubsection{\texorpdfstring{sched\_fcfs()}{sched\_fcfs()}}
+{\footnotesize\ttfamily void sched\+\_\+fcfs (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Implementation of the First Come First Served scheduling algorithm \mbox{\Hypertarget{sched_8h_ac76f0bd4fbafc057a2f780869968e3ed}\label{sched_8h_ac76f0bd4fbafc057a2f780869968e3ed}} 
+\index{sched.h@{sched.h}!sched\_init@{sched\_init}}
+\index{sched\_init@{sched\_init}!sched.h@{sched.h}}
+\subsubsection{\texorpdfstring{sched\_init()}{sched\_init()}}
+{\footnotesize\ttfamily void sched\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Define which shceduling algorithm to use \mbox{\Hypertarget{sched_8h_a99bb68e68f6b614ba9e1bd9a1f4e7a09}\label{sched_8h_a99bb68e68f6b614ba9e1bd9a1f4e7a09}} 
+\index{sched.h@{sched.h}!sched\_round\_robin@{sched\_round\_robin}}
+\index{sched\_round\_robin@{sched\_round\_robin}!sched.h@{sched.h}}
+\subsubsection{\texorpdfstring{sched\_round\_robin()}{sched\_round\_robin()}}
+{\footnotesize\ttfamily void sched\+\_\+round\+\_\+robin (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Implementation of the round robin scheduling algorithm 

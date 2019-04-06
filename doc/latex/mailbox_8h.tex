@@ -1,0 +1,125 @@
+\hypertarget{mailbox_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/mailbox.h File Reference}
+\label{mailbox_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/mailbox.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/mailbox.h}}
+
+
+Code to interact via the mailbox peripheral, mainly for requesting a framebuffer from the G\+PU.  
+
+
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$kernel/peripheral.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}}
+\item 
+struct \mbox{\hyperlink{structmail__status}{mail\+\_\+status}}
+\item 
+struct \mbox{\hyperlink{structfb__allocate__res}{fb\+\_\+allocate\+\_\+res}}
+\item 
+struct \mbox{\hyperlink{structfb__screen__size}{fb\+\_\+screen\+\_\+size}}
+\item 
+union \mbox{\hyperlink{unionvalue__buffer}{value\+\_\+buffer}}
+\item 
+struct \mbox{\hyperlink{structproperty__msg__tag}{property\+\_\+msg\+\_\+tag}}
+\item 
+struct \mbox{\hyperlink{structproperty__msg__buf}{property\+\_\+msg\+\_\+buf}}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{mailbox_8h_aa5adc7a257c88158a8976c239b759a49}\label{mailbox_8h_aa5adc7a257c88158a8976c239b759a49}} 
+\#define {\bfseries M\+A\+I\+L\+B\+O\+X\+\_\+\+B\+A\+SE}~P\+E\+R\+I\+P\+H\+E\+R\+A\+L\+\_\+\+B\+A\+SE + M\+A\+I\+L\+B\+O\+X\+\_\+\+O\+F\+F\+S\+ET
+\item 
+\mbox{\Hypertarget{mailbox_8h_af519dbf86aa030596a15ee5f74156319}\label{mailbox_8h_af519dbf86aa030596a15ee5f74156319}} 
+\#define {\bfseries M\+A\+I\+L0\+\_\+\+R\+E\+AD}~(((struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}} $\ast$) (M\+A\+I\+L\+B\+O\+X\+\_\+\+B\+A\+SE + 0x00)))
+\item 
+\mbox{\Hypertarget{mailbox_8h_a14abf6ce0787e78be4437fbd9dd27ae8}\label{mailbox_8h_a14abf6ce0787e78be4437fbd9dd27ae8}} 
+\#define {\bfseries M\+A\+I\+L0\+\_\+\+S\+T\+A\+T\+US}~(((struct \mbox{\hyperlink{structmail__status}{mail\+\_\+status}} $\ast$) (M\+A\+I\+L\+B\+O\+X\+\_\+\+B\+A\+SE + 0x18)))
+\item 
+\mbox{\Hypertarget{mailbox_8h_a67cf33384dd6a4b4e51056315ee747bb}\label{mailbox_8h_a67cf33384dd6a4b4e51056315ee747bb}} 
+\#define {\bfseries M\+A\+I\+L0\+\_\+\+W\+R\+I\+TE}~(((struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}} $\ast$) (M\+A\+I\+L\+B\+O\+X\+\_\+\+B\+A\+SE + 0x20)))
+\item 
+\mbox{\Hypertarget{mailbox_8h_a166235d7e176fd25d785ecb6192f9ff2}\label{mailbox_8h_a166235d7e176fd25d785ecb6192f9ff2}} 
+\#define {\bfseries F\+R\+A\+M\+E\+B\+U\+F\+\_\+\+C\+H\+A\+N\+N\+EL}~1
+\item 
+\mbox{\Hypertarget{mailbox_8h_a5c77ff0c2794bca6d62313d136eabba5}\label{mailbox_8h_a5c77ff0c2794bca6d62313d136eabba5}} 
+\#define {\bfseries P\+R\+O\+P\+E\+R\+T\+Y\+\_\+\+C\+H\+A\+N\+N\+EL}~8
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{mailbox_8h_aed4876a3b67619bc50591642e9ea75fe}\label{mailbox_8h_aed4876a3b67619bc50591642e9ea75fe}} 
+enum {\bfseries property\+\_\+tag} \{ \newline
+{\bfseries N\+U\+L\+L\+\_\+\+T\+AG} = 0, 
+{\bfseries F\+B\+\_\+\+A\+L\+L\+O\+C\+A\+T\+E\+\_\+\+B\+U\+F\+F\+ER} = 0x00040001, 
+{\bfseries F\+B\+\_\+\+R\+E\+L\+E\+A\+S\+E\+\_\+\+B\+U\+F\+F\+ER} = 0x00048001, 
+{\bfseries F\+B\+\_\+\+G\+E\+T\+\_\+\+P\+H\+Y\+S\+I\+C\+A\+L\+\_\+\+D\+I\+M\+E\+N\+S\+I\+O\+NS} = 0x00040003, 
+\newline
+{\bfseries F\+B\+\_\+\+S\+E\+T\+\_\+\+P\+H\+Y\+S\+I\+C\+A\+L\+\_\+\+D\+I\+M\+E\+N\+S\+I\+O\+NS} = 0x00048003, 
+{\bfseries F\+B\+\_\+\+G\+E\+T\+\_\+\+V\+I\+R\+T\+U\+A\+L\+\_\+\+D\+I\+M\+E\+N\+S\+I\+O\+NS} = 0x00040004, 
+{\bfseries F\+B\+\_\+\+S\+E\+T\+\_\+\+V\+I\+R\+T\+U\+A\+L\+\_\+\+D\+I\+M\+E\+N\+S\+I\+O\+NS} = 0x00048004, 
+{\bfseries F\+B\+\_\+\+G\+E\+T\+\_\+\+B\+I\+T\+S\+\_\+\+P\+E\+R\+\_\+\+P\+I\+X\+EL} = 0x00040005, 
+\newline
+{\bfseries F\+B\+\_\+\+S\+E\+T\+\_\+\+B\+I\+T\+S\+\_\+\+P\+E\+R\+\_\+\+P\+I\+X\+EL} = 0x00048005, 
+{\bfseries F\+B\+\_\+\+G\+E\+T\+\_\+\+B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+R\+OW} = 0x00040008
+ \}
+\item 
+\mbox{\Hypertarget{mailbox_8h_ad2153772cd4b47b41af582264aaffe84}\label{mailbox_8h_ad2153772cd4b47b41af582264aaffe84}} 
+enum {\bfseries buf\+\_\+req\+\_\+res\+\_\+code} \{ {\bfseries R\+E\+Q\+U\+E\+ST} = 0x00000000, 
+{\bfseries R\+E\+S\+P\+O\+N\+S\+E\+\_\+\+S\+U\+C\+C\+E\+SS} = 0x80000000, 
+{\bfseries R\+E\+S\+P\+O\+N\+S\+E\+\_\+\+E\+R\+R\+OR} = 0x80000001
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}} \mbox{\hyperlink{mailbox_8h_acd808eb76927efb45d0c6bcef41b33bc}{mailbox\+\_\+read}} (int)
+\item 
+void \mbox{\hyperlink{mailbox_8h_a65ec22fdcf778778ac31b6b1be1a3fb0}{mailbox\+\_\+send}} (struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}}, int)
+\item 
+int \mbox{\hyperlink{mailbox_8h_ad4397af6bd98de7d3af372dece5cf21a}{send\+\_\+messages}} (struct \mbox{\hyperlink{structproperty__msg__tag}{property\+\_\+msg\+\_\+tag}} $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code to interact via the mailbox peripheral, mainly for requesting a framebuffer from the G\+PU. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{mailbox_8h_acd808eb76927efb45d0c6bcef41b33bc}\label{mailbox_8h_acd808eb76927efb45d0c6bcef41b33bc}} 
+\index{mailbox.h@{mailbox.h}!mailbox\_read@{mailbox\_read}}
+\index{mailbox\_read@{mailbox\_read}!mailbox.h@{mailbox.h}}
+\subsubsection{\texorpdfstring{mailbox\_read()}{mailbox\_read()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}} mailbox\+\_\+read (\begin{DoxyParamCaption}\item[{int}]{channel }\end{DoxyParamCaption})}
+
+Read data from the mailbox peripheral 
+\begin{DoxyParams}{Parameters}
+{\em channel} & The mailbox channel from which to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{mailbox_8h_a65ec22fdcf778778ac31b6b1be1a3fb0}\label{mailbox_8h_a65ec22fdcf778778ac31b6b1be1a3fb0}} 
+\index{mailbox.h@{mailbox.h}!mailbox\_send@{mailbox\_send}}
+\index{mailbox\_send@{mailbox\_send}!mailbox.h@{mailbox.h}}
+\subsubsection{\texorpdfstring{mailbox\_send()}{mailbox\_send()}}
+{\footnotesize\ttfamily void mailbox\+\_\+send (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structmail__message}{mail\+\_\+message}}}]{msg,  }\item[{int}]{channel }\end{DoxyParamCaption})}
+
+Send data through the mailbox peripheral 
+\begin{DoxyParams}{Parameters}
+{\em msg} & Message to send \\
+\hline
+{\em channel} & Mailbox channel through which to send the data \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{mailbox_8h_ad4397af6bd98de7d3af372dece5cf21a}\label{mailbox_8h_ad4397af6bd98de7d3af372dece5cf21a}} 
+\index{mailbox.h@{mailbox.h}!send\_messages@{send\_messages}}
+\index{send\_messages@{send\_messages}!mailbox.h@{mailbox.h}}
+\subsubsection{\texorpdfstring{send\_messages()}{send\_messages()}}
+{\footnotesize\ttfamily int send\+\_\+messages (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structproperty__msg__tag}{property\+\_\+msg\+\_\+tag}} $\ast$}]{tags }\end{DoxyParamCaption})}
+
+Send multiple messages through to G\+PU 
+\begin{DoxyParams}{Parameters}
+{\em tags} & List of tags to send \\
+\hline
+\end{DoxyParams}

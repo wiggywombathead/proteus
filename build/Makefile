@@ -28,11 +28,11 @@ else ifeq ($(sched),robin)
 	DIRECTIVES += -DSCHED_ROUNDROBIN
 endif
 
+DOC = ../doc
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
 INC = ../include
-#LIB = ../lib
-LIB = 
+LIB = ../lib
 OBJ_DIR = objects
 
 LIBRARIES := $(wildcard $(LIB)/*.a)
@@ -65,19 +65,6 @@ LINKER = linker.ld
 
 .PHONY: build clean gdbinit
 
-all: $(IMG) $(LIST)
-
-# make listing file
-$(LIST): $(ELF)
-	$(OBJDUMP) -d $(ELF) > $(LIST)
-
-# make img file
-$(IMG): $(ELF)
-	$(OBJCOPY) $(ELF) -O binary $(IMG)
-
-$(ELF): $(OBJECTS) $(LINKER)
-	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
-
 ############
 # ORIGINAL #
 ############
@@ -106,6 +93,11 @@ $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
+$(verbose).SILENT:
+
+documentation:
+	cd $(DOC) && doxygen doxygen.config
+
 tidy:
 	@echo "Tidying up..."
 	rm -rf $(OBJ_DIR)
@@ -119,6 +111,22 @@ clean:
 run: build
 	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
 
+#######################
+# PERHAPS GET WORKING #
+#######################
+all: $(IMG) $(LIST)
+
+# make listing file
+$(LIST): $(ELF)
+	$(OBJDUMP) -d $(ELF) > $(LIST)
+
+# make img file
+$(IMG): $(ELF)
+	$(OBJCOPY) $(ELF) -O binary $(IMG)
+
+$(ELF): $(OBJECTS) $(LINKER)
+	$(LD) $(OBJECTS) -L$(LIB) $(LFLAGS) -Map $(MAP) -o $(ELF) -T $(LINKER)
+
 dbginit:
 	echo "target remote localhost:1234" > .gdbinit
 	echo "break kernel_main" > .gdbinit
@@ -128,5 +136,3 @@ dbg:
 
 dbgrun: build gdbinit
 	qemu-system-arm -m 256 -no-reboot -M raspi2 -serial stdio -kernel $(IMG).elf -S -s
-
-$(verbose).SILENT:
