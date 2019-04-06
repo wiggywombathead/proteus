@@ -25,3 +25,6 @@ fonts
 jsandler
 reference
 figs
+
+# doxygen
+doc/{latex,html}
