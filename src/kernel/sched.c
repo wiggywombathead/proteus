@@ -10,7 +10,9 @@ extern struct proc_list ready_queue;
 
 extern struct proc *current_process;
 
-/* set the scheduling algorithm */
+/**
+ * Define which shceduling algorithm to use
+ */
 void sched_init(void) {
 
 #if defined ( SCHED_FCFS )
@@ -23,6 +25,9 @@ void sched_init(void) {
 
 }
 
+/**
+ * Implementation of the round robin scheduling algorithm
+ */
 void sched_round_robin(void) {
 
     DISABLE_INTERRUPTS();
@@ -44,4 +49,12 @@ void sched_round_robin(void) {
     switch_context(old_thread, new_thread);
 
     ENABLE_INTERRUPTS();
+}
+
+/**
+ * Implementation of the First Come First Served scheduling algorithm
+ */
+void sched_fcfs(void) {
+    while (1)
+        ;
 }

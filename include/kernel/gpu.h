@@ -1,3 +1,8 @@
+/**
+ * @file gpu.h
+ * @brief Code to deal with writing pixels to the screen
+ */
+
 #ifndef _GPU_H
 #define _GPU_H
 

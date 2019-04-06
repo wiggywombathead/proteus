@@ -1,3 +1,8 @@
+/**
+ * @file fonts.h
+ * @brief Character map for system font
+ */
+
 #ifndef _FONTS_H
 #define _FONTS_H
 

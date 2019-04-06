@@ -1,3 +1,9 @@
+/**
+ * @file mailbox.h
+ * @brief Code to interact via the mailbox peripheral, mainly for requesting a
+ * framebuffer from the GPU
+ */
+
 #ifndef _MAILBOX_H
 #define _MAILBOX_H
 

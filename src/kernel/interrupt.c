@@ -11,6 +11,9 @@ static struct interrupt_register *interrupt_regs;
 
 extern void move_exception_vector(void);
 
+/**
+ * Initialise interrupts
+ */
 void interrupts_init(void) {
     interrupt_regs = (struct interrupt_register *) IRQ_PENDING;
 
@@ -28,6 +31,10 @@ void interrupts_init(void) {
     ENABLE_INTERRUPTS();
 }
 
+/**
+ * Handler for interrupt request. Calls handling function for each pending
+ * interrupt
+ */
 void irq_handler(void) {
     for (int i = 0; i < NUM_IRQS; i++) {
         if (IRQ_IS_PENDING(interrupt_regs, i) && (handlers[i] != 0)) {
@@ -41,6 +48,12 @@ void irq_handler(void) {
     }
 }
 
+/**
+ * Register handler for IRQ
+ * @param num The IRQ number to register
+ * @param handler The handler to deal with this IRQ
+ * @param clearer The code to cleanup after the handler is done
+ */
 void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_clearer clearer) {
 
     uint32_t irq_pos;
@@ -66,12 +79,36 @@ void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_
 
 }
 
+/**
+ * Handler for hardware reset
+ */
 void __attribute__((interrupt("ABORT"))) reset_handler(void) {
     printf("RESET handler\n");
     while (1)
         ;
 }
 
+/**
+ * Handler for undefined instruction
+ */
+void __attribute__((interrupt("UNDEF"))) undefined_instruction_handler(void) {
+    printf("UNDEFINED INSTRUCTION handler\n");
+    while (1)
+        ;
+}
+
+/**
+ * Handler for software interrupt (privileged instruction)
+ */
+void __attribute__((interrupt("SWI"))) software_interrupt_handler(void) {
+    printf("SWI handler\n");
+    while (1)
+        ;
+}
+
+/**
+ * Handler for bad memory access of instruction
+ */
 void __attribute__((interrupt("ABORT"))) prefetch_abort_handler(void) {
     printf("PREFETCH ABORT handler\n");
 
@@ -79,20 +116,11 @@ void __attribute__((interrupt("ABORT"))) prefetch_abort_handler(void) {
         ;
 }
 
+/**
+ * Handler for bad memory access of data
+ */
 void __attribute__((interrupt("ABORT"))) data_abort_handler(void) {
     printf("DATA ABORT handler\n");
-    while (1)
-        ;
-}
-
-void __attribute__((interrupt("UNDEF"))) undefined_instruction_handler(void) {
-    printf("UNDEFINED INSTRUCTION handler\n");
-    while (1)
-        ;
-}
-
-void __attribute__((interrupt("SWI"))) software_interrupt_handler(void) {
-    printf("SWI handler\n");
     while (1)
         ;
 }

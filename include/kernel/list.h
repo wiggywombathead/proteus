@@ -1,3 +1,8 @@
+/**
+ * @file list.h
+ * @brief Macro implementation of a generic doubly-linked list, with spinlocks
+ */
+
 #ifndef _LIST_H
 #define _LIST_H
 

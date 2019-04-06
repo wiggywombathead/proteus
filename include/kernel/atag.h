@@ -1,3 +1,8 @@
+/**
+ * @file atag.h
+ * @brief Code to parse atags passed at boot
+ */
+
 #ifndef _ATAG_H
 #define _ATAG_H
 

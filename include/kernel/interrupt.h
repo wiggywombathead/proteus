@@ -1,3 +1,8 @@
+/**
+ * @file interrupt.h
+ * @brief Code to implement interrupts
+ */
+
 #ifndef _INTERRUPT_H
 #define _INTERRUPT_H
 

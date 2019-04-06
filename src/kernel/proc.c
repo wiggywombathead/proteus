@@ -21,6 +21,9 @@ struct proc *current_process;
 
 static uint32_t current_pid = 1;
 
+/**
+ * Initialse ready queue and job queue, and start the init process
+ */
 void proc_init(void) {
 
     struct proc *main;
@@ -41,6 +44,9 @@ void proc_init(void) {
 
 }
 
+/**
+ * Clean up after a process terminates
+ */
 static void cleanup(void) {
     DISABLE_INTERRUPTS();
     struct proc *old_thread, *new_thread;
@@ -62,6 +68,12 @@ static void cleanup(void) {
     switch_context(old_thread, new_thread);
 }
 
+/**
+ * Create a new process
+ * @param func Name of function the process will execute
+ * @param name Name of the process
+ * @param name_len Length of process' name
+ */
 void create_kthread(kthreadfn func, char *name, int name_len) {
     struct proc *pcb;
     struct proc_state *new_state;
@@ -83,27 +95,46 @@ void create_kthread(kthreadfn func, char *name, int name_len) {
     append_proc_list(&ready_queue, pcb);
 }
 
+/**
+ * Initialise a spinlock
+ * @param lock Address to initialise as lock variable
+ */
 void spin_init(spinlock_t *lock) {
     *lock = 1;
 }
 
-/* keep checking if lock free */
+/**
+ * Busy-wait poll the lock
+ * @param lock Lock variable to poll
+ */
 void spin_lock(spinlock_t *lock) {
     while (!try_lock(lock))
         ;
 }
 
-/* acquire the lock */
+/**
+ * Acquire the lock variable
+ * @param lock Lock to acquire
+ */
 void spin_unlock(spinlock_t *lock) {
     *lock = 1;
 }
 
+/**
+ * Initialise a mutual exclusion lock by setting the process that locked it and
+ * initialising its wait queue
+ * @param mutex Pointer to a mutex lock to initialise
+ */
 void mutex_init(struct mutex *mutex) {
     mutex->lock = 1;
     mutex->locker = 0;
     INIT_LIST(mutex->wait_queue);
 }
 
+/**
+ * Lock the mutex
+ * @param mutex Mutex to lock
+ */
 void mutex_lock(mutex_t *mutex) {
     struct proc *old_thread, *new_thread;
 
@@ -124,6 +155,10 @@ void mutex_lock(mutex_t *mutex) {
     mutex->locker = current_process;
 }
 
+/**
+ * Unlock a mutex
+ * @param mutex Mutex to unlock
+ */
 void mutex_unlock(mutex_t *mutex) {
     struct proc *proc;
 

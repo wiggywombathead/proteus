@@ -1,3 +1,9 @@
+/**
+ * @file peripheral.h
+ * @brief Definition-only file containing useful memory addresses for various
+ * peripherals
+ */
+
 #ifndef _PERIPHERAL_H
 #define _PERIPHERAL_H
 

@@ -3,6 +3,9 @@
 #include <kernel/peripheral.h>
 #include <common/stdio.h>
 
+/**
+ * Initialise the Memory Management Unit
+ */
 void mmu_init(void) {
 
     for (uint32_t i = 0x0; ; i += 0x00100000) {
@@ -20,6 +23,9 @@ void mmu_init(void) {
 
 /**
  * Declare a 1MiB section in the MMU
+ * @param virt Virtual address to map to
+ * @param phys Physical address to be mapped
+ * @param flags Flags (BUFFERABLE, CACHEABLE)
  */
 void mmu_section(uint32_t virt, uint32_t phys, uint32_t flags) {
 
@@ -37,6 +43,10 @@ void mmu_section(uint32_t virt, uint32_t phys, uint32_t flags) {
 
 /**
  * Declare a 4KiB "small page" section in the MMU
+ * @param virt Virtual address to map to
+ * @param phys Physical address to be mapped
+ * @param flags Flags (BUFFERABLE, CACHEABLE)
+ * @param second_base Address of second-level descriptor
  */
 void mmu_page(uint32_t virt, uint32_t phys, uint32_t flags, uint32_t second_base) {
 

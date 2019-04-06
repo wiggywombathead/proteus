@@ -2,6 +2,10 @@
 #include <kernel/memory.h>
 #include <common/stdlib.h>
 
+/**
+ * Read data from the mailbox peripheral
+ * @param channel The mailbox channel from which to read
+ */
 struct mail_message mailbox_read(int channel) {
     struct mail_status status;
     struct mail_message result;
@@ -21,6 +25,11 @@ struct mail_message mailbox_read(int channel) {
     return result;
 }
 
+/**
+ * Send data through the mailbox peripheral
+ * @param msg Message to send
+ * @param channel Mailbox channel through which to send the data
+ */
 void mailbox_send(struct mail_message msg, int channel) {
     struct mail_status status;
     msg.channel = channel;
@@ -34,6 +43,11 @@ void mailbox_send(struct mail_message msg, int channel) {
     *MAIL0_WRITE = msg;
 }
 
+/**
+ * Returns the length of the value buffer from the property message tag
+ * @param tag The tag whose buffer length is to be determined
+ * @return uint32_t Length of value buffer
+ */
 static uint32_t get_value_buf_len(struct property_msg_tag *tag) {
 
     switch (tag->prop_tag) {
@@ -54,6 +68,10 @@ static uint32_t get_value_buf_len(struct property_msg_tag *tag) {
 
 }
 
+/**
+ * Send multiple messages through to GPU
+ * @param tags List of tags to send
+ */
 int send_messages(struct property_msg_tag *tags) {
 
     struct property_msg_buf *msg;

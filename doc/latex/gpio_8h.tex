@@ -1,0 +1,173 @@
+\hypertarget{gpio_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/gpio.h File Reference}
+\label{gpio_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/gpio.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/gpio.h}}
+
+
+Code for general purpose I/O, including U\+A\+RT and A\+CT L\+ED interaction.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$kernel/peripheral.\+h$>$}\newline
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{gpio_8h_a99fb83031ce9923c84392b4e92f956b5}\label{gpio_8h_a99fb83031ce9923c84392b4e92f956b5}} 
+enum \{ \newline
+{\bfseries G\+P\+I\+O\+\_\+\+B\+A\+SE} = P\+E\+R\+I\+P\+H\+E\+R\+A\+L\+\_\+\+B\+A\+SE + G\+P\+I\+O\+\_\+\+O\+F\+F\+S\+ET, 
+{\bfseries G\+P\+F\+S\+E\+L0} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x00), 
+{\bfseries G\+P\+F\+S\+E\+L1} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x04), 
+{\bfseries G\+P\+F\+S\+E\+L2} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x08), 
+\newline
+{\bfseries G\+P\+F\+S\+E\+L3} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x0c), 
+{\bfseries G\+P\+F\+S\+E\+L4} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x10), 
+{\bfseries G\+P\+F\+S\+E\+L5} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x14), 
+{\bfseries G\+P\+S\+E\+T0} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x1c), 
+\newline
+{\bfseries G\+P\+S\+E\+T1} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x20), 
+{\bfseries G\+P\+C\+L\+R0} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x28), 
+{\bfseries G\+P\+C\+L\+R1} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x2c), 
+{\bfseries G\+P\+P\+UD} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x94), 
+\newline
+{\bfseries G\+P\+P\+U\+D\+C\+L\+K0} = (G\+P\+I\+O\+\_\+\+B\+A\+SE + 0x98), 
+{\bfseries U\+A\+R\+T0\+\_\+\+B\+A\+SE} = P\+E\+R\+I\+P\+H\+E\+R\+A\+L\+\_\+\+B\+A\+SE + U\+A\+R\+T\+\_\+\+O\+F\+F\+S\+ET, 
+{\bfseries U\+A\+R\+T0\+\_\+\+DR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x00), 
+{\bfseries U\+A\+R\+T0\+\_\+\+R\+S\+R\+E\+CR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x04), 
+\newline
+{\bfseries U\+A\+R\+T0\+\_\+\+FR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x18), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+L\+PR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x20), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+B\+RD} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x24), 
+{\bfseries U\+A\+R\+T0\+\_\+\+F\+B\+RD} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x28), 
+\newline
+{\bfseries U\+A\+R\+T0\+\_\+\+L\+C\+RH} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x2c), 
+{\bfseries U\+A\+R\+T0\+\_\+\+CR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x30), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+F\+LS} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x34), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+M\+SC} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x38), 
+\newline
+{\bfseries U\+A\+R\+T0\+\_\+\+R\+IS} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x3c), 
+{\bfseries U\+A\+R\+T0\+\_\+\+M\+IS} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x40), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+CR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x44), 
+{\bfseries U\+A\+R\+T0\+\_\+\+D\+M\+A\+CR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x48), 
+\newline
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+T\+CR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x80), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+T\+IP} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x84), 
+{\bfseries U\+A\+R\+T0\+\_\+\+I\+T\+OP} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x88), 
+{\bfseries U\+A\+R\+T0\+\_\+\+T\+DR} = (U\+A\+R\+T0\+\_\+\+B\+A\+SE + 0x8c)
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{gpio_8h_a412fadf8b67ea714acffa3cbe209203b}{mmio\+\_\+write}} (uint32\+\_\+t reg, uint32\+\_\+t data)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{gpio_8h_a23ba7a7dfa9745868f8abf46c8aad2b5}{mmio\+\_\+read}} (uint32\+\_\+t reg)
+\item 
+void \mbox{\hyperlink{gpio_8h_a0c0ca72359ddf28dcd15900dfba19343}{uart\+\_\+init}} (void)
+\item 
+void \mbox{\hyperlink{gpio_8h_a8eaa1ed3292777a3ed02045bd4b612c3}{uart\+\_\+putc}} (unsigned char c)
+\item 
+unsigned char \mbox{\hyperlink{gpio_8h_a7ca0f0e713906d55034485b5ab44198e}{uart\+\_\+getc}} (void)
+\item 
+void \mbox{\hyperlink{gpio_8h_a6535d7e4f249e5ae9fe0dd795b4a3ecc}{uart\+\_\+puts}} (const char $\ast$str)
+\item 
+void \mbox{\hyperlink{gpio_8h_a821a8d3883ed7877d4d1b63e5ca7340c}{act\+\_\+init}} (void)
+\item 
+void \mbox{\hyperlink{gpio_8h_a62746ed92e74a9073a526e924e03e6d2}{act\+\_\+on}} (void)
+\item 
+void \mbox{\hyperlink{gpio_8h_a3ff62e4f6da132eba0e82f3024f44945}{act\+\_\+off}} (void)
+\item 
+void \mbox{\hyperlink{gpio_8h_a3f8d361fc124e0ce28c55283c919f45a}{act\+\_\+blink}} (uint32\+\_\+t)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code for general purpose I/O, including U\+A\+RT and A\+CT L\+ED interaction. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{gpio_8h_a3f8d361fc124e0ce28c55283c919f45a}\label{gpio_8h_a3f8d361fc124e0ce28c55283c919f45a}} 
+\index{gpio.h@{gpio.h}!act\_blink@{act\_blink}}
+\index{act\_blink@{act\_blink}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{act\_blink()}{act\_blink()}}
+{\footnotesize\ttfamily void act\+\_\+blink (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{n }\end{DoxyParamCaption})}
+
+Blink the A\+CT L\+ED a set number of times 
+\begin{DoxyParams}{Parameters}
+{\em n} & Number of times to blink \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{gpio_8h_a821a8d3883ed7877d4d1b63e5ca7340c}\label{gpio_8h_a821a8d3883ed7877d4d1b63e5ca7340c}} 
+\index{gpio.h@{gpio.h}!act\_init@{act\_init}}
+\index{act\_init@{act\_init}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{act\_init()}{act\_init()}}
+{\footnotesize\ttfamily void act\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Initialise the A\+CT L\+ED for use \mbox{\Hypertarget{gpio_8h_a3ff62e4f6da132eba0e82f3024f44945}\label{gpio_8h_a3ff62e4f6da132eba0e82f3024f44945}} 
+\index{gpio.h@{gpio.h}!act\_off@{act\_off}}
+\index{act\_off@{act\_off}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{act\_off()}{act\_off()}}
+{\footnotesize\ttfamily void act\+\_\+off (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Turn the A\+CT L\+ED off \mbox{\Hypertarget{gpio_8h_a62746ed92e74a9073a526e924e03e6d2}\label{gpio_8h_a62746ed92e74a9073a526e924e03e6d2}} 
+\index{gpio.h@{gpio.h}!act\_on@{act\_on}}
+\index{act\_on@{act\_on}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{act\_on()}{act\_on()}}
+{\footnotesize\ttfamily void act\+\_\+on (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Turn the A\+CT L\+ED on \mbox{\Hypertarget{gpio_8h_a23ba7a7dfa9745868f8abf46c8aad2b5}\label{gpio_8h_a23ba7a7dfa9745868f8abf46c8aad2b5}} 
+\index{gpio.h@{gpio.h}!mmio\_read@{mmio\_read}}
+\index{mmio\_read@{mmio\_read}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{mmio\_read()}{mmio\_read()}}
+{\footnotesize\ttfamily uint32\+\_\+t mmio\+\_\+read (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{reg }\end{DoxyParamCaption})}
+
+Read value from register 
+\begin{DoxyParams}{Parameters}
+{\em reg} & Register from which to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{gpio_8h_a412fadf8b67ea714acffa3cbe209203b}\label{gpio_8h_a412fadf8b67ea714acffa3cbe209203b}} 
+\index{gpio.h@{gpio.h}!mmio\_write@{mmio\_write}}
+\index{mmio\_write@{mmio\_write}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{mmio\_write()}{mmio\_write()}}
+{\footnotesize\ttfamily void mmio\+\_\+write (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{reg,  }\item[{uint32\+\_\+t}]{data }\end{DoxyParamCaption})}
+
+Write 32-\/bit value to register 
+\begin{DoxyParams}{Parameters}
+{\em reg} & Register to write \\
+\hline
+{\em data} & Value to write to the register \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{gpio_8h_a7ca0f0e713906d55034485b5ab44198e}\label{gpio_8h_a7ca0f0e713906d55034485b5ab44198e}} 
+\index{gpio.h@{gpio.h}!uart\_getc@{uart\_getc}}
+\index{uart\_getc@{uart\_getc}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{uart\_getc()}{uart\_getc()}}
+{\footnotesize\ttfamily unsigned char uart\+\_\+getc (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Retrieve a character from the U\+A\+RT data register \mbox{\Hypertarget{gpio_8h_a0c0ca72359ddf28dcd15900dfba19343}\label{gpio_8h_a0c0ca72359ddf28dcd15900dfba19343}} 
+\index{gpio.h@{gpio.h}!uart\_init@{uart\_init}}
+\index{uart\_init@{uart\_init}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{uart\_init()}{uart\_init()}}
+{\footnotesize\ttfamily void uart\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Initialise the U\+A\+RT peripheral \mbox{\Hypertarget{gpio_8h_a8eaa1ed3292777a3ed02045bd4b612c3}\label{gpio_8h_a8eaa1ed3292777a3ed02045bd4b612c3}} 
+\index{gpio.h@{gpio.h}!uart\_putc@{uart\_putc}}
+\index{uart\_putc@{uart\_putc}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{uart\_putc()}{uart\_putc()}}
+{\footnotesize\ttfamily void uart\+\_\+putc (\begin{DoxyParamCaption}\item[{unsigned char}]{c }\end{DoxyParamCaption})}
+
+Write a character to the U\+A\+RT data register 
+\begin{DoxyParams}{Parameters}
+{\em c} & Character to send \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{gpio_8h_a6535d7e4f249e5ae9fe0dd795b4a3ecc}\label{gpio_8h_a6535d7e4f249e5ae9fe0dd795b4a3ecc}} 
+\index{gpio.h@{gpio.h}!uart\_puts@{uart\_puts}}
+\index{uart\_puts@{uart\_puts}!gpio.h@{gpio.h}}
+\subsubsection{\texorpdfstring{uart\_puts()}{uart\_puts()}}
+{\footnotesize\ttfamily void uart\+\_\+puts (\begin{DoxyParamCaption}\item[{const char $\ast$}]{str }\end{DoxyParamCaption})}
+
+Send a string to be printed by the U\+A\+RT 
+\begin{DoxyParams}{Parameters}
+{\em str} & String to print \\
+\hline
+\end{DoxyParams}

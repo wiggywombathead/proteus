@@ -1,0 +1,30 @@
+\hypertarget{shm_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/shm.h File Reference}
+\label{shm_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/shm.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/shm.h}}
+
+
+Code to manage shared memory, to facilitate inter-\/process communication.  
+
+
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structshm__section}{shm\+\_\+section}}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{shm_8h_a57e477e4d8ca55ca02e3b59bac8628ae}\label{shm_8h_a57e477e4d8ca55ca02e3b59bac8628ae}} 
+struct \mbox{\hyperlink{structshm__section}{shm\+\_\+section}} $\ast$ {\bfseries shm\+\_\+open} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{shm_8h_a01f114468ea800381bf301c8f2457d5f}\label{shm_8h_a01f114468ea800381bf301c8f2457d5f}} 
+void {\bfseries shm\+\_\+write} (struct \mbox{\hyperlink{structshm__section}{shm\+\_\+section}} $\ast$s, void $\ast$data, size\+\_\+t bytes)
+\item 
+\mbox{\Hypertarget{shm_8h_a54a91eaa0b22853d1bd7e24ad5260eff}\label{shm_8h_a54a91eaa0b22853d1bd7e24ad5260eff}} 
+void $\ast$ {\bfseries shm\+\_\+read} (struct \mbox{\hyperlink{structshm__section}{shm\+\_\+section}} $\ast$s, const char $\ast$name)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code to manage shared memory, to facilitate inter-\/process communication. 
+

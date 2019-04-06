@@ -1,3 +1,8 @@
+/**
+ * @file stdio.h
+ * @brief Standard I/O functions
+ */
+
 #ifndef _STDIO_H
 #define _STDIO_H
 

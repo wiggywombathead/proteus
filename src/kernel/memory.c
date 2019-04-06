@@ -12,12 +12,20 @@ struct page_list free_pages;
 
 static struct heap_segment *heap_segment_list_head;
 
+/**
+ * Initialise the heap of size KERNEL_HEAP_SIZE
+ * @param heap_start Address at which to start heap
+ */
 static void heap_init(uint32_t heap_start) {
     heap_segment_list_head = (struct heap_segment *) heap_start;
     bzero(heap_segment_list_head, sizeof(struct heap_segment));
     heap_segment_list_head->segment_size = KERNEL_HEAP_SIZE;
 }
 
+/**
+ * Divide memory up into pages and initialise the heap
+ * @param atags List of atags (for memory size)
+ */
 void mem_init(struct atag *atags) {
 
     uint32_t total_mem, kernel_pages, page_array_end, page_array_len;
@@ -58,9 +66,11 @@ void mem_init(struct atag *atags) {
 
     page_array_end = (uint32_t) &__end + page_array_len;
     heap_init(page_array_end);
-
 }
 
+/**
+ * Allocate a page of size PAGE_SIZE
+ */
 void *alloc_page(void) {
 
     struct page *page;
@@ -81,6 +91,10 @@ void *alloc_page(void) {
     return page_addr;
 }
 
+/**
+ * Deallocate a page
+ * @param ptr Address of page to deallocate
+ */
 void free_page(void *ptr) {
 
     // find the page's index using its physical address
@@ -93,6 +107,10 @@ void free_page(void *ptr) {
 
 }
 
+/**
+ * Allocate block of memory of size bytes on the heap
+ * @param bytes Number of bytes to allocate
+ */
 void *kmalloc(uint32_t bytes) {
 
     struct heap_segment *curr, *best;
@@ -139,6 +157,10 @@ void *kmalloc(uint32_t bytes) {
     return best + 1;        // return address of next segment
 }
 
+/**
+ * Free memory associated with a pointer
+ * @param ptr Pointer to free
+ */
 void kfree(void *ptr) {
 
     struct heap_segment *seg = ptr - sizeof(struct heap_segment);

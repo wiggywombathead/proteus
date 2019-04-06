@@ -1,3 +1,9 @@
+/**
+ * @file mmu.h
+ * @brief Code to initialise the Memory Management Unit and define the mapping
+ * between virtual and physical addresses
+ */
+
 #ifndef _MMU_H
 #define _MMU_H
 

@@ -1,5 +1,9 @@
 #include <kernel/atag.h>
 
+/**
+ * Determine amount of RAM on board.
+ * @param atag  Address containing list of atags
+ */
 uint32_t get_total_mem(struct atag *atag) {
     
     while (atag->tag != ATAG_NONE) {
@@ -10,9 +14,13 @@ uint32_t get_total_mem(struct atag *atag) {
         atag = (struct atag *) (((uint32_t *) atag) + atag->size);
     }
 
-    return 1024 * 1024 * 256;
-    // return 0;
+    return 0;
 }
+
+/**
+ * Return high serial number of board.
+ * @param atag  Address containing list of atags
+ */
 uint32_t get_serial_hi(struct atag *atag) {
     
     while (atag->tag != ATAG_NONE) {
@@ -26,6 +34,10 @@ uint32_t get_serial_hi(struct atag *atag) {
     return 0;
 }
 
+/**
+ * Return low serial number of board.
+ * @param atag  Address containing list of atags
+ */
 uint32_t get_serial_lo(struct atag *atag) {
     
     while (atag->tag != ATAG_NONE) {

@@ -1,3 +1,8 @@
+/**
+ * @file sched.h
+ * @brief File containing all scheduling algorithms available to the system
+ */
+
 #ifndef _SCHED_H
 #define _SCHED_H
 

@@ -1,3 +1,9 @@
+/**
+ * @file proc.h
+ * @brief An implementation of the process model, providing the ability to
+ * create threads and hence achieve multiprocessing
+ */
+
 #ifndef _PROC_H
 #define _PROC_H
 

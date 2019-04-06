@@ -1,0 +1,100 @@
+\hypertarget{atag_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/atag.h File Reference}
+\label{atag_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/atag.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/atag.h}}
+
+
+Code to parse atags passed at boot.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structatag__core}{atag\+\_\+core}}
+\item 
+struct \mbox{\hyperlink{structatag__mem}{atag\+\_\+mem}}
+\item 
+struct \mbox{\hyperlink{structatag__videotext}{atag\+\_\+videotext}}
+\item 
+struct \mbox{\hyperlink{structatag__ramdisk}{atag\+\_\+ramdisk}}
+\item 
+struct \mbox{\hyperlink{structatag__initrd2}{atag\+\_\+initrd2}}
+\item 
+struct \mbox{\hyperlink{structatag__serialnr}{atag\+\_\+serialnr}}
+\item 
+struct \mbox{\hyperlink{structatag__revision}{atag\+\_\+revision}}
+\item 
+struct \mbox{\hyperlink{structatag__videolfb}{atag\+\_\+videolfb}}
+\item 
+struct \mbox{\hyperlink{structatag__cmdline}{atag\+\_\+cmdline}}
+\item 
+struct \mbox{\hyperlink{structatag}{atag}}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{atag_8h_ac9af4aa470b99d87c2de261825782f23}\label{atag_8h_ac9af4aa470b99d87c2de261825782f23}} 
+enum {\bfseries atag\+\_\+tag} \{ \newline
+{\bfseries A\+T\+A\+G\+\_\+\+N\+O\+NE} = 0x00000000, 
+{\bfseries A\+T\+A\+G\+\_\+\+C\+O\+RE} = 0x54410001, 
+{\bfseries A\+T\+A\+G\+\_\+\+M\+EM} = 0x54410002, 
+{\bfseries A\+T\+A\+G\+\_\+\+V\+I\+D\+E\+O\+T\+E\+XT} = 0x54410003, 
+\newline
+{\bfseries A\+T\+A\+G\+\_\+\+R\+A\+M\+D\+I\+SK} = 0x54410004, 
+{\bfseries A\+T\+A\+G\+\_\+\+I\+N\+I\+T\+R\+D2} = 0x54420005, 
+{\bfseries A\+T\+A\+G\+\_\+\+S\+E\+R\+I\+AL} = 0x54410006, 
+{\bfseries A\+T\+A\+G\+\_\+\+R\+E\+V\+I\+S\+I\+ON} = 0x54410007, 
+\newline
+{\bfseries A\+T\+A\+G\+\_\+\+V\+I\+D\+E\+O\+L\+FB} = 0x54410008, 
+{\bfseries A\+T\+A\+G\+\_\+\+C\+M\+D\+L\+I\+NE} = 0x54410009
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8h_a05bd54aabaf16e64ce9a25e5abbfe7ca}{get\+\_\+total\+\_\+mem}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8h_a820d373ce3349a6af20a5fb2a32a5808}{get\+\_\+serial\+\_\+hi}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8h_add6923117c2848ad32ca92e02baa1925}{get\+\_\+serial\+\_\+lo}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code to parse atags passed at boot. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{atag_8h_a820d373ce3349a6af20a5fb2a32a5808}\label{atag_8h_a820d373ce3349a6af20a5fb2a32a5808}} 
+\index{atag.h@{atag.h}!get\_serial\_hi@{get\_serial\_hi}}
+\index{get\_serial\_hi@{get\_serial\_hi}!atag.h@{atag.h}}
+\subsubsection{\texorpdfstring{get\_serial\_hi()}{get\_serial\_hi()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+serial\+\_\+hi (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Return high serial number of board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{atag_8h_add6923117c2848ad32ca92e02baa1925}\label{atag_8h_add6923117c2848ad32ca92e02baa1925}} 
+\index{atag.h@{atag.h}!get\_serial\_lo@{get\_serial\_lo}}
+\index{get\_serial\_lo@{get\_serial\_lo}!atag.h@{atag.h}}
+\subsubsection{\texorpdfstring{get\_serial\_lo()}{get\_serial\_lo()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+serial\+\_\+lo (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Return low serial number of board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{atag_8h_a05bd54aabaf16e64ce9a25e5abbfe7ca}\label{atag_8h_a05bd54aabaf16e64ce9a25e5abbfe7ca}} 
+\index{atag.h@{atag.h}!get\_total\_mem@{get\_total\_mem}}
+\index{get\_total\_mem@{get\_total\_mem}!atag.h@{atag.h}}
+\subsubsection{\texorpdfstring{get\_total\_mem()}{get\_total\_mem()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+total\+\_\+mem (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Determine amount of R\+AM on board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}

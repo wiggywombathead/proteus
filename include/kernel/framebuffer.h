@@ -1,3 +1,8 @@
+/**
+ * @file framebuffer.h
+ * @brief Code to interact with the GPU via framebuffer
+ */
+
 #ifndef _FRAMEBUFFER_H
 #define _FRAMEBUFFER_H
 

@@ -5,7 +5,9 @@
 
 #include <common/stdlib.h>
 
-/* initialise framebuffer and write black pixels everywhere */
+/**
+ * Initialise the frambuffer and write black pixels everywhere
+ */
 int gpu_init(void) {
 
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
@@ -23,11 +25,21 @@ int gpu_init(void) {
     return res;
 }
 
-void write_pixel(uint32_t x, uint32_t y, const struct pixel *pix) {
+/**
+ * Write a color to a given pixel
+ * @param x Ordinate to write
+ * @param y Abscissa to write
+ * @param color The color to write to this location
+ */
+void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
     uint8_t *loc = fb_info.buffer + y * fb_info.pitch + x * BYTES_PER_PIXEL;
-    memcpy(loc, pix, BYTES_PER_PIXEL);
+    memcpy(loc, color, BYTES_PER_PIXEL);
 }
 
+/**
+ * Print a character to the framebuffer
+ * @param c Character to print
+ */
 void gpu_putc(char c) {
     static const struct pixel ORANGE = { 0x00, 0x66, 0xff };
     static const struct pixel BLACK = { 0x00, 0x00, 0x00 };
@@ -122,6 +134,9 @@ void gpu_putc(char c) {
 
 }
 
+/**
+ * Clear the screen by writing black pixels everywhere
+ */
 void clrs(void) {
     for (uint32_t i = 0; i < fb_info.max_col; i++)
         for (uint32_t j = 0; j < fb_info.max_row; j++)

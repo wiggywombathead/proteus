@@ -1,3 +1,9 @@
+/**
+ * @file shm.h
+ * @brief Code to manage shared memory, to facilitate inter-process
+ * communication
+ */
+
 #ifndef _SHM_H
 #define _SHM_H
 

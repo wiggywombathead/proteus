@@ -1,3 +1,8 @@
+/**
+ * @file gpio.h
+ * @brief Code for general purpose I/O, including UART and ACT LED interaction
+ */
+
 #ifndef _GPIO_H
 #define _GPIO_H
 

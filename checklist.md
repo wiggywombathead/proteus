@@ -44,6 +44,7 @@
 - [x] Debug rainbow screen at boot
 
 ### Polish
+- [ ] doxygen documentation for structs
 - [ ] Font color must be backwards(???) - fix
 - [x] Write more generalised Makefile
 - [x] Change `act_blink()` to use system timer

@@ -1,0 +1,84 @@
+\hypertarget{mmu_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/mmu.h File Reference}
+\label{mmu_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/mmu.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/mmu.h}}
+
+
+Code to initialise the Memory Management Unit and define the mapping between virtual and physical addresses.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{mmu_8h_a0390fb430e3a0fbdea36a56b067ed7a0}\label{mmu_8h_a0390fb430e3a0fbdea36a56b067ed7a0}} 
+\#define {\bfseries M\+M\+U\+\_\+\+T\+T\+A\+B\+L\+E\+\_\+\+B\+A\+SE}~0x00004000
+\item 
+\mbox{\Hypertarget{mmu_8h_a320201c0180cde1303067f407f4d5390}\label{mmu_8h_a320201c0180cde1303067f407f4d5390}} 
+\#define {\bfseries B\+U\+F\+F\+E\+R\+A\+B\+LE}~0x04
+\item 
+\mbox{\Hypertarget{mmu_8h_acb127cf933a8b78651cedcf2e1e4b183}\label{mmu_8h_acb127cf933a8b78651cedcf2e1e4b183}} 
+\#define {\bfseries C\+A\+C\+H\+E\+A\+B\+LE}~0x08
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{mmu_8h_a8defa25fdb655f6b04abfd82c05578f7}\label{mmu_8h_a8defa25fdb655f6b04abfd82c05578f7}} 
+void {\bfseries mmu\+\_\+start} (uint32\+\_\+t, uint32\+\_\+t)
+\item 
+\mbox{\Hypertarget{mmu_8h_aaf7dc0eeffb799628614a8c2eb8966b0}\label{mmu_8h_aaf7dc0eeffb799628614a8c2eb8966b0}} 
+void {\bfseries mmu\+\_\+stop} (void)
+\item 
+\mbox{\Hypertarget{mmu_8h_a2641861c089a2eeeb27b693996c1eca6}\label{mmu_8h_a2641861c089a2eeeb27b693996c1eca6}} 
+void {\bfseries tlb\+\_\+invalidate} (void)
+\item 
+void \mbox{\hyperlink{mmu_8h_ac139ab6eabfe7278410aaf6fe58ff04e}{mmu\+\_\+init}} (void)
+\item 
+void \mbox{\hyperlink{mmu_8h_a77e35ae08c78414fae71f9a61202d7cb}{mmu\+\_\+section}} (uint32\+\_\+t virt, uint32\+\_\+t phys, uint32\+\_\+t flags)
+\item 
+void \mbox{\hyperlink{mmu_8h_aef7df79db7d952b4f7c3b0315159ba1a}{mmu\+\_\+page}} (uint32\+\_\+t virt, uint32\+\_\+t phys, uint32\+\_\+t flags, uint32\+\_\+t second)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code to initialise the Memory Management Unit and define the mapping between virtual and physical addresses. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{mmu_8h_ac139ab6eabfe7278410aaf6fe58ff04e}\label{mmu_8h_ac139ab6eabfe7278410aaf6fe58ff04e}} 
+\index{mmu.h@{mmu.h}!mmu\_init@{mmu\_init}}
+\index{mmu\_init@{mmu\_init}!mmu.h@{mmu.h}}
+\subsubsection{\texorpdfstring{mmu\_init()}{mmu\_init()}}
+{\footnotesize\ttfamily void mmu\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Initialise the Memory Management Unit \mbox{\Hypertarget{mmu_8h_aef7df79db7d952b4f7c3b0315159ba1a}\label{mmu_8h_aef7df79db7d952b4f7c3b0315159ba1a}} 
+\index{mmu.h@{mmu.h}!mmu\_page@{mmu\_page}}
+\index{mmu\_page@{mmu\_page}!mmu.h@{mmu.h}}
+\subsubsection{\texorpdfstring{mmu\_page()}{mmu\_page()}}
+{\footnotesize\ttfamily void mmu\+\_\+page (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{virt,  }\item[{uint32\+\_\+t}]{phys,  }\item[{uint32\+\_\+t}]{flags,  }\item[{uint32\+\_\+t}]{second\+\_\+base }\end{DoxyParamCaption})}
+
+Declare a 4KiB \char`\"{}small page\char`\"{} section in the M\+MU 
+\begin{DoxyParams}{Parameters}
+{\em virt} & Virtual address to map to \\
+\hline
+{\em phys} & Physical address to be mapped \\
+\hline
+{\em flags} & Flags (B\+U\+F\+F\+E\+R\+A\+B\+LE, C\+A\+C\+H\+E\+A\+B\+LE) \\
+\hline
+{\em second\+\_\+base} & Address of second-\/level descriptor \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{mmu_8h_a77e35ae08c78414fae71f9a61202d7cb}\label{mmu_8h_a77e35ae08c78414fae71f9a61202d7cb}} 
+\index{mmu.h@{mmu.h}!mmu\_section@{mmu\_section}}
+\index{mmu\_section@{mmu\_section}!mmu.h@{mmu.h}}
+\subsubsection{\texorpdfstring{mmu\_section()}{mmu\_section()}}
+{\footnotesize\ttfamily void mmu\+\_\+section (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{virt,  }\item[{uint32\+\_\+t}]{phys,  }\item[{uint32\+\_\+t}]{flags }\end{DoxyParamCaption})}
+
+Declare a 1MiB section in the M\+MU 
+\begin{DoxyParams}{Parameters}
+{\em virt} & Virtual address to map to \\
+\hline
+{\em phys} & Physical address to be mapped \\
+\hline
+{\em flags} & Flags (B\+U\+F\+F\+E\+R\+A\+B\+LE, C\+A\+C\+H\+E\+A\+B\+LE) \\
+\hline
+\end{DoxyParams}

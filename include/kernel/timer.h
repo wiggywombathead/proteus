@@ -1,3 +1,8 @@
+/**
+ * @file timer.h
+ * @brief Code to interact with the system timer peripheral on the Pi
+ */
+
 #ifndef _TIMER_H
 #define _TIMER_H
 

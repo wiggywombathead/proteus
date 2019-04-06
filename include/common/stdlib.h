@@ -1,3 +1,8 @@
+/**
+ * @file stdlib.h
+ * @brief Implementation of functions from C stdlib.h
+ */
+
 #ifndef _STDLIB_H
 #define _STDLIB_H
 

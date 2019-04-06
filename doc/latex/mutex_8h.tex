@@ -1,0 +1,69 @@
+\hypertarget{mutex_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/mutex.h File Reference}
+\label{mutex_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/mutex.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/mutex.h}}
+
+
+An implementation of mutual exclusion locks to achieve process synchronisation.  
+
+
+{\ttfamily \#include $<$kernel/proc.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structmutex}{mutex}}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{mutex_8h_ac32ff6793a910bc7b48c8b0bb3c47ea7}\label{mutex_8h_ac32ff6793a910bc7b48c8b0bb3c47ea7}} 
+typedef struct \mbox{\hyperlink{structmutex}{mutex}} {\bfseries mutex\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{mutex_8h_ac66fbe1ec2ea0d66df32803e2fc634fa}{mutex\+\_\+init}} (struct \mbox{\hyperlink{structmutex}{mutex}} $\ast$)
+\item 
+void \mbox{\hyperlink{mutex_8h_a18eb2adcf78b0435e05e6df5ba752c34}{mutex\+\_\+lock}} (struct \mbox{\hyperlink{structmutex}{mutex}} $\ast$)
+\item 
+void \mbox{\hyperlink{mutex_8h_a207590bffdf90b278945b756ec8946dc}{mutex\+\_\+unlock}} (struct \mbox{\hyperlink{structmutex}{mutex}} $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+An implementation of mutual exclusion locks to achieve process synchronisation. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{mutex_8h_ac66fbe1ec2ea0d66df32803e2fc634fa}\label{mutex_8h_ac66fbe1ec2ea0d66df32803e2fc634fa}} 
+\index{mutex.h@{mutex.h}!mutex\_init@{mutex\_init}}
+\index{mutex\_init@{mutex\_init}!mutex.h@{mutex.h}}
+\subsubsection{\texorpdfstring{mutex\_init()}{mutex\_init()}}
+{\footnotesize\ttfamily void mutex\+\_\+init (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structmutex}{mutex}} $\ast$}]{mutex }\end{DoxyParamCaption})}
+
+Initialise a mutual exclusion lock by setting the process that locked it and initialising its wait queue 
+\begin{DoxyParams}{Parameters}
+{\em mutex} & Pointer to a mutex lock to initialise \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{mutex_8h_a18eb2adcf78b0435e05e6df5ba752c34}\label{mutex_8h_a18eb2adcf78b0435e05e6df5ba752c34}} 
+\index{mutex.h@{mutex.h}!mutex\_lock@{mutex\_lock}}
+\index{mutex\_lock@{mutex\_lock}!mutex.h@{mutex.h}}
+\subsubsection{\texorpdfstring{mutex\_lock()}{mutex\_lock()}}
+{\footnotesize\ttfamily void mutex\+\_\+lock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmutex}{mutex\+\_\+t}} $\ast$}]{mutex }\end{DoxyParamCaption})}
+
+Lock the mutex 
+\begin{DoxyParams}{Parameters}
+{\em mutex} & Mutex to lock \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{mutex_8h_a207590bffdf90b278945b756ec8946dc}\label{mutex_8h_a207590bffdf90b278945b756ec8946dc}} 
+\index{mutex.h@{mutex.h}!mutex\_unlock@{mutex\_unlock}}
+\index{mutex\_unlock@{mutex\_unlock}!mutex.h@{mutex.h}}
+\subsubsection{\texorpdfstring{mutex\_unlock()}{mutex\_unlock()}}
+{\footnotesize\ttfamily void mutex\+\_\+unlock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmutex}{mutex\+\_\+t}} $\ast$}]{mutex }\end{DoxyParamCaption})}
+
+Unlock a mutex 
+\begin{DoxyParams}{Parameters}
+{\em mutex} & Mutex to unlock \\
+\hline
+\end{DoxyParams}

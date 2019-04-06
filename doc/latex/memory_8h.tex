@@ -1,0 +1,102 @@
+\hypertarget{memory_8h}{}\section{/home/tom/compsci/thirdyear/cs310/include/kernel/memory.h File Reference}
+\label{memory_8h}\index{/home/tom/compsci/thirdyear/cs310/include/kernel/memory.h@{/home/tom/compsci/thirdyear/cs310/include/kernel/memory.h}}
+
+
+Code to organise memory into pages and set aside a portion of memory for the heap.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$kernel/atag.\+h$>$}\newline
+{\ttfamily \#include $<$kernel/list.\+h$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structpage__flags}{page\+\_\+flags}}
+\item 
+struct \mbox{\hyperlink{structpage}{page}}
+\item 
+struct \mbox{\hyperlink{structheap__segment}{heap\+\_\+segment}}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}\label{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}} 
+\#define {\bfseries P\+A\+G\+E\+\_\+\+S\+I\+ZE}~4096
+\item 
+\mbox{\Hypertarget{memory_8h_af654f7f40cf60edfba570a6411640cd4}\label{memory_8h_af654f7f40cf60edfba570a6411640cd4}} 
+\#define {\bfseries K\+E\+R\+N\+E\+L\+\_\+\+H\+E\+A\+P\+\_\+\+S\+I\+ZE}~(1024$\ast$1024)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{memory_8h_abc2dc0ee27785e0490e7fe6698369340}\label{memory_8h_abc2dc0ee27785e0490e7fe6698369340}} 
+{\bfseries D\+E\+F\+I\+N\+E\+\_\+\+L\+I\+ST} (\mbox{\hyperlink{structpage}{page}})
+\item 
+void \mbox{\hyperlink{memory_8h_a80ef59d00a98d290fb142ec28ef86e84}{mem\+\_\+init}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$)
+\item 
+void $\ast$ \mbox{\hyperlink{memory_8h_aa8d5f3f7f21f53fe7ffed7c329915441}{alloc\+\_\+page}} (void)
+\item 
+void \mbox{\hyperlink{memory_8h_a89cf15666552002c028800b10e3a324e}{free\+\_\+page}} (void $\ast$)
+\item 
+void $\ast$ \mbox{\hyperlink{memory_8h_a4c1b00f2d0f5cdb5499845540af2d0aa}{kmalloc}} (uint32\+\_\+t)
+\item 
+void \mbox{\hyperlink{memory_8h_acee1960bdb3a19cb495341ec725cafef}{kfree}} (void $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Code to organise memory into pages and set aside a portion of memory for the heap. 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{memory_8h_aa8d5f3f7f21f53fe7ffed7c329915441}\label{memory_8h_aa8d5f3f7f21f53fe7ffed7c329915441}} 
+\index{memory.h@{memory.h}!alloc\_page@{alloc\_page}}
+\index{alloc\_page@{alloc\_page}!memory.h@{memory.h}}
+\subsubsection{\texorpdfstring{alloc\_page()}{alloc\_page()}}
+{\footnotesize\ttfamily void$\ast$ alloc\+\_\+page (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Allocate a page of size P\+A\+G\+E\+\_\+\+S\+I\+ZE \mbox{\Hypertarget{memory_8h_a89cf15666552002c028800b10e3a324e}\label{memory_8h_a89cf15666552002c028800b10e3a324e}} 
+\index{memory.h@{memory.h}!free\_page@{free\_page}}
+\index{free\_page@{free\_page}!memory.h@{memory.h}}
+\subsubsection{\texorpdfstring{free\_page()}{free\_page()}}
+{\footnotesize\ttfamily void free\+\_\+page (\begin{DoxyParamCaption}\item[{void $\ast$}]{ptr }\end{DoxyParamCaption})}
+
+Deallocate a page 
+\begin{DoxyParams}{Parameters}
+{\em ptr} & Address of page to deallocate \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{memory_8h_acee1960bdb3a19cb495341ec725cafef}\label{memory_8h_acee1960bdb3a19cb495341ec725cafef}} 
+\index{memory.h@{memory.h}!kfree@{kfree}}
+\index{kfree@{kfree}!memory.h@{memory.h}}
+\subsubsection{\texorpdfstring{kfree()}{kfree()}}
+{\footnotesize\ttfamily void kfree (\begin{DoxyParamCaption}\item[{void $\ast$}]{ptr }\end{DoxyParamCaption})}
+
+Free memory associated with a pointer 
+\begin{DoxyParams}{Parameters}
+{\em ptr} & Pointer to free \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{memory_8h_a4c1b00f2d0f5cdb5499845540af2d0aa}\label{memory_8h_a4c1b00f2d0f5cdb5499845540af2d0aa}} 
+\index{memory.h@{memory.h}!kmalloc@{kmalloc}}
+\index{kmalloc@{kmalloc}!memory.h@{memory.h}}
+\subsubsection{\texorpdfstring{kmalloc()}{kmalloc()}}
+{\footnotesize\ttfamily void$\ast$ kmalloc (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{bytes }\end{DoxyParamCaption})}
+
+Allocate block of memory of size bytes on the heap 
+\begin{DoxyParams}{Parameters}
+{\em bytes} & Number of bytes to allocate \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{memory_8h_a80ef59d00a98d290fb142ec28ef86e84}\label{memory_8h_a80ef59d00a98d290fb142ec28ef86e84}} 
+\index{memory.h@{memory.h}!mem\_init@{mem\_init}}
+\index{mem\_init@{mem\_init}!memory.h@{memory.h}}
+\subsubsection{\texorpdfstring{mem\_init()}{mem\_init()}}
+{\footnotesize\ttfamily void mem\+\_\+init (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atags }\end{DoxyParamCaption})}
+
+Divide memory up into pages and initialise the heap 
+\begin{DoxyParams}{Parameters}
+{\em atags} & List of atags (for memory size) \\
+\hline
+\end{DoxyParams}

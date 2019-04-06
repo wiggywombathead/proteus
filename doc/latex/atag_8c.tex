@@ -1,0 +1,48 @@
+\hypertarget{atag_8c}{}\section{/home/tom/compsci/thirdyear/cs310/src/kernel/atag.c File Reference}
+\label{atag_8c}\index{/home/tom/compsci/thirdyear/cs310/src/kernel/atag.c@{/home/tom/compsci/thirdyear/cs310/src/kernel/atag.c}}
+{\ttfamily \#include $<$kernel/atag.\+h$>$}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8c_a7dd5c05c09d9c0cf0ee91ab6fb05126b}{get\+\_\+total\+\_\+mem}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$\mbox{\hyperlink{structatag}{atag}})
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8c_a5deef11973f8b07d35c15a896bee35fe}{get\+\_\+serial\+\_\+hi}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$\mbox{\hyperlink{structatag}{atag}})
+\item 
+uint32\+\_\+t \mbox{\hyperlink{atag_8c_abad852a7a1a4f9ce6880d832b0e8deeb}{get\+\_\+serial\+\_\+lo}} (struct \mbox{\hyperlink{structatag}{atag}} $\ast$\mbox{\hyperlink{structatag}{atag}})
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{atag_8c_a5deef11973f8b07d35c15a896bee35fe}\label{atag_8c_a5deef11973f8b07d35c15a896bee35fe}} 
+\index{atag.c@{atag.c}!get\_serial\_hi@{get\_serial\_hi}}
+\index{get\_serial\_hi@{get\_serial\_hi}!atag.c@{atag.c}}
+\subsubsection{\texorpdfstring{get\_serial\_hi()}{get\_serial\_hi()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+serial\+\_\+hi (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Return high serial number of board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{atag_8c_abad852a7a1a4f9ce6880d832b0e8deeb}\label{atag_8c_abad852a7a1a4f9ce6880d832b0e8deeb}} 
+\index{atag.c@{atag.c}!get\_serial\_lo@{get\_serial\_lo}}
+\index{get\_serial\_lo@{get\_serial\_lo}!atag.c@{atag.c}}
+\subsubsection{\texorpdfstring{get\_serial\_lo()}{get\_serial\_lo()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+serial\+\_\+lo (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Return low serial number of board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{atag_8c_a7dd5c05c09d9c0cf0ee91ab6fb05126b}\label{atag_8c_a7dd5c05c09d9c0cf0ee91ab6fb05126b}} 
+\index{atag.c@{atag.c}!get\_total\_mem@{get\_total\_mem}}
+\index{get\_total\_mem@{get\_total\_mem}!atag.c@{atag.c}}
+\subsubsection{\texorpdfstring{get\_total\_mem()}{get\_total\_mem()}}
+{\footnotesize\ttfamily uint32\+\_\+t get\+\_\+total\+\_\+mem (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structatag}{atag}} $\ast$}]{atag }\end{DoxyParamCaption})}
+
+Determine amount of R\+AM on board. 
+\begin{DoxyParams}{Parameters}
+{\em atag} & Address containing list of atags \\
+\hline
+\end{DoxyParams}

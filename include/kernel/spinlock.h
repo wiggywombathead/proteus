@@ -1,3 +1,8 @@
+/**
+ * @file spinlock.h
+ * @brief A busy-wait polling implementation for basic synchronisation
+ */
+
 #ifndef _SPINLOCK_H
 #define _SPINLOCK_H
 

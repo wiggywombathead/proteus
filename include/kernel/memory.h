@@ -1,3 +1,9 @@
+/**
+ * @file memory.h
+ * @brief Code to organise memory into pages and set aside a portion of memory
+ * for the heap
+ */
+
 #ifndef _MEMORY_H
 #define _MEMORY_H
 

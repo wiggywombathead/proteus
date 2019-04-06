@@ -1,3 +1,8 @@
+/**
+ * @file util.h
+ * @brief Some useful general-purpose macros, particularly GCC attributes
+ */
+
 #ifndef _UTIL_H
 #define _UTIL_H
 

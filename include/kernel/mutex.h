@@ -1,3 +1,9 @@
+/**
+ * @file mutex.h
+ * @brief An implementation of mutual exclusion locks to achieve process
+ * synchronisation
+ */
+
 #ifndef _MUTEX_H
 #define _MUTEX_H
 
