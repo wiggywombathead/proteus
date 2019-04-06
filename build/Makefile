@@ -37,7 +37,7 @@ OBJ_DIR = objects
 
 LIBRARIES := $(wildcard $(LIB)/*.a)
 
-CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
+CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES) -fPIC
 CSRCFLAGS = -O2 -Wall -Wextra
 
 # link libraries in lib?
@@ -47,6 +47,7 @@ else
 	LLIBS =
 endif
 
+LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES)) -fPIC
 LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
