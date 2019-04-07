@@ -31,7 +31,11 @@ endif
 DOC = ../doc
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
+
 INC = ../include
+INC += ../reference/uspi/include
+INC += ../reference/uspi/env/include
+
 LIB = ../lib
 OBJ_DIR = objects
 

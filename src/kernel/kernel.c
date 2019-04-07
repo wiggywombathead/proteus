@@ -85,8 +85,6 @@ void consumer(void) {
     printf("SHARED: %s\n", * (int *) data);
 }
 
-#include <uspi/uspi.h>
-
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     (void) r0;
@@ -151,9 +149,12 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     sched_init();
 
     /* KEYBOARD */
+#include <uspienv.h>
+#include <uspi.h>
+#include <uspios.h>
+#include <uspienv/util.h>
+
     puts("Initialising keyboard");
-    if (!USPiEnvInitialize())
-        puts("Error initialising keyboard");
     // TODO usb_init();
 
     /*
