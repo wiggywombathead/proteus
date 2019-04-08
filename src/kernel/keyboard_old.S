@@ -49,6 +49,9 @@ kbd_down_prev:
     .endr
 
 .section .text
+/**
+ * void kbd_update()
+ */
 .global kbd_update
 kbd_update:
     push {r4, r5, lr}
@@ -139,6 +142,9 @@ key_was_down:
     mov r0, #0
     mov pc, lr
 
+/**
+ * char kbd_getchar(void)
+ */
 .global kbd_getchar
 kbd_getchar:
     /* check we have a keyboard */

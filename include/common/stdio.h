@@ -6,6 +6,8 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
+#include <stdint.h>
+
 char getc(void);
 void putc(char);
 void puts(const char *);

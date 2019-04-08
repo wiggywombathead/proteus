@@ -3,6 +3,7 @@
 #include <kernel/gpio.h>
 #include <kernel/gpu.h>
 #include <kernel/interrupt.h>
+#include <kernel/kbd.h>
 #include <kernel/memory.h>
 #include <kernel/mmu.h>
 #include <kernel/mutex.h>
@@ -32,7 +33,13 @@ void fib(void) {
 
     a = 0, b = 1;
     int i = 2;
-    printf("[0]: 0\n[1]: 1\n");
+
+    printf("[0]: 0\n");
+    uwait(1000000);
+
+    printf("[1]: 1\n");
+    uwait(1000000);
+
     while (i < 20) {
         c = a + b;
         a = b;
@@ -69,20 +76,6 @@ void test(void) {
         printf("test %d\n", i++);
         uwait(1000000);
     }
-}
-
-struct shm_section *shared;
-
-void producer(void) {
-    shared = shm_open("SHARED");
-
-    int data = 69420;
-    shm_write(shared, &data, sizeof(int));
-}
-
-void consumer(void) {
-    void *data = shm_read(shared, "SHARED");
-    printf("SHARED: %s\n", * (int *) data);
 }
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
@@ -149,13 +142,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     sched_init();
 
     /* KEYBOARD */
-#include <uspienv.h>
-#include <uspi.h>
-#include <uspios.h>
-#include <uspienv/util.h>
-
     puts("Initialising keyboard");
-    // TODO usb_init();
+    kbd_init();
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -173,55 +161,24 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     hexstring(mmio_read(0x00400000));
     hexstring(mmio_read(0x00500000));
 
-    mutex_init(&mutex);
+    // mutex_init(&mutex);
 
-    create_kthread(print1, "p1");
-    create_kthread(print2, "p2");
-    create_kthread(fib, "fib");
+    // create_kthread(print1, "p1");
+    // create_kthread(print2, "p2");
+    // create_kthread(fib, "fib");
     
     // create_kthread(producer, "prod");
     // create_kthread(consumer, "cons");
     
-    uint32_t i = 0;
     while (1) {
-        ;
+        kbd_update();
+        char c = kbd_getchar();
+
+        if (c)
+            act_blink(1);
+        putc(c);
     }
 
     puts("\nGoodbye!");
-
-}
-
-void sys_init(uint32_t r0, uint32_t r1, uint32_t atags) {
-
-    (void) r0;
-    (void) r1;
-
-    gpu_init();
-    printf("Initialising GPU\n");
-
-    printf("Initialising interrupts... ");
-    interrupts_init();
-    printf("DONE\n");
-
-    printf("Initialising memory... ");
-    mem_init((struct atag *) atags);
-    printf("DONE\n");
-
-    printf("Initialising system timer... ");
-    timer_init();
-    printf("DONE\n");
-
-    printf("Enabling GPIO... ");
-    act_init();
-    printf("DONE\n");
-
-    printf("Initialising processes... ");
-    proc_init();
-    sched_init();
-    printf("DONE\n");
-
-    printf("Initialising keyboard... ");
-    // TODO usb_init();
-    printf("DONE\n");
 
 }

@@ -32,26 +32,22 @@ DOC = ../doc
 KERN_SRC = ../src/kernel
 COMMON_SRC = ../src/common
 
+# include directories
 INC = ../include
-INC += ../reference/uspi/include
-INC += ../reference/uspi/env/include
+INC += ../reference/csud/include
+INC := $(patsubst %,-I%,$(INC))
+# INC += ../reference/uspi/include
+# INC += ../reference/uspi/env/include
 
 LIB = ../lib
 OBJ_DIR = objects
 
 LIBRARIES := $(wildcard $(LIB)/*.a)
 
-CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES) -fPIC
+CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
 
-# link libraries in lib?
-ifeq ($(lib),1)
-	LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
-else
-	LLIBS =
-endif
-
-LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES)) -fPIC
+LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
 LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
@@ -87,22 +83,28 @@ build: $(OBJECTS) $(HEADERS)
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
 	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@ $(CSRCFLAGS)
+
+#$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/$(ARCHDIR)/%.c
 	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@ $(CSRCFLAGS)
+
+#$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.S
 	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@ $(CSRCFLAGS)
+
+#$(CC) $(CFLAGS) -I$(KERN_SRC) -I$(INC) -c $< -o $@ $(CSRCFLAGS)
 
 documentation:
 	cd $(DOC) && doxygen doxygen.config
