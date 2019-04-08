@@ -12,8 +12,9 @@
 #include <kernel/shm.h>
 #include <kernel/timer.h>
 
-#include <common/stdlib.h>
 #include <common/stdio.h>
+#include <common/stdlib.h>
+#include <common/string.h>
 
 mutex_t mutex;
 
@@ -157,6 +158,8 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         );
     uwait(3000000);
 
+    printf("3: %d\n", 0);
+
     hexstring(mmio_read(0x00300000));
     hexstring(mmio_read(0x00400000));
     hexstring(mmio_read(0x00500000));
@@ -169,16 +172,11 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     
     // create_kthread(producer, "prod");
     // create_kthread(consumer, "cons");
-    
+
     while (1) {
-        kbd_update();
-        char c = kbd_getchar();
 
-        if (c)
-            act_blink(1);
-        putc(c);
     }
-
+    
     puts("\nGoodbye!");
 
 }

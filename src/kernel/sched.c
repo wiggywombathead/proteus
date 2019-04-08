@@ -5,6 +5,7 @@
 
 #include <common/stdio.h>
 #include <common/stdlib.h>
+#include <common/string.h>
 
 extern void switch_context(struct proc *old, struct proc *new);
 

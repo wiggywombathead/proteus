@@ -1,11 +1,11 @@
-#include <stddef.h>
-#include <stdint.h>
 #include <common/stdlib.h>
+#include <common/string.h>
 
-void memset(void *ptr, uint8_t c, size_t bytes) {
+void *memset(void *ptr, int c, size_t bytes) {
     uint8_t *p = ptr;
     while (bytes--)
         *p++ = c;
+    return ptr;
 }
 
 void bzero(void *ptr, int bytes) {
@@ -20,37 +20,26 @@ void *memcpy(void *dst, const void *src, size_t bytes) {
     return d;
 }
 
-uint32_t atoi(const char *nstr) {
+int memcmp(const void *s1, const void *s2, size_t n) {
+    const unsigned char *buf1 = (const unsigned char *) s1;
+    const unsigned char *buf2 = (const unsigned char *) s2;
+
+    while (n-- > 0) {
+        if (*buf1 != *buf2)
+            return (*(unsigned char *) buf1 - *(unsigned char *) buf2);
+        buf1++;
+        buf2++;
+    }
+    return 0;
+}
+
+uint32_t atoi(const char *str) {
     uint32_t ans = 0;
-    while (*nstr != '\0') {
-        ans = ans * 10 + (*nstr - '0');
-        nstr++;
+    while (*str != '\0') {
+        ans = ans * 10 + (*str - '0');
+        str++;
     }
     return ans;
-}
-
-size_t strcpy(char *dst, const char *src) {
-
-    size_t i;
-    for (i = 0; src[i] != '\0'; i++)
-        dst[i] = src[i];
-
-    dst[i] = '\0';
-    return i;
-}
-
-size_t strncpy(char *dst, const char *src, size_t n) {
-
-    size_t i;
-    for (i = 0; i < n && src[i] != '\0'; i++)
-        dst[i] = src[i];
-
-    size_t len = i;
-
-    for ( ; i < n; i++)
-        dst[i] = '\0';
-
-    return len;
 }
 
 uint32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
@@ -58,7 +47,8 @@ uint32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
     uint32_t i = 0;
 
     if (n == 0) {
-        return strncpy(buf, "0", 2);
+        memcpy(buf, "0", 2);
+        return 1;
     }
         
     while (n > 0) {
@@ -77,12 +67,5 @@ uint32_t itoa(uint32_t n, uint32_t base, char *buf, size_t max) {
         buf[len-1-i] = tmp;
     }
 
-    return len;
-}
-
-size_t strlen(const char *str) {
-    size_t len = 0;
-    while (*str++ != '\0')
-        len++;
     return len;
 }

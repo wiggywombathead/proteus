@@ -1,0 +1,15 @@
+#ifndef _STRING_H
+#define _STRING_H
+
+#include <stddef.h>
+
+size_t strcpy(char *, const char *);
+size_t strncpy(char *, const char *, size_t);
+
+size_t strlen(const char *);
+
+int strcmp(const char *, const char *);
+
+char *strcat(char *, const char *);
+
+#endif

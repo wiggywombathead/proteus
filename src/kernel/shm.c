@@ -1,6 +1,7 @@
 #include <kernel/shm.h>
 #include <kernel/memory.h>
 #include <common/stdlib.h>
+#include <common/string.h>
 
 struct shm_section *shm_open(const char *name) {
 

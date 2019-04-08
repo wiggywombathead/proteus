@@ -1,8 +1,14 @@
 TOOLCHAIN ?= arm-none-eabi
 
-CC := $(TOOLCHAIN)-gcc			# ARM cross compiler
-OBJCOPY := $(TOOLCHAIN)-objcopy	# get raw binary (not elf)
-OBJDUMP := $(TOOLCHAIN)-objdump	# get listing file
+# ARM cross compiler
+CC := $(TOOLCHAIN)-gcc
+
+# get raw binary (not elf)
+OBJCOPY := $(TOOLCHAIN)-objcopy
+
+# get listing file
+OBJDUMP := $(TOOLCHAIN)-objdump
+
 LD := $(TOOLCHAIN)-ld
 GDB := $(TOOLCHAIN)-gdb
 
@@ -34,21 +40,24 @@ COMMON_SRC = ../src/common
 
 # include directories
 INC = ../include
-INC += ../reference/csud/include
+INC += ../reference/uspi/include
+#INC += ../reference/uspi/env/include
+#INC += ../reference/csud/include
 INC := $(patsubst %,-I%,$(INC))
-# INC += ../reference/uspi/include
-# INC += ../reference/uspi/env/include
 
 LIB = ../lib
 OBJ_DIR = objects
 
 LIBRARIES := $(wildcard $(LIB)/*.a)
 
-CFLAGS = -mcpu=$(CPU) -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
+CFLAGS = -mcpu=$(CPU) -mfloat-abi=hard -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
 
 LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
-LFLAGS = $(LLIBS) -ffreestanding -O2 -nostdlib
+LFLAGS = $(LLIBS) -ffreestanding -nostdlib -O2 
+
+LDFLAGS = -ffreestanding -nostdlib -L$(LIB)
+LDLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
@@ -77,8 +86,11 @@ LINKER = linker.ld
 ############
 build: $(OBJECTS) $(HEADERS)
 	@echo "Building $(IMG)"
-	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) $(LFLAGS)
+	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 	$(OBJCOPY) $(ELF) -O binary $(IMG)
+	$(OBJDUMP) -D $(ELF) > $(LIST)
+
+#$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) $(LFLAGS)
 
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.c
 	@echo "Compiling $<"
@@ -117,7 +129,7 @@ tidy:
 clean:
 	@echo "Removing $(OBJ_DIR), $(IMG).elf, $(IMG).img"
 	rm -rf $(OBJ_DIR)
-	rm -f $(ELF) $(IMG)
+	rm -f $(ELF) $(IMG) $(MAP) $(LIST)
 
 $(vb).SILENT:
 

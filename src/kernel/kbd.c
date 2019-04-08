@@ -2,23 +2,21 @@
 #include <kernel/gpio.h>
 #include <common/stdio.h>
 
-#include <usbd/usbd.h>
+#include <uspi.h>
 
-static void kbd_irq_handler(char c) {
+void kbd_irq_handler(char c) {
     putc(c);
 }
 
 int kbd_init(void) {
 
-    return UsbInitialise();
+    // return UsbInitialise();
 
-    /*
-    if (!USPiInitialize())
+    // if (!USPiInitialize())
         puts("Error initialising USPi");
 
-    if (!USPiKeyboardAvailable())
-        puts("No keyboard found");
+    // if (!USPiKeyboardAvailable())
+    //     puts("No keyboard found");
 
-    USPiKeyboardRegisterKeyPressedHandler(kbd_irq_handler);
-    */
+    // USPiKeyboardRegisterKeyPressedHandler(kbd_irq_handler);
 }
