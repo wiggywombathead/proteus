@@ -4,7 +4,7 @@
 #include <kernel/fonts.h>
 
 #include <common/stdio.h>
-#include <common/stdlib.h>
+#include <common/string.h>
 
 /**
  * Initialise the frambuffer and write black pixels everywhere

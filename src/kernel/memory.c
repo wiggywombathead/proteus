@@ -2,7 +2,7 @@
 #include <kernel/atag.h>
 
 #include <common/stdio.h>
-#include <common/stdlib.h>
+#include <common/string.h>
 
 extern uint8_t __end;
 static uint32_t pages;
@@ -28,7 +28,7 @@ static void heap_init(uint32_t heap_start) {
  * Divide memory up into pages and initialise the heap
  * @param atags List of atags (for memory size)
  */
-void mem_init(struct atag *atags) {
+void memory_init(struct atag *atags) {
 
     uint32_t total_mem, kernel_pages, page_array_end, page_array_len;
 

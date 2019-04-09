@@ -1,4 +1,37 @@
 #include <common/string.h>
+#include <stdint.h>
+
+void bzero(void *ptr, int bytes) {
+    memset(ptr, 0, bytes);
+}
+
+void *memset(void *ptr, int c, size_t bytes) {
+    uint8_t *p = ptr;
+    while (bytes--)
+        *p++ = c;
+    return ptr;
+}
+
+void *memcpy(void *dst, const void *src, size_t bytes) {
+    char *d = dst;
+    const char *s = src;
+    while (bytes--)
+        *d++ = *s++;
+    return d;
+}
+
+int memcmp(const void *s1, const void *s2, size_t n) {
+    const unsigned char *buf1 = (const unsigned char *) s1;
+    const unsigned char *buf2 = (const unsigned char *) s2;
+
+    while (n-- > 0) {
+        if (*buf1 != *buf2)
+            return (*(unsigned char *) buf1 - *(unsigned char *) buf2);
+        buf1++;
+        buf2++;
+    }
+    return 0;
+}
 
 size_t strcpy(char *dst, const char *src) {
 

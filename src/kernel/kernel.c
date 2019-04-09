@@ -120,7 +120,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     /* PAGING AND HEAP */
     puts("Initialising memory");
-    mem_init((struct atag *) atags);
+    memory_init((struct atag *) atags);
     printf("\tHeap: %dMiB\n", KERNEL_HEAP_SIZE / MEGABYTE);
     printf("\tMemory: %dMiB\n",
             get_total_mem((struct atag *) atags) / MEGABYTE
@@ -145,6 +145,7 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     /* KEYBOARD */
     puts("Initialising keyboard");
     kbd_init();
+    puts("Hello?");
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -157,8 +158,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
             "\n"
         );
     uwait(3000000);
-
-    printf("3: %d\n", 0);
 
     hexstring(mmio_read(0x00300000));
     hexstring(mmio_read(0x00400000));

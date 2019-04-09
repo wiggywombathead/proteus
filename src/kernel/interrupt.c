@@ -1,7 +1,7 @@
 #include <kernel/interrupt.h>
 
-#include <common/stdlib.h>
 #include <common/stdio.h>
+#include <common/string.h>
 
 /* interrupt handlers and pending-bit clearers */
 static interrupt_handler handlers[NUM_IRQS];

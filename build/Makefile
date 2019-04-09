@@ -41,7 +41,7 @@ COMMON_SRC = ../src/common
 # include directories
 INC = ../include
 INC += ../reference/uspi/include
-#INC += ../reference/uspi/env/include
+INC += ../reference/uspi/env/include
 #INC += ../reference/csud/include
 INC := $(patsubst %,-I%,$(INC))
 
@@ -53,11 +53,12 @@ LIBRARIES := $(wildcard $(LIB)/*.a)
 CFLAGS = -mcpu=$(CPU) -mfloat-abi=hard -mfpu=vfp -ffreestanding -g $(DIRECTIVES)
 CSRCFLAGS = -O2 -Wall -Wextra
 
-LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
-LFLAGS = $(LLIBS) -ffreestanding -nostdlib -O2 
+#LLIBS = -L$(LIB) $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+#LFLAGS = $(LLIBS) -ffreestanding -nostdlib -O2 
 
-LDFLAGS = -ffreestanding -nostdlib -L$(LIB)
-LDLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+LDFLAGS = -nostdlib -L$(LIB)
+#LDLIBS = $(patsubst $(LIB)/lib%.a,-l%,$(LIBRARIES))
+LDLIBS := -luspi
 
 KSOURCES = $(wildcard $(KERN_SRC)/*.c)
 KSOURCES += $(wildcard $(KERN_SRC)/$(ARCHDIR)/*.c)
@@ -71,13 +72,13 @@ OBJECTS += $(patsubst $(KERN_SRC)/%.S, $(OBJ_DIR)/%.o, $(ASOURCES))
 
 HEADERS = $(wildcard $(INC)/*.h)
 
+LINKER = linker.ld
+
 NAME = proteus
 ELF = $(NAME).elf
 IMG = $(NAME).img
 MAP = $(NAME).map
 LIST = $(NAME).list
-
-LINKER = linker.ld
 
 .PHONY: build clean gdbinit
 
@@ -86,7 +87,7 @@ LINKER = linker.ld
 ############
 build: $(OBJECTS) $(HEADERS)
 	@echo "Building $(IMG)"
-	$(CC) -T $(LINKER) -o $(ELF) $(OBJECTS) $(LDFLAGS) $(LDLIBS)
+	$(LD) -T $(LINKER) -o $(ELF) -Map $(MAP) $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 	$(OBJCOPY) $(ELF) -O binary $(IMG)
 	$(OBJDUMP) -D $(ELF) > $(LIST)
 

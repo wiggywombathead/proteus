@@ -1,6 +1,6 @@
 #include <kernel/mailbox.h>
 #include <kernel/memory.h>
-#include <common/stdlib.h>
+#include <common/string.h>
 
 /**
  * Read data from the mailbox peripheral
