@@ -79,6 +79,12 @@ void test(void) {
     }
 }
 
+struct data {
+    int v1;
+    int v2;
+    char s[16];
+};
+
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     (void) r0;
@@ -159,9 +165,16 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         );
     uwait(3000000);
 
-    hexstring(mmio_read(0x00300000));
-    hexstring(mmio_read(0x00400000));
-    hexstring(mmio_read(0x00500000));
+    uint32_t addr = shm_open() +1;
+    struct data d = {1,2,"hello"};
+    shm_write(addr, &d, sizeof(struct data));
+
+    struct data *r = (struct data *) shm_read(addr);
+    printf("Read: {%d, %d, %s}\n", r->v1, r->v2, r->s);
+
+    // hexstring(mmio_read(0x00300000));
+    // hexstring(mmio_read(0x00400000));
+    // hexstring(mmio_read(0x00500000));
 
     // mutex_init(&mutex);
 

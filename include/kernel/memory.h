@@ -21,7 +21,7 @@ struct page_flags {
     uint8_t allocated : 1;
     uint8_t kernel_page : 1;
     uint8_t kernel_heap_page : 1;
-    uint8_t share : 1;
+    uint8_t shared : 1;
     uint32_t reserved : 28;
 };
 
@@ -42,6 +42,7 @@ struct heap_segment {
 
 void memory_init(struct atag *);
 void *alloc_page(void);
+void *alloc_shared(void);
 void free_page(void *);
 void *kmalloc(uint32_t);
 void kfree(void *);

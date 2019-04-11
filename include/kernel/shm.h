@@ -15,8 +15,8 @@ struct shm_section {
     char *data;
 };
 
-struct shm_section *shm_open(const char *name);
-void shm_write(struct shm_section *s, void *data, size_t bytes);
-void *shm_read(struct shm_section *s, const char *name);
+void *shm_open(void);
+void shm_write(void *, void *, size_t);
+void *shm_read(void *);
 
 #endif

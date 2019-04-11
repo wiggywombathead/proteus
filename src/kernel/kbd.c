@@ -11,6 +11,7 @@ void kbd_irq_handler(const char *c) {
 
 int kbd_init(void) {
 
+#ifdef KEYBOARD
     printf("\tStarting USPi - ");
     if (!USPiInitialize())
         puts("Error initialising USPi");
@@ -22,5 +23,6 @@ int kbd_init(void) {
     puts("found");
 
     USPiKeyboardRegisterKeyPressedHandler(kbd_irq_handler);
+#endif
     return 0;
 }

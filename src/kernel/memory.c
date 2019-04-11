@@ -9,7 +9,7 @@ static uint32_t pages;
 
 IMPLEMENT_LIST(page);
 
-static struct page *all_pages;
+struct page *all_pages;
 struct page_list free_pages;
 
 static struct heap_segment *heap_segment_list_head;
@@ -85,6 +85,25 @@ void *alloc_page(void) {
     page = dequeue_page_list(&free_pages);
     page->flags.kernel_page = 1;
     page->flags.allocated = 1;
+
+    // find the physical address of this page in memory
+    page_addr = (void *) ((page - all_pages) * PAGE_SIZE);
+    bzero(page_addr, PAGE_SIZE);
+
+    return page_addr;
+}
+
+void *alloc_shared(void) {
+    struct page *page;
+    void *page_addr;
+
+    if (size_page_list(&free_pages) == 0)
+        return 0;
+
+    page = dequeue_page_list(&free_pages);
+    page->flags.kernel_page = 1;
+    page->flags.allocated = 1;
+    page->flags.shared = 1;
 
     // find the physical address of this page in memory
     page_addr = (void *) ((page - all_pages) * PAGE_SIZE);
