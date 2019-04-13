@@ -3,7 +3,6 @@
 \bibliographystyle{ieeetr}
 
 \usepackage{lipsum}
-\setcounter{secnumdepth}{0}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{subfig}
@@ -13,7 +12,49 @@
 \usepackage{pdfpages}
 \usepackage[title]{appendix}
 
+\usepackage{listings}
+\lstdefinelanguage{ARMasm}{
+    morekeywords={mov, str, ldr, orr, add, sub, b, beq, bne}
+    morecomment=[s]{/*}{*/},
+    morecomment=[l]//,
+}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  %frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+
+\lstdefinestyle{customasm}{
+  belowcaptionskip=1\baselineskip,
+  %frame=L,
+  %xleftmargin=\parindent,
+  language=[ARMasm]Assembler,
+  basicstyle=\footnotesize\ttfamily,
+  commentstyle=\itshape\color{purple!40!black},
+}
+
+%\newcommand{\includecode}[2][c]{\lstinputlisting[caption=#2, escapechar=, style=custom#1]{#2}<!---->}
+\newcommand{\includecode}[2][c]{\lstinputlisting[escapechar=, style=custom#1]{#2}<!---->}
+
 \graphicspath{{./figs/}}
+
+\def\HOME{../..}
+\def\KSRC{\HOME/src/kernel}
+\def\CSRC{\HOME/src/common}
+\def\KHEAD{\HOME/include/kernel}
+\def\CHEAD{\HOME/include/common}
+
+% No section numbering
+\setcounter{secnumdepth}{0}
 
 \providecommand{\keywords}[1]{\textbf{\textit{Index terms---}} #1}
 \newcommand{\code}[1]{\texttt{#1}}
@@ -82,6 +123,24 @@
 
 \begin{appendices}
 
+    \section{Appendix A: source code}
+    %\includecode{\KSRC/atag.c}
+    %\includecode{\KSRC/gpio.c}
+    %\includecode{\KSRC/gpu.c}
+    %\includecode{\KSRC/interrupt.c}
+    %\includecode{\KSRC/kbd.c}
+    %\includecode{\KSRC/kernel.c}
+    %\includecode{\KSRC/mailbox.c}
+    %\includecode{\KSRC/memory.c}
+    %\includecode{\KSRC/mmu.c}
+    %\includecode{\KSRC/proc.c}
+    %\includecode{\KSRC/sched.c}
+    %\includecode{\KSRC/shm.c}
+    %\includecode{\KSRC/timer.c}
+
+    %\lstlistoflistings
+
+    %\lstinputlisting[language=C]{\HOME/src/kernel/kernel.c}
 %
 %    \pagenumbering{gobble}
 %

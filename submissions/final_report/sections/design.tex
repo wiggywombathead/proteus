@@ -1,4 +1,5 @@
 \section{Design}
+
 \subsection{Hardware}
     The project has been developed for the Raspberry Pi 1 Model B+.
     Some of the relevant hardware onboard includes:
@@ -80,15 +81,80 @@
         system timer and audio -- in this way it is therefore more akin to a
         regular PC's BIOS.
 
-\subsection{System Overview}
-    
-
 \subsection{Development environment}
-    The project was developed on various machines running the Linux kernel, from
+    The project was developed on various x86 machines running the Linux kernel
     version 4.16 onwards. Since the target environment, the Raspberry Pi 1 Model
-    B+ running an ARM CPU, is different to that on which the project has been
-    developed, a cross-compiler is required to compile code on the development
-    machine that will run on the target machine. Available on the ARM developer
-    website is the GNU Embedded Toolchain, which provides tools to target the
-    ARM family of processors, including the GNU Compiler Collection (GCC).
+    B+, runs on an ARM CPU, the target architecture is therefore different to
+    that of the development machines. Therefore, a cross-compiler is required in
+    order to compile the code for the target machine. Available on the ARM
+    developer website is the GNU Embedded Toolchain \cite{GNUToolchain}.
+    Conveniently this suite of tools is available from Arch Linux's package
+    manager, Pacman \cite{Pacman}, and this is the version that has been used to
+    develop the project.
+
+    \subsubsection{System V ABI}
+        Of particular use within this suite of tools is the cross-compiler for
+        \code{arm-non-eabi}, which provides a toolchain to target the System V
+        ABI (Application Binary Interface). This is a set of specifications that
+        detail the calling conventions, object and executable file formats,
+        dynamic linking semantics, and more, for systems complying with the
+        System V Interface Definition, of which the Raspberry Pi is one. For
+        example, it defines the Executable and Linkable Format, or ELF, which is
+        a format for storing programs or fragments of programs on disk that are
+        generated as a result of compiling and linking. Each ELF file is divided
+        into sections, specifically:
+        \begin{itemize}
+            \itemsep0em
+            \item \code{.text} - executable code
+            \item \code{.data} - global variables which are uninitialised at
+                compile-time
+            \item \code{.rodata} - read-only data i.e. global constants
+            \item \code{.bss} - uninitialised global variables
+        \end{itemize}
+
+        These are covered in more depth in the discussion of the linking process
+        in section \ref{Linking}. Additionally the SysV ABI defines the
+        \code{.comment}, \code{.note}, \code{.stab}, and \code{.stabstr}
+        sections for compiler and linker toolchain comments and debugging
+        information.
+
+    \subsubsection{ARM environment}
+       The ARM1176JZF-S processor implements the ARM11 ARMv6 architecture
+       \cite{TRM}, supporting both the ARM and Thumb instruction
+       sets\footnote{A subset of the most commonly-used 32-bit ARM instructions.
+       Each Thumb instruction is 16 bits long, and has a corresponding 32-bit ARM
+       instruction with an equivalent effect on the processor model. While not
+       useful and out-of-scope for this project, the instruction sets can be
+       easily switched between to enable the programmer to optimize both code
+       density and performance as they see fit.}. The processor contains 33
+       general-purpose 32-bit registers and 7 dedicated 32-bit registers, 16 of
+       which are accessible for general use at any one time in the ARM state.
+       These are as follows:
+       \begin{itemize}
+           \itemsep0em
+           \item \code{r15} - Program Counter
+           \item \code{r14} - Link Register
+           \item \code{r13} - Stack Pointer
+           \item \code{r12} - Intra-Procedure-Call Scratch Register
+           \item \code{r4-r11} - local variables to a function
+           \item \code{r0-r3} - arguments passed to a function, and the returned
+               result
+       \end{itemize}
+
+       The Current Program Status Register (CPSR) contains code flags, status
+       bits, and current mode bits.  Another register, the Saved Program Status
+       Register (SPSR), is similar to the CPSR but is only available in
+       privileged modes. This contains the condition code flags, status bits,
+       and current mode bits saved as a result of the exception which prompted
+       the processor to enter the current mode.
+
+       Finally, the architecture asserts a full descending stack: full, meaning
+       the stack pointer points to the topmost entry in the
+       stack\footnote{Contrasted to empty, which points to the next free
+       location, i.e. the address at which the next item will be stored};
+       and descending, meaning the stack grows downwards, starting from a high
+       memory address and progressing to lower addresses as items are pushed.
+
+\subsection{System Overview}
+
 \subsection{Project management}
