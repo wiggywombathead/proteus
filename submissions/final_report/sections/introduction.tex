@@ -20,4 +20,32 @@
     clear interfaces to encourage ease of extensibility, and hence a practical,
     software-driven approach to learning about operating systems.
 
-\subsection{Useful concepts}
+\subsection{Motivation}
+    An operating system draws together aspects from all over the field of
+    computer science, whose development requires intimate knowledge of low-level
+    concepts such as the computer's organisation and architecture, up to an
+    understanding for the more abstract in designing how processes communicate
+    or implementing filesystems. The opportunity to write one as part of this
+    project was therefore appealing as it served not only to provide the author
+    with experience in an area of computer science of great interest,
+    but also the chance to unite and put into practice many of the topics
+    learned throughout the undergraduate computer science course. One of the key
+    motivations of this project was therefore to gain experience in low-level
+    systems programming and interacting with real-world hardware, all the while
+    creating a useful and entirely self-contained piece of software.
+
+    The main goal of this project is to provide an operating system for the
+    Raspberry Pi that is capable of booting on real hardware, for both
+    educational and hobbyist use. An important aspect of this is gaining
+    practical experience in this unique area of software development, and so in
+    addition to being configurable at compile-time, offering multiple approaches
+    to process scheduling and inter-process communication, it also aims to
+    easily-understandable and open to extension. In order to achieve this it
+    must also implement a basic interface to manage this compile-time
+    configuration. Also key to the project's success is the ability to boot on
+    real hardware - while it would largely be possible to implement in a solely
+    emulated environment with the help of a virtual machine, this project
+    attempts to provide the additional valuable experience of taking real-world
+    design considerations and observing their effects on live hardware, the
+    latter of which is easily ignored if working only through an emulator. 
+

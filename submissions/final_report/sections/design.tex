@@ -1,5 +1,94 @@
 \section{Design}
-\subsection{Overview}
 \subsection{Hardware}
+    The project has been developed for the Raspberry Pi 1 Model B+.
+    Some of the relevant hardware onboard includes:
+    \begin{itemize}
+        \itemsep0em
+        \item System-on-Chip: Broadcom BCM2835
+        \item CPU: 700MHZ ARM1176JZF-S
+        \item GPU: 250MHz Broadcom VideoCore IV
+        \item SDRAM: 512MiB, shared with the GPU
+        \item Video output: HDMI and DSI
+        \item Storage: MicroSDHC slot
+        \item 4x USB 2.0 ports
+        \item 40 General Purpose Input/Output (GPIO) pins
+    \end{itemize}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=.8\textwidth]{board.png}
+        \caption{Raspberry Pi 1 Model B+}
+    \end{figure}
+
+    Development was initially planned for the Raspberry Pi 2 Model B+ simply due
+    to its availability, having been received as a gift some years prior.
+    However, focus was switched to target the Raspberry Pi 1 Model B+ as a
+    result of the difficulties encountered with interacting with the GPU via the
+    mailbox interface, with the processing differing slightly and being more
+    complex on the 2. The underlying architecture of the 1's BCM2835 chip is,
+    however, identical to that of the BCM2836 and BCM2837
+    \cite{IdenticalArchitecture}, used by the Raspberry Pi 2 and 3,
+    respectively. They only differ in that the 1 uses the ARM1176JZF-S
+    processor, as opposed to the quad-core Cortex-A7 and quad-core Cortex-A53
+    cluster used by these later boards, in addition to the 512MiB extra
+    available to them. Therefore, the choice between specific models for which
+    to develop would have made little difference to the outcome of the project,
+    and indeed much of the code is transferable. As has been discussed, this
+    standard set of hardware was desirable for the project's aims, rendering the
+    operating system more widely accessible and for less effort.
+
+    \subsubsection{The Raspberry Pi's boot process}
+        The decision to work with the Raspberry Pi in particular, as opposed to
+        a more open-ended PC setup, is not only due to the relative lack of
+        material available for operating systems development on the ARM
+        architecture, but also as a result of the much simpler boot process in
+        contrast to other hardware, details of which were found from
+        \cite{BootProcess}. Booting is handled almost entirely by the Pi's
+        system-on-chip, thus does not require the writing of a custom
+        bootloader. Instead, it relies on closed-source proprietary firmware
+        programmed into the SoC processor which may not be modified. The
+        necessary files can be acquired by either downloading them from
+        \cite{Firmware}, or by downloading an existing operating system for the
+        Pi and using the files that it provides (since it still requires the
+        same firmware).
+
+        During system boot, the ARM CPU does not act as the main CPU, but rather
+        as a coprocessor to the VideoCore GPU \cite{PiHackability}. When the
+        system is first powered on, the ARM CPU is halted and SDRAM is disabled.
+        Control is passed to the GPU, whose responsibility it is to execute the
+        bootloader. The bootloader itself is divided into three stages: the
+        first stage, stored in ROM on the system-on-chip; the second stage,
+        \code{bootcode.bin}, and the third stage, \code{start.elf}. The first
+        mounts the FAT32 boot partition on the SD card to enable execution of
+        the second-stage bootloader, and then loads this into the L2 cache to
+        run it. Control is then passed to the second-stage bootloader, which
+        enables SDRAM and loads \code{start.elf} for execution. This final stage
+        allows the GPU to start up the CPU. An additional file,
+        \code{fixup.dat}, is used to configure the shared SDRAM partition
+        between the two processors.  The GPU firmware reads the files
+        \code{config.txt} and \code{cmdline.txt} to load the kernel image, then
+        releases the CPU from reset and transfers control to it to begin
+        executing the kernel. 
+
+        After an operating system is loaded, the code on the GPU is not
+        unloaded, but rather runs its own simple operating system, the VideoCore
+        Operating System (VCOS) \cite{VideoCore}. This can be used to
+        communicate with the services provided by the GPU (for example,
+        providing a framebuffer), using the mailbox peripheral and ARM CPU
+        interrupts, which the GPU is capable of producing. The GPU is not only
+        in charge of graphical functions as, for example, it also controls the
+        system timer and audio -- in this way it is therefore more akin to a
+        regular PC's BIOS.
+
+\subsection{System Overview}
+    
+
 \subsection{Development environment}
+    The project was developed on various machines running the Linux kernel, from
+    version 4.16 onwards. Since the target environment, the Raspberry Pi 1 Model
+    B+ running an ARM CPU, is different to that on which the project has been
+    developed, a cross-compiler is required to compile code on the development
+    machine that will run on the target machine. Available on the ARM developer
+    website is the GNU Embedded Toolchain, which provides tools to target the
+    ARM family of processors, including the GNU Compiler Collection (GCC).
 \subsection{Project management}
