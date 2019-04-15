@@ -118,11 +118,29 @@
         sections for compiler and linker toolchain comments and debugging
         information.
 
-    \subsubsection{ARM environment}
+    \subsubsection{Resources}
+       With no prior experience working in assembly and, in particular, how to
+       use ARM assembly in conjunction with the C programming language, it was
+       necessary to become better acquainted with this environment, including
+       becoming familiar with the instructions available and the calling
+       conventions to follow (for example, returning the result of an assembly
+       function in register 0). This information was gathered by reading through
+       both official and unofficial documentation on the ARM environment in
+       general and the specifics of working with the Pi. ARM provides important
+       architectural
+       documentation in the form of their \textit{ARM1176JZF-S Technical
+       Reference Manual} \cite{TRM}, and their online \textit{ARM Developer
+       Suite Assembler Guide} \cite{OnlineARMGuide} provides comprehensive
+       documentation on the instruction set as well as each instruction's use
+       case. While not written for the processor used by the Raspberry Pi 1, but
+       instead the Cortex-A7 aboard the Raspberry Pi 2 Model B, the \textit{ARM
+       Cortex-A Series: Programmer's Guide} \cite{ProgrammersGuide} was helpful
+       when developing for either machine.
+
        The ARM1176JZF-S processor implements the ARM11 ARMv6 architecture
-       \cite{TRM}, supporting both the ARM and Thumb instruction
-       sets\footnote{A subset of the most commonly-used 32-bit ARM instructions.
-       Each Thumb instruction is 16 bits long, and has a corresponding 32-bit ARM
+       \cite{TRM}, supporting both the ARM and Thumb instruction sets\footnote{A
+       subset of the most commonly-used 32-bit ARM instructions.  Each Thumb
+       instruction is 16 bits long, and has a corresponding 32-bit ARM
        instruction with an equivalent effect on the processor model. While not
        useful and out-of-scope for this project, the instruction sets can be
        easily switched between to enable the programmer to optimize both code
