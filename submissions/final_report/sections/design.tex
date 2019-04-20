@@ -92,6 +92,51 @@
     manager, Pacman \cite{Pacman}, and this is the version that has been used to
     develop the project.
 
+    \subsubsection{Technical Documentation}
+        With no prior experience working in assembly and, in particular, how to
+        use ARM assembly in conjunction with the C programming language, it was
+        necessary to become better acquainted with this environment, including
+        becoming familiar with the instructions available and the calling
+        conventions that must be followed (for example, returning the result of
+        an assembly procedure call in register 0). This information was gathered
+        by reading through both official and unofficial documentation on the ARM
+        environment in general and the specifics of working with the Pi. In
+        particular, the following were the main resources of technical
+        documentation used throughout the project:
+        \begin{itemize}
+            \itemsep0em 
+            \item \textit{ARM1176JZF-S Technical Reference Manual} \cite{TRM}
+            \item \textit{ARM Developer Suite Assembler Guide}
+                \cite{OnlineARMGuide}
+            \item \textit{ARM Cortex-A Series: Programmer's Guide}
+                \cite{ProgrammersGuide}
+            \item \textit{Broadcom BCM2835 ARM Peripherals Manual} \cite{BCM2835}
+        \end{itemize}
+
+        The technical reference manual provides important, in-depth
+        architectural information upon which the processor operates, and, for
+        example, details concepts such as the programmer's model or interaction
+        with the system control coprocessor and the memory management unit. The
+        online online guide at \cite{OnlineARMGuide} provides comprehensive
+        coverage of the instructions to use when using assembly to program on
+        the ARM CPU, and used in conjunction with the programmer's guide
+        provides an understanding of when and how to use certain instructions.
+        Although not written for the processor used by the Raspberry Pi 1,
+        instead written for the CPU used by the 2 and 3, the programmer's guide
+        provided further examples of various instructions' use-cases, and its
+        utility continued even when focus shifted from the Raspberry Pi 2 to the
+        Raspberry Pi 1.
+
+        On the Raspberry Pi are various peripherals, such as the Universal
+        Asynchronous Receiver/Transmitter (UART), system/ARM timers, or the
+        interrupt controller. Information regarding the layout of their
+        registers and the memory addresses from and to which to read and write
+        was obtained from the peripherals manual. Since the underlying
+        architecture behind the BCM2835 and BCM2836/7 is largely the same, the
+        manual was helpful both in development for the Raspberry 1 and 2,
+        with the BCM2836 \cite{BCM2836} providing some extra processor specifics
+        in the case of the latter.
+
     \subsubsection{System V ABI}
         Of particular use within this suite of tools is the cross-compiler for
         \code{arm-non-eabi}, which provides a toolchain to target the System V
@@ -118,25 +163,7 @@
         sections for compiler and linker toolchain comments and debugging
         information.
 
-    \subsubsection{Resources}
-       With no prior experience working in assembly and, in particular, how to
-       use ARM assembly in conjunction with the C programming language, it was
-       necessary to become better acquainted with this environment, including
-       becoming familiar with the instructions available and the calling
-       conventions to follow (for example, returning the result of an assembly
-       function in register 0). This information was gathered by reading through
-       both official and unofficial documentation on the ARM environment in
-       general and the specifics of working with the Pi. ARM provides important
-       architectural
-       documentation in the form of their \textit{ARM1176JZF-S Technical
-       Reference Manual} \cite{TRM}, and their online \textit{ARM Developer
-       Suite Assembler Guide} \cite{OnlineARMGuide} provides comprehensive
-       documentation on the instruction set as well as each instruction's use
-       case. While not written for the processor used by the Raspberry Pi 1, but
-       instead the Cortex-A7 aboard the Raspberry Pi 2 Model B, the \textit{ARM
-       Cortex-A Series: Programmer's Guide} \cite{ProgrammersGuide} was helpful
-       when developing for either machine.
-
+    \subsubsection{ARM environment}
        The ARM1176JZF-S processor implements the ARM11 ARMv6 architecture
        \cite{TRM}, supporting both the ARM and Thumb instruction sets\footnote{A
        subset of the most commonly-used 32-bit ARM instructions.  Each Thumb
@@ -166,13 +193,34 @@
        and current mode bits saved as a result of the exception which prompted
        the processor to enter the current mode.
 
-       Finally, the architecture asserts a full descending stack: full, meaning
+       The architecture asserts a full descending stack: full, meaning
        the stack pointer points to the topmost entry in the
        stack\footnote{Contrasted to empty, which points to the next free
        location, i.e. the address at which the next item will be stored};
        and descending, meaning the stack grows downwards, starting from a high
        memory address and progressing to lower addresses as items are pushed.
 
+       As a final note on correctly interacting with the ARM environment, any
+       procedure calls must preserve the contents of registers 4 to 11 and the
+       stack pointer. Further, subroutines calling other subroutines must save
+       the return address (found in the link register) to the stack before
+       calling that subroutine.
+
+    \subsubsection{Tools}
+        The following is a summary of the tools used to develop the project:
+
+        \begin{center}
+            \begin{tabular}{|l|l|}
+                \hline			
+                \textbf{Languages} & C, ARM assembly \\ \hline
+                \textbf{Cross-compiler toolchain} & GNU Embedded Toolchain
+                (\code{arm-none-eabi-*}) \\ \hline
+                \textbf{Build automation} & GNU Make \\ \hline
+                \textbf{Version control} & Git, hosted remotely on Github \\ \hline
+                \textbf{Emulation} & QEMU \\ \hline
+            \end{tabular}
+        \end{center}
+ 
 \subsection{System Overview}
 
 \subsection{Project management}
