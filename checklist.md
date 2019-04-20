@@ -3,11 +3,13 @@
 ### Write-up
 - [ ] Introduction
 - [ ] Background
-  - [ ] Motivation
-  - [ ] Relevant material
-  - [ ] Why useful
+  - [x] Motivation
+  - [x] Relevant material
+  - [x] Why useful
 - [ ] Design
-  - [ ] Hardware/architecture overview
+  - [x] Hardware/architecture overview
+    - [ ] Finish off useful concepts section
+    - [ ] Have section labeled sec:GPIO and sec:LinkerSection
   - [ ] Project Management
 - [ ] Implementation
     - [ ] Boot

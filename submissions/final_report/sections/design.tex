@@ -89,8 +89,8 @@
     order to compile the code for the target machine. Available on the ARM
     developer website is the GNU Embedded Toolchain \cite{GNUToolchain}.
     Conveniently this suite of tools is available from Arch Linux's package
-    manager, Pacman \cite{Pacman}, and this is the version that has been used to
-    develop the project.
+    manager, Pacman \cite{PacmanEABI}, and this is the version that has been
+    used to develop the project.
 
     \subsubsection{Technical Documentation}
         With no prior experience working in assembly and, in particular, how to
@@ -138,7 +138,7 @@
         in the case of the latter.
 
     \subsubsection{System V ABI}
-        Of particular use within this suite of tools is the cross-compiler for
+        Of particular use within GNU's suite of tools is the cross-compiler for
         \code{arm-non-eabi}, which provides a toolchain to target the System V
         ABI (Application Binary Interface). This is a set of specifications that
         detail the calling conventions, object and executable file formats,
@@ -149,6 +149,7 @@
         generated as a result of compiling and linking. Each ELF file is divided
         into sections, specifically:
         \begin{itemize}
+            \label{tab:LinkerSections}
             \itemsep0em
             \item \code{.text} - executable code
             \item \code{.data} - global variables which are uninitialised at
@@ -158,7 +159,7 @@
         \end{itemize}
 
         These are covered in more depth in the discussion of the linking process
-        in section \ref{Linking}. Additionally the SysV ABI defines the
+        in section \ref{sec:Linker}. Additionally the SysV ABI defines the
         \code{.comment}, \code{.note}, \code{.stab}, and \code{.stabstr}
         sections for compiler and linker toolchain comments and debugging
         information.
@@ -220,6 +221,42 @@
                 \textbf{Emulation} & QEMU \\ \hline
             \end{tabular}
         \end{center}
+
+        The project uses the C language both due to its familiarity as well as
+        its ease-of-setup on the embedded environment, however there are times
+        in such an environment, and especially for operating systems
+        development, that assembly is more suitable \cite{InappropriateC}, and
+        was thus opted for instead. As already discussed, the GNU Embedded
+        Toolchain has been used to target the ARM architecture for which the
+        project is built.
+
+        The GNU Embedded Toolchain consists of several utilities, all of which
+        are used at various stages in the project's development:
+        \code{arm-none-eabi-gcc} is responsible for compiling the C and ARM
+        assembly files into object files; \code{arm-none-eabi-ld} is
+        embedded-platform-independent linker, used to link multiple object files
+        into a single \code{.elf} file; \code{arm-none-eabi-objcopy} converts
+        the resultant \code{.elf} file into a binary (system executable, or
+        \code{.img}) file; \code{arm-none-eabi-objdump} provides helpful
+        debugging information about the final executable file (for example, used
+        as a disassembler it presents the kernel image in assembly form); and
+        \code{arm-none-eabi-gdb} provides the familiar interface of the GNU
+        debugger.
+
+        As the project increased in complexity, especially with the addition of
+        multiple source files, GNU's Make utility was used to automate the build
+        process. This involved becoming familiar with concepts regarding rules,
+        with GNU's online manual page \cite{MakeManual} and \cite{MakeVariables}
+        being of particular help.
+
+        Throughout its early stages, the project operated solely in an emulated
+        environment, simply as it provided quicker feedback with respect to
+        testing, which is already limited and tedious in such an environment.
+        For this prupose QEMU was consequently used. However, due to its lack of
+        simulation of a system timer, an important aspect when programming
+        interrupts and process scheduling, focus had to eventually be shifted
+        towards operating on real hardware, limiting QEMU's influence on the
+        project as a whole.
  
 \subsection{System Overview}
 
