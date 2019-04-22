@@ -209,8 +209,8 @@
 
     \subsubsection{Tools}
         The following is a summary of the tools used to develop the project:
-
-        \begin{center}
+        \begin{table}[h]
+            \centering
             \begin{tabular}{|l|l|}
                 \hline			
                 \textbf{Languages} & C, ARM assembly \\ \hline
@@ -220,7 +220,9 @@
                 \textbf{Version control} & Git, hosted remotely on Github \\ \hline
                 \textbf{Emulation} & QEMU \\ \hline
             \end{tabular}
-        \end{center}
+
+            \caption{Tools used by the project}
+        \end{table}
 
         The project uses the C language both due to its familiarity as well as
         its ease-of-setup on the embedded environment, however there are times
@@ -233,10 +235,10 @@
         The GNU Embedded Toolchain consists of several utilities, all of which
         are used at various stages in the project's development:
         \code{arm-none-eabi-gcc} is responsible for compiling the C and ARM
-        assembly files into object files; \code{arm-none-eabi-ld} is
-        embedded-platform-independent linker, used to link multiple object files
-        into a single \code{.elf} file; \code{arm-none-eabi-objcopy} converts
-        the resultant \code{.elf} file into a binary (system executable, or
+        assembly files into object files; \code{arm-none-eabi-ld} is an embedded
+        platform-independent linker, used to link multiple object files into a
+        single \code{.elf} file; \code{arm-none-eabi-objcopy} converts the
+        resultant \code{.elf} file into a binary (system executable, or
         \code{.img}) file; \code{arm-none-eabi-objdump} provides helpful
         debugging information about the final executable file (for example, used
         as a disassembler it presents the kernel image in assembly form); and
@@ -251,13 +253,56 @@
 
         Throughout its early stages, the project operated solely in an emulated
         environment, simply as it provided quicker feedback with respect to
-        testing, which is already limited and tedious in such an environment.
-        For this prupose QEMU was consequently used. However, due to its lack of
+        testing, which is already limited and slow in such an environment.
+        For this purpose QEMU was consequently used. However, due to its lack of
         simulation of a system timer, an important aspect when programming
         interrupts and process scheduling, focus had to eventually be shifted
         towards operating on real hardware, limiting QEMU's influence on the
         project as a whole.
  
 \subsection{System Overview}
+    The project presents an operating which is capable of booting on a Raspberry
+    Pi 1 Model B+ and running (with reduced functionality) on an environment
+    emulating the Raspberry Pi 2 Model B, and initialises a C runtime
+    environment. It provides a mechanism for memory management, first in the
+    form of determining the total memory available to the system, and then in
+    dividing this up into 4kiB pages. A 1MiB section of ``heap'' memory is also
+    set up, and an interface similar to the C standard library's \code{malloc()}
+    and \code{free()} is implemented to manage this.
+
+    Visual feedback is provided in the form of output to HDMI and, in the
+    virtual environment, output to serial via the UART peripheral.  The
+    mechanism for communication with the GPU required to do so is set up and
+    managed via the mailbox peripheral, and output via HDMI is achieved by
+    requesting and providing relevant data (dimensions, bits per pixel, etc.) to
+    the framebuffer. User interaction is so far only achieved in the virtual
+    environment, again doing so via UART, with real-world interaction via USB
+    proving to be a significant source of challenge throughout development.
+
+    The project sets up interrupts and exceptions by providing various exception
+    handlers. This is with the main aim of interacting with the system timer, a
+    peripheral capable of generating interrupts every set amount of time, for
+    use in process scheduling. It also provides a somewhat intuitive interface
+    for registering new ``types'' of interrupts (further covered in Section
+    \ref{sec:IRQs}). Processes are implemented and stored using the standard
+    job- and ready-queues, and a simple interface for creating new threads of
+    execution is provided.
+
+    With process scheduling being one of the main systems designed for ease of
+    understanding and extensibility, the project provides a simple interface for
+    using and programming custom process schedulers, with all code required
+    contained entirely in one file dedicated to such a task.  Taking into
+    account the added complexity brought on by concurrency, synchronisation is
+    achieved by implementing both spinlocks and mutual exclusion locks.
+    Finally, a simple and somewhat rudimentary form of inter-process
+    communication is provided, making use of the ``shared memory'' model. User
+    interaction via USB keyboard is attempted and provided as a compile-time
+    option, and makes use of a statically-linked library provided by Rene
+    Stange's project \textit{USPi} \cite{USPi}.
+
+    Future work will be concentrated on achieving user-interaction via USB
+    keyboard and using this to implement a shell/command interpreter. A final
+    important system to implement is filesystems and permanent storage, for
+    which interaction with the Embedded Mass Media Controller (EMMC).
 
 \subsection{Project management}
