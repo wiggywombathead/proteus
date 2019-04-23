@@ -128,14 +128,14 @@
         Raspberry Pi 1.
 
         On the Raspberry Pi are various peripherals, such as the Universal
-        Asynchronous Receiver/Transmitter (UART), system/ARM timers, or the
+        Asynchronous Receiver/Transmitter (UART), system and ARM timers, or the
         interrupt controller. Information regarding the layout of their
         registers and the memory addresses from and to which to read and write
         was obtained from the peripherals manual. Since the underlying
         architecture behind the BCM2835 and BCM2836/7 is largely the same, the
-        manual was helpful both in development for the Raspberry 1 and 2,
-        with the BCM2836 \cite{BCM2836} providing some extra processor specifics
-        in the case of the latter.
+        manual was helpful both in development for the Raspberry 1 and 2, with
+        the BCM2836 \cite{BCM2836} providing some extra processor specifics in
+        the case of the latter.
 
     \subsubsection{System V ABI}
         Of particular use within GNU's suite of tools is the cross-compiler for
@@ -149,7 +149,7 @@
         generated as a result of compiling and linking. Each ELF file is divided
         into sections, specifically:
         \begin{itemize}
-            \label{tab:LinkerSections}
+            \label{list:LinkerSections}
             \itemsep0em
             \item \code{.text} - executable code
             \item \code{.data} - global variables which are uninitialised at
@@ -171,8 +171,8 @@
        instruction is 16 bits long, and has a corresponding 32-bit ARM
        instruction with an equivalent effect on the processor model. While not
        useful and out-of-scope for this project, the instruction sets can be
-       easily switched between to enable the programmer to optimize both code
-       density and performance as they see fit.}. The processor contains 33
+       easily switched between to enable the programmer to optimize for either
+       performance or code density as they see fit.}. The processor contains 33
        general-purpose 32-bit registers and 7 dedicated 32-bit registers, 16 of
        which are accessible for general use at any one time in the ARM state.
        These are as follows:
@@ -197,7 +197,7 @@
        The architecture asserts a full descending stack: full, meaning
        the stack pointer points to the topmost entry in the
        stack\footnote{Contrasted to empty, which points to the next free
-       location, i.e. the address at which the next item will be stored};
+       location, i.e. the address at which the next item will be stored.};
        and descending, meaning the stack grows downwards, starting from a high
        memory address and progressing to lower addresses as items are pushed.
 
@@ -333,13 +333,40 @@
         these to write the dynamic memory allocator.
 
     \subsubsection{Organisation}
-        Since the project's start, the effective use of version control software
-        has been vital to its success. Since testing on real hardware is so
-        important to determining whether or not an embedded system truly works,
-        the ability to roll back to previous builds when features do not work
-        (and especially when their failure also interferes with other systems)
-        has been useful 
+        From the very start of the project, the effective use of version control
+        software has been vital to its success, and integrating it with Git and
+        hosting it remotely on Github occurred early on and has been a constant
+        consideration throughout. Since testing on real hardware is so important
+        to determining whether or not an embedded system truly works, the
+        ability to keep track of all previous builds has been useful.  In
+        particular, when features do not work, and especially if their failure
+        interferes with other systems, being able to revert to the previous
+        working version has helped not only in getting the project back to a
+        functional state, but also in investigating and understanding precisely
+        why certain attempts broke the build. Github also provides several
+        useful features to track the evolution of the codebase, from detailing
+        code frequency to monitoring branches. Figure \ref{fig:commits}
+        highlights Github's consistent aid throughout the project, in the form of weekly
+        commits over the span of the its development.
 
-    \subsubsection{Progress}
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=.8\textwidth]{commit_graph}
+            \caption{Weekly commits to the Github repository (source}
+            \label{fig:commits}
+        \end{figure}
+
+        Progress was initially considered in the project specification (see
+        Appendix B), for which a preliminary schedule was devised. After two
+        months of development, this was then revised in the progress report.  A
+        copy of this version is provided in Appendix \ref{app:timetable}, and an
+        evaluation of how effective and accurate these timetables were is
+        discussed in Section \ref{sec:evaluation}. In order to monitor progress,
+        regular meetings were held with the project supervisor, Adam Chester,
+        during which recent achievements and current issues were discussed, with
+        guidance given in the case of the latter.
+
+        %TODO
+
     \subsubsection{Testing}
     \subsubsection{Legal, Ethical, and Social Issues}

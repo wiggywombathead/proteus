@@ -1,15 +1,20 @@
 # proteus checklist
 ## Todo
 ### Write-up
-- [ ] Introduction
-- [ ] Background
+- [x] Introduction
+- [x] Background
   - [x] Motivation
   - [x] Relevant material
   - [x] Why useful
 - [ ] Design
   - [x] Hardware/architecture overview
-    - [ ] Finish off useful concepts section
-    - [ ] Have section labeled sec:GPIO and sec:LinkerSection
+    - [x] Finish off useful concepts section
+    - [ ] Sections
+      - [x] sec:LinkerSection
+      - [x] sec:evaluation
+      - [ ] sec:GPIO
+      - [ ] sec:IRQs
+      - [ ] app:timetable (revised)
   - [ ] Project Management
 - [ ] Implementation
     - [ ] Boot
