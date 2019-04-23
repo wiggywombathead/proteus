@@ -66,7 +66,7 @@
         enables SDRAM and loads \code{start.elf} for execution. This final stage
         allows the GPU to start up the CPU. An additional file,
         \code{fixup.dat}, is used to configure the shared SDRAM partition
-        between the two processors.  The GPU firmware reads the files
+        between the two processors. The GPU firmware reads the files
         \code{config.txt} and \code{cmdline.txt} to load the kernel image, then
         releases the CPU from reset and transfers control to it to begin
         executing the kernel. 
@@ -303,23 +303,43 @@
     Future work will be concentrated on achieving user-interaction via USB
     keyboard and using this to implement a shell/command interpreter. A final
     important system to implement is filesystems and permanent storage, for
-    which interaction with the Embedded Mass Media Controller (EMMC).
+    which an interface to the External Mass Media Controller (EMMC) must be
+    written, to enable interaction with the SD card.
 
 \subsection{Project management}
-    \subsubsection{Organisation and Planning}
+    \subsubsection{Development methodology}
         The project has been developed in a waterfall-style approach -- this has
         been well-suited to the rigidity of system dependencies, especially in
         early versions of the operating system. For example, it was necessary to
         write the boot code and set up the C environment before writing a
-        interrupt handlers before implementing process scheduling. Such core
-        concepts were therefore planned for in advance and focus only progressed
-        from them once they had been implemented successfully. An incremental
-        approach was used on top of this: with little flexibility in 
+        interrupt handlers before implementing process scheduling, and any
+        deviation from this order would have made little sense. This
+        inflexibility allowed for such core features to be planned and designed
+        in advance, and meant that focus only progressed to another feature once
+        they had been implemented successfully. Once these lower-level systems
+        were in place, the project opened up more, particularly after having
+        completed development of processes; from this point focus at any point
+        could be concentrated on features such as process scheduling,
+        inter-process communication, or user interaction. As such, development
+        became more agile, and the decision to pursue development on certain
+        features was taken by assessing their importance to the project's
+        success in relation to the other possible features. Throughout the
+        course of the project, goals have been set and achieved in an
+        incremental manner; this involved, once deciding upon the system to
+        implement, breaking it down into appropriate subtasks and completing
+        each in turn. An example of this has been the development of memory
+        management, first requiring the parsing of atags, followed by
+        creating and maintaining a list of page metadata, and finally using
+        these to write the dynamic memory allocator.
 
-        As the features
-        became more abstract and higher-level, the approach to software
-        development became slightly more agile, in that there were multiple
-        options of what to write next, 
+    \subsubsection{Organisation}
+        Since the project's start, the effective use of version control software
+        has been vital to its success. Since testing on real hardware is so
+        important to determining whether or not an embedded system truly works,
+        the ability to roll back to previous builds when features do not work
+        (and especially when their failure also interferes with other systems)
+        has been useful 
 
+    \subsubsection{Progress}
     \subsubsection{Testing}
     \subsubsection{Legal, Ethical, and Social Issues}

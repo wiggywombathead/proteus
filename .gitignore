@@ -30,3 +30,6 @@ figs
 # doxygen
 doc/html
 doc/latex
+
+# texcount
+texcount.pl
