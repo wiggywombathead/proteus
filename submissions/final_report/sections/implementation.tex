@@ -1,6 +1,11 @@
 \section{Implementation}
+    The following section largely documents the system as it was developed
+    chronologically, and is not representative of the order in which systems are
+    initialised in the final piece of software. This better highlights the
+    dependencies between each discrete stage in development and reinforces the
+    plan-driven approach to the project as a whole.
 
-\subsection{Booting}
+\subsection{System initialisation}
     There are two main files which handle the entirety of system startup, namely
     \code{linker.ld} and \code{boot.S}, the former responsible for defining the
     layout of the final executable we will be producing, and the latter handling
@@ -34,7 +39,7 @@
         variables arise (as is the case, for example, when placing the metadata
         for pages directly after the kernel image, see Section \ref{sec:pages}).
         We also use the directive \code{ALIGN} to define a page size for the
-        kernel image -- specifically, this sets the current address to the nexta
+        kernel image -- specifically, this sets the current address to the next
         available address that is divisible by the page size we set, 4096 bytes.
 
     \subsubsection{Initialising the C runtime}
@@ -63,10 +68,15 @@ _start:
     bne halt
         \end{lstlisting}
 
-        The `mrc` and `mcr` instructions allows for interaction with the
-        system control processor. The purpose of this is to control and provide
-        status information for the functions implemented on the ARM1176JZF-S
-        processor \cite[p.~3-2]{TRM}. Among others, these functions include:
+        The `mrc` and `mcr` instructions allows for interaction with the system
+        control processor, and denote ``move data from coprocessor to ARM
+        register'' and ``move data from ARM register to coprocessor''
+        respectively. The purpose of this is to control and provide status
+        information for the functions implemented on the ARM1176JZF-S processor
+        \cite[p.~3-2]{TRM}, and exposes optional\footnote{ARM only provides
+        specifications for processors; it is down to hardware manufacturers to
+        implement their designs.} additional functionality that is not provided
+        by the core instruction set. Among others, these functions include:
         \begin{itemize}
             \itemsep0em
             \item System control and configuration
@@ -76,13 +86,68 @@ _start:
             \item System performance monitoring
         \end{itemize}
 
-        As it stands, the project only makes use of the first two.
+        As it stands, the project only makes use of the first two. The code
+        block itself reads the Multiprocessor Affinity Register \cite{MPIDR} for
+        the identifier of the current CPU it is testing, and if neither of the
+        two lower bits returned are 1, then the core is sent to halt
+        indefinitely in a low-power state.
 
+        With just a single core to develop for, the next step is to set up the
+        stack pointer at address \code{0x8000}. The program counter for the
+        kernel starts at address \code{0x8000} and grows upwards, and, since the
+        stack grows downwards, it is safe to place it at this address without it
+        interfering with the kernel. Next the start and end of the Basic Service
+        Set (BSS) is loaded into registers -- recall that this is where
+        statically allocated global variables are stored. Since the C standard
+        requires uninitialised global variables to be zeroed, we must zero out
+        (that is, store the value 0) in the registers between the addresses of
+        \code{\_\_bss\_start} and \code{\_\_bss\_end}.
+
+        The final responsibility of \code{boot.S} is to transfer control to our
+        kernel entry point, \code{kernel\_main}, by loading the address of this
+        symbol into the program counter. Overall, this small portion of the
+        codebase initialises a minimum C environment, meaning the stack is
+        initialised and the BSS segment zeroed before we pass control to our
+        custom kernel. Note that the use of registers 0, 1, and 2 is avoided as
+        the bootloader uses these to pass system parameters and hardware
+        information to the main function\footnote{Namely, the device from which
+        the system was booted, the ARM Linux Machine Type (\code{0xc42} for the
+        Pi), and the address of the atags, containing more important information
+        such as available memory.} at runtime.
 
 \subsection{Organising memory}
     \subsubsection{Atags}
+        One important piece of data passed by the bootloader to the main kernel
+        function is the address of the ``atags'' -- this is a list of tags which
+        describe various system parameters such as total system memory, the
+        initial ramdisk, and command-line parameters to pass, and is passed
+        through address \code{0x100} on the Raspberry Pi 1. Throughout the
+        execution of the operating system, computations will require memory and
+        since the project functions entirely in kernel-space, any and all memory
+        is available to use. To impose some structure on the memory and manage
+        it effectively, however, we organise it into 4kiB pages, allowing for
+        equal-sized blocks of memory, which are neither insignificantly nor
+        prohibitively large, to be allocated and tracked. Therefore, most
+        important piece of information among the atags is the total system
+        memory, which the project uses in its implementation of a dynamic memory
+        allocator.
+
+        In order to parse this list of tags, we need the kernel to understand
+        the layout of the data it is being passed. In particular, each tag
+        consists of two values: an unsigned 32-bit integer denoting the length
+        of the tag (in 32-bit words), and the tag itself, details of which are
+        found at \cite{atags}. This provides information concerning the memory
+        tag itself, namely that it contains two unsigned 32-bit integers
+        describing memory size and start address, in this order. Therefore, we
+        define the C structure \code{atag\_mem} to easily access these two
+        fields once we come across the memory tag. Thus, to determine the total
+        memory available we iterate over the atags list until we find the memory
+        tag, cast this to our \code{atag\_mem} structure, and return the field
+        denoting the size of system memory.
+
     \subsubsection{Pages}
         \label{sec:pages}
+
     \subsubsection{Dynamic memory allocator}
 
 \subsection{Interacting with the GPU}
