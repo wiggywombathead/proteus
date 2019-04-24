@@ -9,6 +9,7 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{pgfgantt}
+\usepackage{hyperref}
 \usepackage{pdfpages}
 \usepackage[title]{appendix}
 
@@ -56,7 +57,7 @@
 % No section numbering
 % \setcounter{secnumdepth}{0}
 
-\providecommand{\keywords}[1]{\textbf{\textit{Index terms --}} #1}
+\providecommand{\keywords}[1]{\textbf{\textit{Keywords --}} #1}
 \newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
@@ -89,7 +90,8 @@
 % abstract
 \input{sections/abstract}
 
-\keywords{Operating systems, kernel, Raspberry Pi}
+\keywords{operating systems, kernel, Raspberry Pi, process scheduling,
+inter-process communication}
 
 \tableofcontents
 
@@ -123,7 +125,10 @@
 
 \begin{appendices}
 
-    \section{Appendix A: source code}
+    \section{Source code}
+    \section{Timetable}
+        \label{app:timetable}
+
     %\includecode{\KSRC/atag.c}
     %\includecode{\KSRC/gpio.c}
     %\includecode{\KSRC/gpu.c}
@@ -143,6 +148,8 @@
     %\lstinputlisting[language=C]{\HOME/src/kernel/kernel.c}
 %
 %    \pagenumbering{gobble}
+
+
 %
 %    % Revised Timetable
 %    \includepdf[landscape=true,pages=1,pagecommand={\section{Revised Timetable}}]{timetable/timetable.pdf}

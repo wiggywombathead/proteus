@@ -1,37 +1,45 @@
 # proteus checklist
 ## Todo
 ### Write-up
-- [x] Introduction
+- [ ] Abstract
+- [x] Motivation
+  - [x] Introduction
 - [x] Background
-  - [x] Motivation
   - [x] Relevant material
-  - [x] Why useful
+  - [x] Why worthwhile
+  - [x] Useful concepts
 - [ ] Design
-  - [x] Hardware/architecture overview
-    - [x] Finish off useful concepts section
-    - [ ] Sections
-      - [x] sec:LinkerSection
-      - [x] sec:evaluation
-      - [ ] sec:GPIO
-      - [ ] sec:IRQs
-      - [ ] app:timetable (revised)
-  - [ ] Project Management
+  - [x] Hardware/architecture
+  - [x] Development Environment
+  - [x] System Overview
+  - [x] Project Management
 - [ ] Implementation
-    - [ ] Boot
-    - [ ] Memory management
-    - [ ] Framebuffer
+    - [x] Booting
+    - [ ] Organising Memory
+    - [ ] Interacting with the GPU
+    - [ ] Interrupts and Exceptions
+    - [ ] System Timer
     - [ ] Processes
+    - [ ] Scheduling
+    - [ ] Interacting with the Memory Management Unit
     - [ ] Synchronisation
-    - [ ] Keyboard
+    - [ ] Inter-process Communication
+    - [ ] User interaction
 - [ ] Testing
-- [ ] Results
-- [ ] Conclusions
-  - [ ] Evaluation
+- [ ] Evaluation
+  - [ ] Achievements/Results
+  - [ ] Limitations
   - [ ] Further work
 
+Sections to add:
+- [x] sec:LinkerSection
+- [x] sec:evaluation
+- [ ] sec:GPIO
+- [ ] sec:IRQs
+- [ ] app:timetable (revised)
 ### Functional
 - [x] Enable MMU
-  - [ ] Not working for `0x00100000`???
+  - [x] Not working for `0x00100000`???
 - [ ] Get `try_lock()` (i.e. mutexes) working with `ldrex/strex`
 - [ ] Processes
   - [x] Round Robin
@@ -41,6 +49,8 @@
   - [ ] Option to create thread with arguments
 - [ ] Filesystem
 - [ ] IPC
+  - [x] Shared memory done to an extent
+  - [ ] Message Passing
 - [x] Interrupts
   - [x] Finish `vector_table.S`
   - [x] Write up notes

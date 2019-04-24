@@ -1,8 +1,46 @@
 \section{Implementation}
 \subsection{Booting}
+    There are two main files which handle the entirety of system startup, namely
+    \code{linker.ld} and \code{boot.S}, the former responsible for defining the
+    layout of the final executable we will be producing, and the latter handling
+    the setup of the C runtime environment and passing control to the main
+    kernel function.
+
     \subsubsection{Linker Script}
         \label{sec:Linker}
+        In order to create a kernel, or any program for that matter, we must
+        link all compiled object files into a single executable. For user-space
+        programs, that is, programs written to run in an established operating
+        system, there are default scripts provided by the compiler which do
+        this. Since the operating system on which we will run the kernel does
+        not yet exist, we must create a linker script ourselves.
+
+        We begin by declaring that the symbol \code{\_start} is the entry point
+        for our entire program (this is usually \code{main} for user-space
+        programs), meaning execution will jump to this address when the system
+        starts. We first declare the symbols \code{\_\_start} and
+        \code{\_\_text\_start} at address \code{0x8000}, which informs the
+        bootloader where to place our kernel image. Addresses up to
+        \code{0x8000} will be reserved for the stack. After this we must declare
+        one by one each of the major sections which will be used in the ELF
+        file, the first of which is the \code{.text} section, containing
+        executable code.  The code from \code{boot.S} is placed in the
+        \code{.text.boot} section, and we use the \code{KEEP} directive to
+        inform the linker not to optimise the code in that section -- we want it
+        running exactly what is written there. We declare the sections
+        \code{.rodata}, \code{.data}, and \code{.bss} similarly, each time
+        declaring global symbols for them should the need to use them as
+        variables arise (as is the case, for example, when placing the metadata
+        for pages directly after the kernel image, see Section \ref{sec:pages}).
+
+    \subsubsection{Initialising the C runtime}
+
 \subsection{Organising memory}
+    \subsubsection{Atags}
+    \subsubsection{Pages}
+        \label{sec:pages}
+    \subsubsection{Dynamic memory allocator}
+
 \subsection{Interacting with the GPU}
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}

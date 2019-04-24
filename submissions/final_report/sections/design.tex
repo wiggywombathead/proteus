@@ -81,7 +81,7 @@
         system timer and audio -- in this way it is therefore more akin to a
         regular PC's BIOS.
 
-\subsection{Development environment}
+\subsection{Resources \& Environment}
     The project was developed on various x86 machines running the Linux kernel
     version 4.16 onwards. Since the target environment, the Raspberry Pi 1 Model
     B+, runs on an ARM CPU, the target architecture is therefore different to
@@ -219,6 +219,7 @@
                 \textbf{Build automation} & GNU Make \\ \hline
                 \textbf{Version control} & Git, hosted remotely on Github \\ \hline
                 \textbf{Emulation} & QEMU \\ \hline
+                \textbf{Documentation} & Doxygen \\ \hline
             \end{tabular}
 
             \caption{Tools used by the project}
@@ -266,9 +267,10 @@
     emulating the Raspberry Pi 2 Model B, and initialises a C runtime
     environment. It provides a mechanism for memory management, first in the
     form of determining the total memory available to the system, and then in
-    dividing this up into 4kiB pages. A 1MiB section of ``heap'' memory is also
-    set up, and an interface similar to the C standard library's \code{malloc()}
-    and \code{free()} is implemented to manage this.
+    dividing this up into 4kiB pages. A dynamic memory allocator is set up in
+    the form of a 1MiB portion of ``heap'' memory, and provides an interface
+    similar to the C standard library's \code{malloc()} and \code{free()} in
+    order to manage this.
 
     Visual feedback is provided in the form of output to HDMI and, in the
     virtual environment, output to serial via the UART peripheral.  The
@@ -294,11 +296,30 @@
     contained entirely in one file dedicated to such a task.  Taking into
     account the added complexity brought on by concurrency, synchronisation is
     achieved by implementing both spinlocks and mutual exclusion locks.
-    Finally, a simple and somewhat rudimentary form of inter-process
-    communication is provided, making use of the ``shared memory'' model. User
-    interaction via USB keyboard is attempted and provided as a compile-time
-    option, and makes use of a statically-linked library provided by Rene
-    Stange's project \textit{USPi} \cite{USPi}.
+    
+    A simple and somewhat rudimentary form of inter-process communication is
+    provided, making use of the ``shared memory'' model. User interaction via
+    USB keyboard is attempted and provided as a compile-time option, and makes
+    use of a statically-linked library provided by Rene Stange's project
+    \textit{USPi} \cite{USPi}. While not an initial requirement, the system
+    provides the ability to enable the Memory Management Unit, allowing the
+    programmer to define their own mapping from virtual to physical memory and
+    control which memory is bufferable and cacheable.
+
+    The project also provides a means of configuring various options at
+    compile-time through sending directives via the Makefile, resulting in a
+    clean and simple interface to change between various systems. At present,
+    the system may be configured for running on the Raspberry Pi 1 or 2, using
+    Round-Robin or First Come First Served Scheduling, and which form of
+    inter-process communication to use (for which only shared memory is
+    currently provided). While there is not much choice currently, this system
+    is relatively simple and easy to extend as more features are developed.
+
+    Finally, since the ability to demystify the codebase of an operating system
+    is an important aspect of the project, it has been designed to be compatible
+    with Doxygen \cite{Doxygen} in order to generate documentation for the
+    project in a simple collection of HTML files. It provides similar
+    functionality to Oracle's Javadoc \cite{Javadoc}.
 
     Future work will be concentrated on achieving user-interaction via USB
     keyboard and using this to implement a shell/command interpreter. A final
@@ -352,21 +373,66 @@
         \begin{figure}[h]
             \centering
             \includegraphics[width=.8\textwidth]{commit_graph}
-            \caption{Weekly commits to the Github repository (source}
+            \caption{Weekly commits to the Github repository (source:
+            repository's ``Insights'' page)}
             \label{fig:commits}
         \end{figure}
 
-        Progress was initially considered in the project specification (see
-        Appendix B), for which a preliminary schedule was devised. After two
-        months of development, this was then revised in the progress report.  A
-        copy of this version is provided in Appendix \ref{app:timetable}, and an
-        evaluation of how effective and accurate these timetables were is
-        discussed in Section \ref{sec:evaluation}. In order to monitor progress,
-        regular meetings were held with the project supervisor, Adam Chester,
-        during which recent achievements and current issues were discussed, with
-        guidance given in the case of the latter.
+        Progress was initially considered in the project specification, for
+        which a preliminary schedule was devised. After two months of
+        development, this was then revised in the progress report.  A copy of
+        this version is provided in Appendix \ref{app:timetable}, and an
+        evaluation of how effective and accurate these timetabling estimates
+        were is discussed in Section \ref{sec:evaluation}. In order to monitor
+        progress, regular meetings were held with the project supervisor, Adam
+        Chester, during which recent achievements and current issues were
+        discussed, with guidance given in the case of the latter. These also
+        aided in consolidating things learned and exact milestones passed, when
+        otherwise it might be easy to lose track -- not vital, but helpful in
+        tracking the project's progression. During Term 1, these meetings were
+        held fortnightly as work on the project was less of a focus in the light
+        of the higher course load regarding other modules. The frequency of
+        meetings increased to weekly the following term as more time became
+        available and more challenging and abstract aspects of the project
+        presented themselves.
 
-        %TODO
+    \subsubsection{Testing \& Debugging}
+        The project was tested throughout development, and with particular
+        frequency once able to boot on real hardware. This means that, once a
+        subtask had been completed, the entire system was compiled and loaded
+        onto hardware, with specific unit tests written each time to ensure the
+        feature's correct operation. Also important was integration testing, so
+        as to ensure a working implementation of one feature did not compromise
+        the correct functioning of another. This was the case when enabling the
+        MMU, having worked in isolation from other components, but interfering
+        with the return addresses of other important functions when used in the
+        wrong place or memory addresses in-use and to which it should not have
+        had access -- this only became clear as a result of integration testing.
 
-    \subsubsection{Testing}
+        There is little infrastructure to debug low-level software of this type,
+        so much had to be done manually. Specifically, this involved inspecting
+        the \code{.map} and \code{.list} files and using the Linux command-line
+        utility \code{nm} \cite{nm} to display information about the generated
+        executable files. Furthermore, prior to successfully sending output to a
+        real screen via HDMI, there was no way to gather textual information
+        about the system during execution. The only other useful way to provide
+        debugging information during execution was interacting with the two
+        programmable LEDs on the Pi, namely the ACT and PWR LEDs, for example
+        causing them to blink at different points and in different patterns.
+        Soon after successfully displaying to HDMI, it was important to develop
+        a working version of \code{printf} to display debugging information in a
+        flexible manner.
+
     \subsubsection{Legal, Ethical, and Social Issues}
+        All software being used to develop is available under the GNU General
+        Public License, which grants permission for commercial and private use,
+        as well as modification and distribution. Most software used as a study
+        resource is similarly available under the GNU General Public License,
+        while several are available under the MIT license, the main difference
+        being software distributed under the former must be made open-source,
+        while that is not true of the latter. Throughout the project's
+        development, informal feedback has been sought from friends and
+        colleagues, particularly for non-functional aspects of the software,
+        such as usability and overall polish. Due to the informal nature of the
+        feedback, however, ethical, social, and legal considerations need not
+        apply.
