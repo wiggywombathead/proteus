@@ -1,4 +1,5 @@
 \section{Implementation}
+
 \subsection{Booting}
     There are two main files which handle the entirety of system startup, namely
     \code{linker.ld} and \code{boot.S}, the former responsible for defining the
@@ -32,8 +33,51 @@
         declaring global symbols for them should the need to use them as
         variables arise (as is the case, for example, when placing the metadata
         for pages directly after the kernel image, see Section \ref{sec:pages}).
+        We also use the directive \code{ALIGN} to define a page size for the
+        kernel image -- specifically, this sets the current address to the nexta
+        available address that is divisible by the page size we set, 4096 bytes.
 
     \subsubsection{Initialising the C runtime}
+        With our kernel image sections defined, we can actually write the code
+        that will boot into our kernel, contained in the file \code{boot.S}. We
+        begin by declaring that this is to be placed in the \code{.text.boot}
+        section (as used by the bootloader) and we make our start symbol visible
+        from any file using the \code{.global} directive -- this is required for
+        the linker to see which location to jump to at system startup.
+
+        The project was initially written for the Raspberry Pi 2, containing the
+        quad-core Cortex-A7 CPU. However, since multicore programming entails
+        extra difficulty even in a familiar user-space environment, it was
+        always designed to only use one of these cores. The following code
+        remains included in the project, wrapped in a test to determine which
+        processor we have compiled for, and sends three of the four cores to
+        hang. We will discuss it now to introduce the idea of the ARM
+        coprocessor:
+
+        \lstset{style=asm}
+        \begin{lstlisting}
+_start:
+    mrc p15, #0, r1, c0, c0, #5
+    and r1, r1, #3
+    cmp r1, #0
+    bne halt
+        \end{lstlisting}
+
+        The `mrc` and `mcr` instructions allows for interaction with the
+        system control processor. The purpose of this is to control and provide
+        status information for the functions implemented on the ARM1176JZF-S
+        processor \cite[p.~3-2]{TRM}. Among others, these functions include:
+        \begin{itemize}
+            \itemsep0em
+            \item System control and configuration
+            \item MMU control and configuration
+            \item Cache control and configuration
+            \item Direct Memory Access (DMA) control
+            \item System performance monitoring
+        \end{itemize}
+
+        As it stands, the project only makes use of the first two.
+
 
 \subsection{Organising memory}
     \subsubsection{Atags}
