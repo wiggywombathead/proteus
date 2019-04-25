@@ -160,17 +160,34 @@ _start:
 
         To allocate a page, we need of knowledge of which ones are free to do
         so, for which we create a linked list of all such pages. Then all that
-        is needed is to return a pointer to its location in memory, modify the
-        appropriate flags in the page array, and remove it from our free pages
-        list.
+        is needed is to return a pointer to its location in memory and zero it
+        (for security), modify the appropriate flags in the page array, and
+        remove it from our free pages list. When a page's use is no longer
+        required, it makes sense to make it available for future allocations,
+        for example when a process has finished executing (see Section
+        \ref{sec:cleanup}). Thus, to free a page we use its physical address to
+        index into the array containing all pages, set the \code{allocated} to
+        0, and add it back to the list of free pages.
 
     \subsubsection{Dynamic memory allocator}
-
+        To allocate of memory dynamically and less restrictively than entire
+        pages at a time, we reserve a 1MiB portion of memory directly after the
+        page metadata for heap memory, which is used to allocate segments of
+        memory instead, with a similar interface to the C standard library's
+        \code{malloc} and \code{free}. This choice of 1MiB is fairly arbitrary,
+        but is not too restrictive for most uses of dynamic memory and does not
+        use too large a portion of memory that will eventually be used by
+        user-space.
+        
 \subsection{Interacting with the GPU}
 
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}
 \subsection{Processes}
+    \subsubsection{Handler}
+    \subsubsection{Cleanup}
+        \label{sec:cleanup}
+    \subsubsection{Initialising Processes}
 \subsection{Scheduling}
 \subsection{Interacting with the Memory Management Unit}
 \subsection{Synchronisation}
