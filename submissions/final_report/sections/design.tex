@@ -88,7 +88,7 @@
     that of the development machines. Therefore, a cross-compiler is required in
     order to compile the code for the target machine. Available on the ARM
     developer website is the GNU Embedded Toolchain \cite{GNUToolchain}.
-    Conveniently this suite of tools is available from Arch Linux's package
+    Conveniently, this suite of tools is available from Arch Linux's package
     manager, Pacman \cite{PacmanEABI}, and this is the version that has been
     used to develop the project.
 
@@ -117,15 +117,14 @@
         architectural information upon which the processor operates, and, for
         example, details concepts such as the programmer's model or interaction
         with the system control coprocessor and the memory management unit. The
-        online online guide at \cite{OnlineARMGuide} provides comprehensive
-        coverage of the instructions to use when using assembly to program on
-        the ARM CPU, and used in conjunction with the programmer's guide
-        provides an understanding of when and how to use certain instructions.
-        Although not written for the processor used by the Raspberry Pi 1,
-        instead written for the CPU used by the 2 and 3, the programmer's guide
-        provided further examples of various instructions' use-cases, and its
-        utility continued even when focus shifted from the Raspberry Pi 2 to the
-        Raspberry Pi 1.
+        online guide at \cite{OnlineARMGuide} provides comprehensive coverage of
+        the instructions to use when using assembly to program on the ARM CPU,
+        and used in conjunction with the programmer's guide provides an
+        understanding of when and how to use certain instructions.  Although not
+        written for the processor used by the Raspberry Pi 1, instead written
+        for the CPU used by the 2 and 3, the programmer's guide provided further
+        examples of various instructions' use-cases, and its utility continued
+        even when focus shifted from the Raspberry Pi 2 to the Raspberry Pi 1.
 
         On the Raspberry Pi are various peripherals, such as the Universal
         Asynchronous Receiver/Transmitter (UART), system and ARM timers, or the
@@ -274,10 +273,10 @@
 
     Visual feedback is provided in the form of output to HDMI and, in the
     virtual environment, output to serial via the UART peripheral.  The
-    mechanism for communication with the GPU required to do so is set up and
-    managed via the mailbox peripheral, and output via HDMI is achieved by
-    requesting and providing relevant data (dimensions, bits per pixel, etc.) to
-    the framebuffer. User interaction is so far only achieved in the virtual
+    mechanism for communication with the GPU is set up and managed using the
+    mailbox peripheral, and output via HDMI is achieved by requesting and
+    providing relevant data (dimensions, bits per pixel, etc.) to the
+    framebuffer. User interaction is so far only achieved in the virtual
     environment, again doing so via UART, with real-world interaction via USB
     proving to be a significant source of challenge throughout development.
 
@@ -355,8 +354,8 @@
 
     \subsubsection{Organisation}
         From the very start of the project, the effective use of version control
-        software has been vital to its success, and integrating it with Git and
-        hosting it remotely on Github occurred early on and has been a constant
+        software has been vital to its success. Integrating with Git and hosting
+        it remotely on Github occurred early on and has been a constant
         consideration throughout. Since testing on real hardware is so important
         to determining whether or not an embedded system truly works, the
         ability to keep track of all previous builds has been useful.  In
@@ -367,8 +366,8 @@
         why certain attempts broke the build. Github also provides several
         useful features to track the evolution of the codebase, from detailing
         code frequency to monitoring branches. Figure \ref{fig:commits}
-        highlights Github's consistent aid throughout the project, in the form of weekly
-        commits over the span of the its development.
+        highlights Github's consistent aid throughout the project, in the form
+        of weekly commits over the span of the its development.
 
         \begin{figure}[h]
             \centering
@@ -386,8 +385,8 @@
         were is discussed in Section \ref{sec:evaluation}. In order to monitor
         progress, regular meetings were held with the project supervisor, Adam
         Chester, during which recent achievements and current issues were
-        discussed, with guidance given in the case of the latter. These also
-        aided in consolidating things learned and exact milestones passed, when
+        discussed, with guidance given in the case of the latter. These further
+        aided in consolidating lessons learned and milestones passed, when
         otherwise it might be easy to lose track -- not vital, but helpful in
         tracking the project's progression. During Term 1, these meetings were
         held fortnightly as work on the project was less of a focus in the light
@@ -428,11 +427,11 @@
         Public License, which grants permission for commercial and private use,
         as well as modification and distribution. Most software used as a study
         resource is similarly available under the GNU General Public License,
-        while several are available under the MIT license, the main difference
-        being software distributed under the former must be made open-source,
-        while that is not true of the latter. Throughout the project's
-        development, informal feedback has been sought from friends and
-        colleagues, particularly for non-functional aspects of the software,
+        while several others are available under the MIT license, the main
+        difference being software distributed under the former must be made
+        open-source, while this is not true of the latter. Throughout the
+        project's development, informal feedback has been sought from friends
+        and colleagues, particularly for non-functional aspects of the software,
         such as usability and overall polish. Due to the informal nature of the
         feedback, however, ethical, social, and legal considerations need not
         apply.

@@ -37,6 +37,7 @@ Sections to add:
 - [x] sec:evaluation
 - [ ] sec:GPIO
 - [ ] sec:IRQs
+- [ ] sec:directives
 - [ ] app:timetable (revised)
 ### Functional
 - [x] Enable MMU

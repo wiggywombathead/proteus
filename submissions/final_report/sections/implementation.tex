@@ -112,8 +112,8 @@ _start:
         the bootloader uses these to pass system parameters and hardware
         information to the main function\footnote{Namely, the device from which
         the system was booted, the ARM Linux Machine Type (\code{0xc42} for the
-        Pi), and the address of the atags, containing more important information
-        such as available memory.} at runtime.
+        Pi), and the address of the atags, which contain more important
+        information such as available memory.} at runtime.
 
 \subsection{Organising memory}
     \subsubsection{Atags}
@@ -127,7 +127,7 @@ _start:
         is available to use. To impose some structure on the memory and manage
         it effectively, however, we organise it into 4kiB pages, allowing for
         equal-sized blocks of memory, which are neither insignificantly nor
-        prohibitively large, to be allocated and tracked. Therefore, most
+        prohibitively large, to be allocated and tracked. Therefore, the most
         important piece of information among the atags is the total system
         memory, which the project uses in its implementation of a dynamic memory
         allocator.
@@ -142,8 +142,8 @@ _start:
         define the C structure \code{atag\_mem} to easily access these two
         fields once we come across the memory tag. Thus, to determine the total
         memory available we iterate over the atags list until we find the memory
-        tag, cast this to our \code{atag\_mem} structure, and return the field
-        denoting the size of system memory.
+        tag, cast this to our \code{atag\_mem} structure, and consequently
+        return the field denoting the size of system memory.
 
     \subsubsection{Pages}
         \label{sec:pages}
@@ -170,10 +170,10 @@ _start:
         0, and add it back to the list of free pages.
 
     \subsubsection{Dynamic memory allocator}
-        To allocate of memory dynamically and less restrictively than entire
-        pages at a time, we reserve a 1MiB portion of memory directly after the
-        page metadata for heap memory, which is used to allocate segments of
-        memory instead, with a similar interface to the C standard library's
+        To allocate memory dynamically, and less restrictively than entire pages
+        at a time, we reserve a 1MiB portion of memory directly after the page
+        metadata for heap memory, which is used to allocate segments of memory
+        instead, with a similar interface to the C standard library's
         \code{malloc} and \code{free}. This choice of 1MiB is fairly arbitrary,
         but is not too restrictive for most uses of dynamic memory and does not
         use too large a portion of memory that will eventually be used by
@@ -213,14 +213,134 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         1MiB in size. Although the total heap size remains the same, it will
         become split into increasingly many segments, all forming a linked list,
         as allocation requests are satisfied.
-    
-    \subsection{Interacting with the GPU}
-        While QEMU was been a powerful tool to allow for quick development and
-        testing of core low-level features, as discussed its lack of simulation
-        of a system timer required that the project eventually be moved to real
-        hardware to tackle processes and interrupts. Since interacting via a
-        display, as opposed to a blinking pair of LEDs, is the most natural way
-        to get visual feedback from a computer, the decision was then taken to 
+
+\subsection{Serial Output}
+    \label{sec:GPIO}
+    An operating system would be useless without an efficient means of
+    interacting with it during execution, so the next task to present itself was
+    that of interfacing with the Universal Asynchronous Receiver/Transmitter, a
+    peripheral on the Pi, which is capable of serial\footnote{One bit at a time}
+    communication. While output would evolve to be via HDMI, it was simpler to
+    initialise this when working within QEMU, and also prompted for an intuitive
+    interface for GPIO to be written, which would again become useful when
+    debugging with HDMI output.
+
+    \subsubsection{Peripherals}
+        As mentioned, a peripheral is a device with a specific address from and
+        to which it may read and write data, and all interactions with
+        peripherals make use of Memory Mapped I/O (MMIO) to do so on the
+        Raspberry Pi -- the process of performing I/O by reading from and
+        writing to predefined memory address. Moreover, each peripheral may be
+        described by an offset from the Raspberry Pi's Peripheral Base Address.
+        This varies for different models of the Pi, but on the Raspberry Pi 1
+        Model B+, this is located at address \code{0x20000000}, and the physical
+        address for peripherals span from this base address up to
+        \code{0x20ffffff}. The peripheral itself contains a collection of
+        registers which may be read and written, and these are defined at
+        offsets from that specific peripheral's base address (see Table
+        \ref{tab:UART} for clarification).
+
+        \begin{table}
+            \centering
+            \begin{tabular}{|c|l|c|}
+                \hline
+                \textbf{Offset} & \textbf{Register} & \textbf{Size} \\
+                \hline
+                \code{0x00} & Data Register & 32 \\ \hline
+                \code{0x04} & RSRECR & 32 \\ \hline
+                \code{0x18} & Flag Register & 32 \\ \hline
+                \code{0x20} & Unused & 32 \\ \hline
+                \code{0x24} & Integer Baud Rate Divisor & 32 \\ \hline
+                \code{0x28} & Fractional Baud Rate Divisor & 32 \\ \hline
+                \code{0x2c} & Line Control Register & 32 \\ \hline
+                \code{0x30} & Control Register & 32 \\ \hline
+                \code{0x34} & Interrupt FIFO Level Select Register & 32 \\ \hline
+                \code{0x38} & Interrupt Mask Set Clear Register & 32 \\ \hline
+                \code{0x3c} & Raw Interrupt Status Register & 32 \\ \hline
+                \code{0x40} & Masked Interrupt Status Register & 32 \\ \hline
+                \code{0x44} & Interrupt Clear Register & 32 \\ \hline
+                \code{0x48} & DMA Control Register & 32 \\ \hline
+                \code{0x80} & Test Control Register & 32 \\ \hline
+                \code{0x84} & Integration Test Input Register & 32 \\ \hline
+                \code{0x88} & Integration Test Output Register & 32 \\ \hline
+                \code{0x8c} & Test Data Register & 32 \\ \hline
+            \end{tabular}
+
+            \caption{Each register is described by an offset from the UART base
+            address, \code{0x20201000}.}
+            \label{tab:UART}
+        \end{table}
+
+        There are several steps to initialise the UART for use on the Pi, and
+        involves setting various configuration flags. The following steps are
+        performed in order in \code{uart\_init()} in \code{gpio.c}:
+        \begin{enumerate}
+            \itemsep0em
+            \item disable all aspects of the UART
+            \item disable all GPIO pins
+            \item disable pins 14 and 15
+            \item clear all pending interrupts
+            \item set up the baud rate of the connection
+            \item enable FIFOs and set word length to 8 bits
+            \item disable all interrupts
+            \item enable the UART hardware, and the ability to transmit and
+                receive data
+        \end{enumerate}
+
+        To send a byte to the data register, we wait until the FIFO (the data
+        structure by which the UART sends and stores information) is not full
+        and write the byte to the data register. Receiving a byte is done by
+        waiting until the FIFO is non-empty and returns whatever is in the data
+        register. Thus we have serial input and output, and may use this to
+        implement \code{putc} and \code{getc} respectively. When running this
+        build on QEMU, passing the \code{-serial} flag enables the sending and
+        receiving of serial output via the host computer, thus we can specify
+        \code{stdin} to be able to send character input via the host system's
+        keyboard. This enables us complete interactivity with the kernel in the
+        emulated environment.
+
+\subsection{Interacting with the GPU}
+    While QEMU was a powerful tool to allow for quick development and
+    testing of core low-level features, as discussed its lack of simulation
+    of a system timer required that the project eventually be moved to real
+    hardware to tackle core features such as processes and interrupts.
+    Furthermore, the Pi comes without a dedicated serial port, therefore without
+    a TTL-to-USB adapter we are unable to use the UART to output to a real
+    screen. Instead, it is much more natural to use the onboard HDMI port to
+    output to a display, and for this we require communicating with the GPU.
+
+    Displaying anything to the screen via the HDMI requires the use of a
+    framebuffer; this is a piece of memory which is shared between the CPU and
+    GPU. The CPU writes RGB pixels to the buffer and the GPU reads from it to
+    render the pixels to whichever output device is connected. We must first
+    request a framebuffer from the GPU, and this interaction takes place over
+    the mailbox peripheral.
+
+    \subsubsection{Mailbox Peripheral}
+        The mailbox peripheral is a peripheral, just like the UART, which
+        facilitates communication between the CPU and GPU, more specifically the
+        VideoCore Operating System, and starts at offset \code{0xb880}
+        \cite{Mailboxes}. It contains a read register, located at offset
+        \code{0x0} from the base, which holds messages sent by the GPU; a status
+        register, located at offset \code{0x18}, which is used to signify
+        whether the read register is empty or full; and a write register,
+        located at offset \code{0x20}, which the CPU can use to send data to the
+        GPU. Since the mailbox peripheral can also be used to send and receive
+        information about multiple systems, such as power management, audio, and
+        the on-board camera, the peripheral requires communication through
+        certain channels. This is simply a number that specifies the meaning
+        behind the data being sent; for the framebuffer, we communicate via
+        channel 1.
+
+        Crucially, the process of communicating with the GPU via the mailbox
+        peripheral differs depending on the model of Raspberry Pi being used;
+        since the project was initially intended to run on the Pi 2 Model B, an
+        interface was written for this version, however since it is a much
+        simpler process on the Pi 1 Model B+, after some weeks debugging and
+        making little progress, the decision to switch the target platform was
+        switched at this point. Within the source code are both methods,
+        and both are guarded by macros (see Section \ref{sec:directives} on
+        Makefile directives) which will prevent compilation of the wrong one.
 
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}
