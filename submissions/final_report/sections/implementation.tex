@@ -60,7 +60,7 @@
         coprocessor:
 
         \lstset{style=asm}
-        \begin{lstlisting}
+        \begin{lstlisting}[caption={Code to halt three of the four cores},captionpos=b]
 _start:
     mrc p15, #0, r1, c0, c0, #5
     and r1, r1, #3
@@ -68,12 +68,12 @@ _start:
     bne halt
         \end{lstlisting}
 
-        The `mrc` and `mcr` instructions allows for interaction with the system
-        control processor, and denote ``move data from coprocessor to ARM
-        register'' and ``move data from ARM register to coprocessor''
+        The \code{mrc} and \code{mcr} instructions allows for interaction with
+        the system control processor, and denote ``move data from coprocessor to
+        ARM register'' and ``move data from ARM register to coprocessor''
         respectively. The purpose of this is to control and provide status
         information for the functions implemented on the ARM1176JZF-S processor
-        \cite[p.~3-2]{TRM}, and exposes optional\footnote{ARM only provides
+        \cite[pg.~3-2]{TRM}, and exposes optional\footnote{ARM only provides
         specifications for processors; it is down to hardware manufacturers to
         implement their designs.} additional functionality that is not provided
         by the core instruction set. Among others, these functions include:
@@ -179,13 +179,54 @@ _start:
         use too large a portion of memory that will eventually be used by
         user-space.
         
-\subsection{Interacting with the GPU}
+        Memory allocation is implemented by first defining for each allocation a
+        header containing the allocation size, in bytes, and whether it has been
+        allocated, and then using these headers to form a linked list. Thus, in
+        order to grant an allocation we must find a header that is at least the
+        requested number of bytes in size, and not currently in use. If the
+        best-fitting segment, that is, the segment with the smallest size that
+        satisfies the request, is relatively large compared to what was
+        requested, we split it so that we may use what is effectively ``left
+        over'' to satisfy some future request.
+
+        When freeing memory allocations, we mark the segment as unallocated by
+        modifying the bit in the allocation header and merge adjacent free
+        segments in the linked list into one, thus decreasing the likelihood of
+        internal fragmentation -- unused or unusable memory within the segment
+        \cite[pg.~363]{DinosaurOS}. Coalescing adjacent free segments to the
+        left is shown below; the process is identical for coalescing to the
+        right, except that it modifies the pointer to the \code{next} segment
+        header instead.
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Coalescing heap segments to the left},captionpos=b]
+/* merge segments to the left */
+while (seg->prev != NULL && !seg->prev->allocated) {
+    seg->prev->next = seg->next;
+    seg->prev->segment_size += seg->segment_size;
+    seg = seg->prev;
+}
+        \end{lstlisting}
+
+        When initialising the heap at system startup, we must first allocate the
+        appropriate number of pages and mark them as kernel heap pages, then
+        initialise the linked list of segments by declaring a single segment
+        1MiB in size. Although the total heap size remains the same, it will
+        become split into increasingly many segments, all forming a linked list,
+        as allocation requests are satisfied.
+    
+    \subsection{Interacting with the GPU}
+        While QEMU was been a powerful tool to allow for quick development and
+        testing of core low-level features, as discussed its lack of simulation
+        of a system timer required that the project eventually be moved to real
+        hardware to tackle processes and interrupts. Since interacting via a
+        display, as opposed to a blinking pair of LEDs, is the most natural way
+        to get visual feedback from a computer, the decision was then taken to 
 
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}
 \subsection{Processes}
-    \subsubsection{Handler}
-    \subsubsection{Cleanup}
+    \subsubsection{Handlers}
+    \subsubsection{Reapers}
         \label{sec:cleanup}
     \subsubsection{Initialising Processes}
 \subsection{Scheduling}
