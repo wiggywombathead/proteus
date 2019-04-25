@@ -11,7 +11,7 @@
 #define COLOR_DEPTH 24
 #define BYTES_PER_PIXEL 3
 
-struct framebuffer_info {
+struct framebuffer {
     uint32_t width;
     uint32_t height;
     uint32_t pitch;
@@ -23,7 +23,7 @@ struct framebuffer_info {
     uint32_t row;       // current row
 };
 
-struct framebuffer_info fb_info;
+struct framebuffer fb_info;
 int framebuffer_init(void);
 
 #endif

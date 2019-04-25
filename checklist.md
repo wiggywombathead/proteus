@@ -16,7 +16,7 @@
     - [ ] Make contribution graph the most recent from Github
 - [ ] Implementation
     - [x] Booting
-    - [ ] Organising Memory
+    - [x] Organising Memory
     - [ ] Interacting with the GPU
     - [ ] Interrupts and Exceptions
     - [ ] System Timer

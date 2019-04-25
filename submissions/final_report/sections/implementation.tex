@@ -342,6 +342,27 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         and both are guarded by macros (see Section \ref{sec:directives} on
         Makefile directives) which will prevent compilation of the wrong one.
 
+    \subsubsection{Initialising the framebuffer}
+        We therefore require two functions to initialise the framebuffer: one to
+        send the framebuffer request to the GPU, and one to read its response.
+        These are implemented as \code{mailbox\_send()} and
+        \code{mailbox\_read()} respectively. Both require as an argument the
+        channel number through which to communicate, and the former requires the
+        additional parameter of what to send. Since we are requesting a
+        framebuffer, we map one out in a C structure containing all the fields
+        necessary to fully describe this area of memory, such width, height, and
+        the maximum number of columns and rows (for text). Two more important
+        pieces of information we must set are the depth and the pitch of the
+        framebuffer. The framebuffer's depth is the number of bits in every
+        pixel; we are using 8 bits for each of the red, green, and blue
+        component, giving a total depth of 24. The pitch is the number of bytes
+        per row of the screen. We can then calculate the number of pixels per
+        row as $n = p * \frac{8}{d}$, where $p$ and $d$ are the values for pitch
+        and depth, respectively. To calculate memory address $a$ of a pixel located
+        at coordinate $(x,y)$ we have $a = p * y + (\frac{d}{8}) x$.
+
+    \subsubsection{Writing to the screen}
+
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}
 \subsection{Processes}

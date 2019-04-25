@@ -16,7 +16,7 @@ struct fb_init {
     uint32_t size;
 };
 
-struct fb_init fbinit ALIGNED(16); //__attribute__((aligned(16)));
+struct fb_init fbinit ALIGNED(16);
 
 int framebuffer_init(void) {
 
