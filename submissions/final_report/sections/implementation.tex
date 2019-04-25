@@ -147,10 +147,27 @@ _start:
 
     \subsubsection{Pages}
         \label{sec:pages}
+        The total number of pages is the total size of memory divided by the
+        page size, which we have set to 4kiB. In order to effectively manage
+        each page, we create a list containing metadata for each page: this
+        metadata includes, for example, the virtual address to which it maps,
+        along with bit-field flags detailing whether the page is allocated, if
+        it available for sharing, if it is a kernel page (for when user-space is
+        implemented), and whether it is a regular page or a page on the heap.
+        We use the global symbol \code{\_\_end}, declared in the linker script,
+        to place the page metadata list directly after the end of the kernel
+        image.
+
+        To allocate a page, we need of knowledge of which ones are free to do
+        so, for which we create a linked list of all such pages. Then all that
+        is needed is to return a pointer to its location in memory, modify the
+        appropriate flags in the page array, and remove it from our free pages
+        list.
 
     \subsubsection{Dynamic memory allocator}
 
 \subsection{Interacting with the GPU}
+
 \subsection{Interrupts and Exceptions}
 \subsection{System Timer}
 \subsection{Processes}

@@ -13,6 +13,7 @@
   - [x] Development Environment
   - [x] System Overview
   - [x] Project Management
+    - [ ] Make contribution graph the most recent from Github
 - [ ] Implementation
     - [x] Booting
     - [ ] Organising Memory
