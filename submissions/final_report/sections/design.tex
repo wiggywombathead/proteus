@@ -105,6 +105,7 @@
         documentation used throughout the project:
         \begin{itemize}
             \itemsep0em 
+            \item \textit{ARM Architectural Reference Manual} \cite{ARMARM}
             \item \textit{ARM1176JZF-S Technical Reference Manual} \cite{TRM}
             \item \textit{ARM Developer Suite Assembler Guide}
                 \cite{OnlineARMGuide}
@@ -113,18 +114,21 @@
             \item \textit{Broadcom BCM2835 ARM Peripherals Manual} \cite{BCM2835}
         \end{itemize}
 
-        The technical reference manual provides important, in-depth
-        architectural information upon which the processor operates, and, for
-        example, details concepts such as the programmer's model or interaction
-        with the system control coprocessor and the memory management unit. The
-        online guide at \cite{OnlineARMGuide} provides comprehensive coverage of
-        the instructions to use when using assembly to program on the ARM CPU,
-        and used in conjunction with the programmer's guide provides an
-        understanding of when and how to use certain instructions.  Although not
-        written for the processor used by the Raspberry Pi 1, instead written
-        for the CPU used by the 2 and 3, the programmer's guide provided further
-        examples of various instructions' use-cases, and its utility continued
-        even when focus shifted from the Raspberry Pi 2 to the Raspberry Pi 1.
+        The technical and architecture reference manuals provide in-depth
+        information for such concepts as the programmer's model or interaction
+        with different pieces of hardware on board the Pi. They also include
+        architectural information regarding the Pi's three standard coprocessor
+        extensions: the system control processor (coprocessor 15), the Vector
+        Floating-Point unit (coprocessors 10 and 11), and the debug architecture
+        interface (coprocessor 14).  The online guide at \cite{OnlineARMGuide}
+        provides comprehensive coverage of the instructions to use when using
+        assembly to program on the ARM CPU, and used in conjunction with the
+        programmer's guide provides an understanding of when and how to use
+        certain instructions.  Although not written for the processor used by
+        the Raspberry Pi 1, instead written for the CPU used by the 2 and 3, the
+        programmer's guide provided further examples of various instructions'
+        use-cases, and its utility continued even when focus shifted from the
+        Raspberry Pi 2 to the Raspberry Pi 1.
 
         On the Raspberry Pi are various peripherals, such as the Universal
         Asynchronous Receiver/Transmitter (UART), system and ARM timers, or the

@@ -362,8 +362,115 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         at coordinate $(x,y)$ we have $a = p * y + (\frac{d}{8}) x$.
 
     \subsubsection{Writing to the screen}
+        The field \code{buffer} in the \code{struct framebuffer} is the area of
+        memory to which we may write in order to display information on the
+        screen, and in particular contains writing to it directly modifies the
+        pixels displayed. Using the previous formula to determine the correct
+        memory address to write for a given pixel, we implement this
+        functionality as follows:
+
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Implementation of \code{write\_pixel}},captionpos=b]
+void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
+    uint8_t *loc = fb_info.buffer + y * fb_info.pitch + x * BYTES_PER_PIXEL;
+    memcpy(loc, color, BYTES_PER_PIXEL);
+}
+        \end{lstlisting}
+
+        This uses our own implementation of the C standard library's
+        \code{memcpy} along with another structure \code{struct pixel}, which is
+        simply three 8-bit unsigned integers describing the pixel's red, green,
+        and blue values. For illustration, when the framebuffer is initialised
+        we wish to clear the screen by writing black pixels to each location,
+        resulting in 307,200 calls to \code{write\_pixel()} for a $640\times480$
+        screen.
+
+        With the ability to write arbitrary pixels on the screen, we
+        may define a now define a font in order to write each individual pixel
+        constituting a character, printing a character to the screen. For this
+        purpose we use Daniel Hepper's $8\times8$ bitmap font \cite{DHepper},
+        which simply defines for each character the pixels which are filled and
+        unfilled. We also take inspiration from his rendering function, allowing
+        us to determine whether the $n^{th}$ pixel is filled by right-shifting
+        by $n$, using \code{write\_pixel()} in any case to modify the current
+        pixel accordingly.
+
+        In the function \code{gpu\_putc()}, we use this method to print only the
+        printable ASCII characters (characters whose code is between \code{0x21}
+        and \code{0x7e}). We also maintain two variables, \code{row} and
+        \code{col}, which allows us to print to the correct `character
+        coordinate', to avoid having characters overlap. Each time a character
+        is written, printable or not, we increment the \code{col} counter until
+        we reach the maximum width of the display, at which point we increment
+        the \code{row} counter and set \code{col} to zero. There are several
+        special cases:
+        \begin{itemize}
+            \itemsep0em
+            \item \verb|\t| - increments \code{col} by 4, inserting a tab
+            \item \verb|\n| - increments \code{row} and sets \code{col} to
+                0, inserting a new line
+            \item \verb|\b| - decrements \code{col}, moving the cursor back
+                one
+            \item \verb|0x7f| (\code{DEL}) - decrements \code{col}, prints a
+                blank character, and decrements \code{col} again, deleting
+                the previous character
+        \end{itemize}
 
 \subsection{Interrupts and Exceptions}
+    With the ability of visual feedback, the process of debugging becomes much
+    simpler meaning more complex and abstract functionality may be developed.
+    With this in mind, the next important feature implemented is interrupts and
+    exceptions.
+
+    \subsubsection{Exception Vector Table}
+        In the Raspberry Pi, when an exception occurs, a specific address is
+        loaded into the program counter and execution branches to this point.
+        Therefore, branch instructions need to be written at these locations in
+        order for the kernel to branch to the correct exception-handling
+        routine. This set of addresses is known as the Exception Vector Table,
+        and begins at address \code{0x0}. The layout of the table is as follows
+        \cite[pg.~A2-16]{ARMARM}:
+        \begin{savenotes}
+            \begin{table}[h]
+                \centering
+                \begin{tabular}{|c|l|l|}
+                    \hline
+                    \textbf{Address} & \textbf{Exception type} & \textbf{Meaning} \\
+                    \hline
+                    \code{0x00} & Reset & Hardware reset \\ \hline
+                    \code{0x04} & Undefined & Executing a garbage instruction \\
+                    \hline
+                    \code{0x08} & Software Interrupt & Software wants to execute a
+                    privileged instruction \\ \hline
+                    \code{0x0c} & Prefetch Abort & Bad memory access of instruction
+                    \\ \hline
+                    \code{0x10} & Data Abort & Bad memory access of data \\ \hline
+                    \code{0x14} & Reserved & -- \\ \hline
+                    \code{0x18} & Interrupt Request (IRQ) & Hardware signal sent to
+                    the CPU \\ \hline
+                    \code{0x1c} & Fast Interrupt Request (FIQ) & Hardware signal
+                    that must be dealt with quickly\footnote{An FIQ takes priority
+                    over an IRQ, and only one FIQ source at a time is supported,
+                    which reduces latency as the source of the interrupt need
+                    not be determined. Furthermore, as an FIQ has its own set of
+                    banked registers a state save is not required, reducing the
+                    context switch overhead \cite{OnlineARMGuide}.} \\ \hline
+                \end{tabular}
+                \caption{The Exception Vector Table}
+            \end{table}
+        \end{savenotes}
+
+    \subsubsection{Interrupt Requests}
+        \label{sec:IRQs}
+        An IRQ is a notification to the CPU that something has occurred within
+        the hardware that it needs to be aware of, for example, a keypress,
+        mouse movement, or receiving data from a modem or network card. In order
+        to determine which hardware devices can trigger interrupts, and which
+        may have triggered one, we make use of the IRQ peripheral, located at
+        offset \code{0xb000} from the Peripheral Base Address.
+
+    \subsubsection{Initialising Interrupts}
+
 \subsection{System Timer}
 \subsection{Processes}
     \subsubsection{Handlers}
