@@ -351,15 +351,37 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         additional parameter of what to send. Since we are requesting a
         framebuffer, we map one out in a C structure containing all the fields
         necessary to fully describe this area of memory, such width, height, and
-        the maximum number of columns and rows (for text). Two more important
-        pieces of information we must set are the depth and the pitch of the
-        framebuffer. The framebuffer's depth is the number of bits in every
-        pixel; we are using 8 bits for each of the red, green, and blue
-        component, giving a total depth of 24. The pitch is the number of bytes
-        per row of the screen. We can then calculate the number of pixels per
-        row as $n = p * \frac{8}{d}$, where $p$ and $d$ are the values for pitch
-        and depth, respectively. To calculate memory address $a$ of a pixel located
-        at coordinate $(x,y)$ we have $a = p * y + (\frac{d}{8}) x$.
+        the maximum number of columns and rows (for text). Listing
+        \ref{lst:framebuffer} shows the entire structure used to describe the
+        framebuffer in the operating system. Two important pieces of information
+        we must set are the depth and the pitch of the framebuffer. The
+        framebuffer's depth is the number of bits in every pixel; we are using 8
+        bits for each of the red, green, and blue component, giving a total
+        depth of 24. The pitch is the number of bytes per row of the screen. We
+        can then calculate the number of pixels per row as $n = p *
+        \frac{8}{d}$, where $p$ and $d$ are the values for pitch and depth,
+        respectively. To calculate memory address $a$ of a pixel located at
+        coordinate $(x,y)$ we have $a = p * y + (\frac{d}{8}) x$. To initialise
+        the framebuffer, we make define the values we wish to set in a temporary
+        structure representing the request, send this request to the GPU through
+        the mailbox via the framebuffer channel, and, if successful, write these
+        values to the framebuffer.
+
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Structure representing the
+        framebuffer},captionpos=b,label={lst:framebuffer}]
+struct framebuffer {
+    uint32_t width;
+    uint32_t height;
+    uint32_t pitch;
+    void    *buffer;
+    uint32_t bufsize;
+    uint32_t max_col;
+    uint32_t max_row;
+    uint32_t col;
+    uint32_t row;
+};
+        \end{lstlisting}
 
     \subsubsection{Writing to the screen}
         The field \code{buffer} in the \code{struct framebuffer} is the area of
@@ -424,12 +446,12 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
 
     \subsubsection{Exception Vector Table}
         In the Raspberry Pi, when an exception occurs, a specific address is
-        loaded into the program counter and execution branches to this point.
-        Therefore, branch instructions need to be written at these locations in
-        order for the kernel to branch to the correct exception-handling
-        routine. This set of addresses is known as the Exception Vector Table,
-        and begins at address \code{0x0}. The layout of the table is as follows
-        \cite[pg.~A2-16]{ARMARM}:
+        loaded into the program counter and execution branches to this point in
+        the code.  Therefore, special handlers need to be written at these
+        locations in order for the kernel to branch to the correct
+        exception-handling routine. This set of addresses is known as the
+        Exception Vector Table, and begins at address \code{0x0}. The layout of
+        the table is as follows \cite[pg.~A2-16]{ARMARM}:
         \begin{savenotes}
             \begin{table}[h]
                 \centering
@@ -440,7 +462,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
                     \code{0x00} & Reset & Hardware reset \\ \hline
                     \code{0x04} & Undefined & Executing a garbage instruction \\
                     \hline
-                    \code{0x08} & Software Interrupt & Software wants to execute a
+                    \code{0x08} & Software Interrupt (SWI) & Software wants to execute a
                     privileged instruction \\ \hline
                     \code{0x0c} & Prefetch Abort & Bad memory access of instruction
                     \\ \hline
@@ -460,14 +482,99 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
             \end{table}
         \end{savenotes}
 
+    \subsubsection{Function attributes}
+        Important to note is that exception handlers are not regular functions
+        -- certain things must be dealt with before and after a regular function
+        is executed which we may not assume is the case when using an exception
+        handling routine. GCC provides function attributes in order to specify
+        certain properties that may help the compiler to optimise certain calls
+        or perform additional checks for correctness. In particular, we may use
+        the ARM \code{interrupt} attribute to indicate that a function is an
+        interrupt handler, which the compiler uses to generate the suitable
+        function entry and exit sequences. Moreover, use of an optional
+        parameter can be used to specify the type of interrupt, and can be one
+        of \code{IRQ}, \code{FIQ}, \code{SWI}, \code{ABORT}, and \code{UNDEF}
+        \cite{ARM_FnAttribs}.  As an example, the reset handler has the
+        following function prototype:
+        
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Reset handler prototype},captionpos=b]
+void __attribute__((interrupt("ABORT"))) reset_handler(void);
+        \end{lstlisting}
+
+        Now, in order to set up the Exception Vector Table, we must ensure that
+        when an exception occurs, we load the absolute address of the handler.
+        This is done by copying the branch instruction from the \code{.text}
+        section to address \code{0x0} at runtime -- we require this extra step
+        (as opposed to simply loading the branch instruction into the program
+        counter) to ensure we load the Exception Vector Table at the absolute
+        address \code{0x0}, and that we do not load it relative to the program
+        counter's current position.
+
+        The code for dealing with an exception is found in
+        \code{vector\_table.S}. When an exception is raised, we save registers 4
+        to 9 by pushing them to the stack, as these are the ones that the
+        executing function will have been using (see Section \ref{sec:ARMenv}).
+        Next, we copy the 8 exception words from their starting location into
+        registers, then write the register values to address \code{0x0} -- this
+        copies each handler's absolute address to \code{0x0}, so that the
+        correct handling function may be branched to. After this, we pop
+        registers 4 to 9 and control returns to the function which raised the
+        exception.
+
     \subsubsection{Interrupt Requests}
         \label{sec:IRQs}
         An IRQ is a notification to the CPU that something has occurred within
         the hardware that it needs to be aware of, for example, a keypress,
         mouse movement, or receiving data from a modem or network card. In order
         to determine which hardware devices can trigger interrupts, and which
-        may have triggered one, we make use of the IRQ peripheral, located at
-        offset \code{0xb000} from the Peripheral Base Address.
+        may have triggered one, we make use of the Interrupt Controller
+        peripheral, located at offset \code{0xb000} from the Peripheral Base
+        Address. This peripheral contains three types of registers: pending,
+        which indicates whether a given interrupt has been triggered and used to
+        determine which device has triggered an IRQ exception; enable, which can
+        enable certain interrupts to be triggered; and disable, which can
+        disable the triggering of certain interrupts. Since the Interrupt
+        Controller is a peripheral is a peripheral just like any other, it
+        contains registers which may be communicated with via MMIO. These
+        detail, for example, whether an IRQ is pending and control if the IRQ is
+        enabled or disabled for a given interrupting device, and are given in
+        the Technical Reference Manual \cite[pg.~112]{TRM}.
+
+        Overall, the Pi has 72 different IRQs, most of which are shared by the
+        ARM CPU and the VideoCore GPU (IRQ 0-63), while some are specific to the
+        CPU (IRQ 64-71). In order to use the Interrupt Controller, we must know
+        the mapping between IRQs and devices; such a mapping is given below
+        \cite{ARM_IRQs}:
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{|l|l|}
+                \hline
+                \textbf{IRQ number} & \textbf{Device} \\ \hline
+                0 & System Timer Compare Register 0 \\ \hline
+                1 & System Timer Compare Register 1 \\ \hline
+                2 & System Timer Compare Register 2 \\ \hline
+                3 & System Timer Compare Register 3 \\ \hline
+                9 & USB Controller \\ \hline
+                55 & PCM Audio \\ \hline
+                62 & SD Host Controller \\ \hline
+            \end{tabular}
+            \caption{IRQs on the BCM2835}
+        \end{table}
+
+    \subsubsection{Handling an IRQ}
+        For each IRQ we wish to handle, we must write a specific handling
+        routine. This is done by declaring the routine's type, along with a
+        static array to hold each handler. The documentation also states
+        \cite[pg.~109]{TRM} that, for each interrupt source, there is an enable
+        bit, which is read/write, and a pending bit, which is read-only. Thus,
+        it may not be cleared using the Interrupt Controller, but instead using
+        the hardware device which initially triggered the interrupt. We
+        therefore define the function type \code{interrupt\_clearer} which, for
+        a given device, modifies the device's registers in order to deal with
+        the clearing the interrupt. For example, with the System Timer, we set
+        the \code{matched1} register to 1 (see Section \ref{sec:SysTimer}, and
+        do not touch the Interrupt Controller pending bit itself.
 
     \subsubsection{Initialising Interrupts}
 

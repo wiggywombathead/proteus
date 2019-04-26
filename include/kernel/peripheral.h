@@ -7,6 +7,8 @@
 #ifndef _PERIPHERAL_H
 #define _PERIPHERAL_H
 
+#define SDRAM_START 0x00000000
+
 #ifdef RPIBPLUS
 #define PERIPHERAL_BASE 0x20000000
 #else
@@ -21,5 +23,7 @@
 #define MAILBOX_OFFSET      0xb880
 #define GPIO_OFFSET         0x200000
 #define UART_OFFSET         0x201000
+#define EMMC_OFFSET         0x300000
+#define USB_OFFSET          0x980000
 
 #endif

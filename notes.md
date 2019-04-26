@@ -686,7 +686,7 @@ triggered the interrupt. Therefore, we define the fnuction type
 We then register an IRQ handler by inspecting its IRQ number, and setting the
 appropriate data.
 
-To check which IRQs have been triggered and execute the handler, we chack the
+To check which IRQs have been triggered and execute the handler, we check the
 enabled bits of the IRQ peripheral and execute the correct handler accordingly.
 We iterate over all pending interrupts, and if there exists a corresponding
 handler, the clearer is called. Interrupts are then enabled to allow for nesting
