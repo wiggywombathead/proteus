@@ -37,9 +37,14 @@ enum {
 };
 
 enum irq_no {
-    SYS_TIMER = 1,
+    GPU_TIMER1     = 0,
+    SYS_TIMER1     = 1,
+    GPU_TIMER2     = 2,
+    SYS_TIMER2     = 3,
     USB_CONTROLLER = 9,
-    ARM_TIMER = 64
+    PCM_AUDIO      = 55,
+    SD_CONTROLLER  = 62,
+    ARM_TIMER      = 64
 };
 
 struct interrupt_register {
@@ -61,11 +66,11 @@ typedef void (*interrupt_clearer)(void);
 void interrupts_init(void);
 void register_irq_handler(enum irq_no, interrupt_handler, interrupt_clearer);
 
-__inline__ int INTERRUPTS_ENABLED(void) {
-    int res;
-    __asm__ __volatile__("mrs %[res], cpsr": [res] "=r" (res)::);
-    return ((res >> 7) & 1) == 0;
-}
+int INTERRUPTS_ENABLED(void);
+
+extern int interrupts_enabled(void);
+extern void enable_interrupts(void);
+extern void disable_interrupts(void);
 
 __inline__ void ENABLE_INTERRUPTS(void) {
     if (!INTERRUPTS_ENABLED()) {

@@ -20,7 +20,8 @@ mutex_t mutex;
 
 void flash(void) {
     uint32_t hertz = 5;
-    while (1) {
+    int i = 0;
+    while (i++ < 10) {
         act_on();
         uwait(500000 / hertz);
         act_off();
@@ -55,7 +56,7 @@ void fib(void) {
 
 void print1(void) {
     mutex_lock(&mutex);
-    for (int i = 0; i < get_console_width(); i++) {
+    for (unsigned i = 0; i < get_console_width(); i++) {
         putc('*');
         uwait(1000000 / get_console_width());
     }
@@ -64,7 +65,7 @@ void print1(void) {
 
 void print2(void) {
     mutex_lock(&mutex);
-    for (int i = 0; i < get_console_width(); i++) {
+    for (unsigned i = 0; i < get_console_width(); i++) {
         putc('o');
         uwait(1000000 / get_console_width());
     }
@@ -102,6 +103,13 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
             get_console_height()
         );
 
+    /* GPIO */
+    puts("Initialising GPIO");
+    uart_init();
+    printf("\tUART initialised\n");
+    act_init();
+    printf("\tACT enabled\n");
+
     /* INTERRUPTS */
     puts("Initialising interrupts");
     interrupts_init();
@@ -136,13 +144,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     puts("Initialising system timer");
     timer_init();
 
-    /* GPIO */
-    puts("Initialising GPIO");
-    uart_init();
-    printf("\tUART initialised\n");
-    act_init();
-    printf("\tACT enabled\n");
-
     /* PROCESSES */
     puts("Initialising processes");
     proc_init();
@@ -165,18 +166,20 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
         );
     uwait(3000000);
 
-    uint32_t addr = shm_open() +1;
-    struct data d = {1,2,"hello"};
-    shm_write(addr, &d, sizeof(struct data));
+    // uint32_t addr = shm_open() +1;
+    // struct data d = {1,2,"hello"};
+    // shm_write(addr, &d, sizeof(struct data));
 
-    struct data *r = (struct data *) shm_read(addr);
-    printf("Read: {%d, %d, %s}\n", r->v1, r->v2, r->s);
+    // struct data *r = (struct data *) shm_read(addr);
+    // printf("Read: {%d, %d, %s}\n", r->v1, r->v2, r->s);
 
     // hexstring(mmio_read(0x00300000));
     // hexstring(mmio_read(0x00400000));
     // hexstring(mmio_read(0x00500000));
 
     // mutex_init(&mutex);
+
+    create_kthread(flash, "flash");
 
     // create_kthread(print1, "p1");
     // create_kthread(print2, "p2");
@@ -186,7 +189,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     // create_kthread(consumer, "cons");
 
     while (1) {
-
     }
     
     puts("\nGoodbye!");

@@ -564,19 +564,40 @@ void __attribute__((interrupt("ABORT"))) reset_handler(void);
 
     \subsubsection{Handling an IRQ}
         For each IRQ we wish to handle, we must write a specific handling
-        routine. This is done by declaring the routine's type, along with a
-        static array to hold each handler. The documentation also states
-        \cite[pg.~109]{TRM} that, for each interrupt source, there is an enable
-        bit, which is read/write, and a pending bit, which is read-only. Thus,
-        it may not be cleared using the Interrupt Controller, but instead using
-        the hardware device which initially triggered the interrupt. We
-        therefore define the function type \code{interrupt\_clearer} which, for
-        a given device, modifies the device's registers in order to deal with
-        the clearing the interrupt. For example, with the System Timer, we set
-        the \code{matched1} register to 1 (see Section \ref{sec:SysTimer}, and
-        do not touch the Interrupt Controller pending bit itself.
+        routine, for which we define the type \code{interrupt\_handler}. We then
+        declare a static array to hold each handler. The reference manual also
+        states \cite[pg.~109]{TRM} that each interrupt-triggering source has a
+        read/write enable bit, specifying whether interrupts are enabled for
+        this device, and a read-only pending bit, to tell us if the device has
+        actually triggered an interrupt. Thus, the pending bit may not be
+        cleared using the Interrupt Controller to overwrite the bit -- instead
+        this it must be cleared using the hardware device which initially
+        triggered the interrupt. We therefore define the function type
+        \code{interrupt\_clearer} which, for a given device IRQ, modifies the
+        device's registers in order to deal with the clearing the interrupt. For
+        example, with the System Timer, we set the \code{matched1} register to 1
+        (see Section \ref{sec:SysTimer}), and do not touch the Interrupt
+        Controller pending bit itself. We then register the handler by making
+        note of its IRQ number and set the function callbacks for its handler
+        and clearer functions, using the function:
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Registering an IRQ}, captionpos=b]
+void register_irq_handler(
+        enum irq_no num,
+        interrupt_handler handler,
+        interrupt_clearer clearer
+    );
+        \end{lstlisting}
+
+        Each time an interrupt is triggered, we iterate over each of the 72
+        possible interrupts and use the Interrupt Controller to check the
+        bit specifying whether this IRQ has been triggered (i.e. the IRQ is
+        pending). If this is the case, we call the \code{clearer()} function to
+        signal that we have acknowledged the pending interrupt, and then execute
+        its \code{handler()} function.
 
     \subsubsection{Initialising Interrupts}
+        
 
 \subsection{System Timer}
 \subsection{Processes}

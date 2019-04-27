@@ -135,7 +135,7 @@ clean:
 $(vb).SILENT:
 
 run: build
-	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(IMG).elf
+	qemu-system-arm -m 512 -M raspi2 -serial stdio -kernel $(ELF)
 
 #######################
 # PERHAPS GET WORKING #

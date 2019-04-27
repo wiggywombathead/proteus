@@ -163,7 +163,7 @@ void mutex_lock(mutex_t *mutex) {
 
         /* perform context switch */
         switch_context(old_thread, new_thread);
-        ENABLE_INTERRUPTS();
+        enable_interrupts();
     }
 
     mutex->locker = current_process;

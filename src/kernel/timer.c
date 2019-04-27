@@ -1,7 +1,7 @@
 #include <kernel/timer.h>
 #include <kernel/interrupt.h>
 #include <kernel/sched.h>
-
+#include <kernel/attrib.h>
 #include <common/stdio.h>
 
 static struct sys_timer *systimer;
@@ -28,7 +28,7 @@ static void timer_irq_clearer(void) {
  */
 void timer_init(void) {
     systimer = (struct sys_timer *) SYSTIMER_BASE;
-    register_irq_handler(SYS_TIMER, timer_irq_handler, timer_irq_clearer);
+    register_irq_handler(SYS_TIMER1, timer_irq_handler, timer_irq_clearer);
 }
 
 /**
@@ -44,7 +44,7 @@ void timer_set(uint32_t usecs) {
  * Do nothing for some number of microseconds
  * @param usecs Microseconds for which to do nothing
  */
-void __attribute__((optimize(0))) uwait(uint32_t usecs) {
+void OPTIMIZE(0) uwait(uint32_t usecs) {
     volatile uint32_t curr = systimer->counter_low;
     volatile uint32_t t = systimer->counter_low - curr;
     while (t < usecs) {

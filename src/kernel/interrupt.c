@@ -28,7 +28,7 @@ void interrupts_init(void) {
 
     // copy exception vector table to address 0
     move_exception_vector();
-    ENABLE_INTERRUPTS();
+    enable_interrupts();
 }
 
 /**
@@ -39,9 +39,9 @@ void irq_handler(void) {
     for (int i = 0; i < NUM_IRQS; i++) {
         if (IRQ_IS_PENDING(interrupt_regs, i) && (handlers[i] != 0)) {
             clearers[i]();
-            ENABLE_INTERRUPTS();
+            enable_interrupts();
             handlers[i]();
-            DISABLE_INTERRUPTS();
+            disable_interrupts();
             
             return;
         }
@@ -77,6 +77,12 @@ void register_irq_handler(enum irq_no num, interrupt_handler handler, interrupt_
         printf("Error registering IRQ handler: invalid number (%d)\n", num);
     }
 
+}
+
+int INTERRUPTS_ENABLED(void) {
+    int res;
+    __asm__ __volatile__("mrs %[res], cpsr": [res] "=r" (res)::);
+    return ((res >> 7) & 1) == 0;
 }
 
 /**

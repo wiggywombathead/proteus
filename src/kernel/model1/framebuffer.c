@@ -1,7 +1,7 @@
 #include <kernel/framebuffer.h>
+#include <kernel/attrib.h>
 #include <kernel/mailbox.h>
 #include <kernel/gpu.h>
-#include <kernel/util.h>
 
 struct fb_init {
     uint32_t width;
