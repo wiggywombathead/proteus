@@ -536,19 +536,44 @@ void __attribute__((interrupt("ABORT"))) reset_handler(void);
         enable certain interrupts to be triggered; and disable, which can
         disable the triggering of certain interrupts. Since the Interrupt
         Controller is a peripheral is a peripheral just like any other, it
-        contains registers which may be communicated with via MMIO. These
-        detail, for example, whether an IRQ is pending and control if the IRQ is
-        enabled or disabled for a given interrupting device, and are given in
-        the Technical Reference Manual \cite[pg.~112]{TRM}.
+        contains registers which may be communicated with via MMIO, given in
+        Table \ref{tab:IRQ_regs}. These detail, for example, whether an IRQ is
+        pending and control if the IRQ is enabled or disabled for a given
+        interrupting device \cite[pg.~112]{BCM2835}. The reason for the multiple
+        registers which would seemingly do the same thing is that the Broadcom
+        chip can generate two types of interrupt: those coming from the GPU
+        peripherals, and those coming from local ARM peripherals. These
+        ``duplicate'' registers simply allow for these different sources to be
+        handled accordingly.
+
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{|c|l|}
+                \hline
+                \textbf{Offset} & \textbf{Register} \\ \hline
+                \code{0x200} & IRQ basic pending \\ \hline
+                \code{0x204} & IRQ pending 1 \\ \hline
+                \code{0x208} & IRQ pending 2 \\ \hline
+                \code{0x20c} & FIQ control \\ \hline
+                \code{0x210} & Enable IRQs 1 \\ \hline
+                \code{0x214} & Enable IRQs 2 \\ \hline
+                \code{0x218} & Enable basic IRQs \\ \hline
+                \code{0x21c} & Disable IRQs 1 \\ \hline
+                \code{0x220} & Disable IRQs 2 \\ \hline
+                \code{0x224} & Disable basic IRQs \\ \hline
+            \end{tabular}
+            \caption{Registers on the Interrupt Controller peripheral}
+            \label{tab:IRQ_regs}
+        \end{table}
 
         Overall, the Pi has 72 different IRQs, most of which are shared by the
         ARM CPU and the VideoCore GPU (IRQ 0-63), while some are specific to the
         CPU (IRQ 64-71). In order to use the Interrupt Controller, we must know
-        the mapping between IRQs and devices; such a mapping is given below
-        \cite{ARM_IRQs}:
+        the mapping between IRQs and devices; such a mapping is given in Table
+        \ref{tab:IRQ_nos} \cite{ARM_IRQs}.
         \begin{table}[h]
             \centering
-            \begin{tabular}{|l|l|}
+            \begin{tabular}{|c|l|}
                 \hline
                 \textbf{IRQ number} & \textbf{Device} \\ \hline
                 0 & System Timer Compare Register 0 \\ \hline
@@ -560,14 +585,16 @@ void __attribute__((interrupt("ABORT"))) reset_handler(void);
                 62 & SD Host Controller \\ \hline
             \end{tabular}
             \caption{IRQs on the BCM2835}
+            \label{tab:IRQ_nos}
         \end{table}
 
     \subsubsection{Handling an IRQ}
+        \label{sec:IRQ_clearing}
         For each IRQ we wish to handle, we must write a specific handling
         routine, for which we define the type \code{interrupt\_handler}. We then
         declare a static array to hold each handler. The reference manual also
-        states \cite[pg.~109]{TRM} that each interrupt-triggering source has a
-        read/write enable bit, specifying whether interrupts are enabled for
+        states \cite[pg.~109]{BCM2835} that each interrupt-triggering source has
+        a read/write enable bit, specifying whether interrupts are enabled for
         this device, and a read-only pending bit, to tell us if the device has
         actually triggered an interrupt. Thus, the pending bit may not be
         cleared using the Interrupt Controller to overwrite the bit -- instead
@@ -597,16 +624,152 @@ void register_irq_handler(
         its \code{handler()} function.
 
     \subsubsection{Initialising Interrupts}
-        
+        We begin by zeroing the entirety of the interrupt handler and interrupt
+        clearer functions, and write \code{0xffffffff} to set all bits in each
+        disable register in the Interrupt Controller. We then perform the
+        copying of the Exception Vector to address, thus completing
+        initialisation.
+
+        It is important to be able to enable and disable interrupts entirely,
+        for example to avoid being interrupted before we have dealt with another
+        IRQ. This is done using the \code{cps}, or Change Program State,
+        instruction. We wish to change the bit associated with IRQs, denoted by
+        \code{i} or bit 7 in the CPSR \cite[pg.~2-11]{TRM}, meaning to enable
+        interrupts we may simply call:
+
+        \lstset{style=asm}
+        \begin{lstlisting}[caption={Enabling and disabling
+        interrupts},captionpos=b]
+cpsie i
+        \end{lstlisting}
+
+        Disabling interrupts is achieved by replacing the suffix \code{ie}
+        (Interrupts Enable) with \code{id} (Interrupts Disable). Note that we
+        may simply query the state of interrupts by checking bit 7 of the CPSR.
+        This is done by storing the CPSR into a register using \code{mrs},
+        followed by an arithmetic shift right by 7 places to access the seventh
+        bit, and performing a logical AND to determine its value. If it is
+        clear, then interrupts are enabled:
+
+        \lstset{style=asm}
+        \begin{lstlisting}[caption={Checking the status of
+        interrupts},captionpos=b]
+mrs r0, cpsr
+asr r0, r0, #7
+and r0, r0, #1
+        \end{lstlisting}
 
 \subsection{System Timer}
+    With the ability to generate and deal with interrupts sent to the CPU, we
+    now focus on implementing the system timer, a peripheral which can keep time
+    and send interrupts after a set amount of time. This is located at offset
+    \code{0x3000} from the Peripheral Base Address, and contains only the
+    following seven registers \cite[pg.~172]{BCM2835}:
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{|c|l|}
+            \hline
+            \textbf{Offset} & \textbf{Register} \\ \hline
+            \code{0x00} & Control/Status \\ \hline
+            \code{0x04} & Counter (lower 32 bits) \\ \hline
+            \code{0x08} & Counter (upper 32 bits) \\ \hline
+            \code{0x0c} & Compare Register 0 \\ \hline
+            \code{0x10} & Compare Register 1 \\ \hline
+            \code{0x14} & Compare Register 2 \\ \hline
+            \code{0x18} & Compare Register 3 \\ \hline
+        \end{tabular}
+        \caption{Registers on the System Timer peripheral}
+        \label{tab:SysTimer}
+    \end{table}
+
+    The timer operates by incrementing a 64-bit counter, made up of two separate
+    32-bit registers, every microsecond. It starts as soon as the system boots,
+    and runs constantly in the background as long as the Pi is switched on.
+    There are four registers with which the system timer will compare the lower
+    32 bits of the counter each tick, and each is capable of triggering an IRQ
+    -- if any of these registers match the counter, an IRQ is generated from
+    the register that matched. As shown in Table \ref{tab:IRQ_nos}, the IRQ
+    numbers for these registers are 0-3; 0 and 2 are used by the GPU and must
+    not be touched, leaving registers 1 and 4 available to use.
+
+    The Control/Status Register contains flags in its least-significant four
+    bits which indicate whether an interrupt has been triggered, with a bit in
+    each place signifying that this register has triggered an IRQ
+    \cite[pg.~173]{BCM2835}. To access these bits, we define a structure that
+    makes use of bit-fields so that we may easily read and write these flags. As
+    touched upon in \ref{sec:IRQ_clearing}, to clear the IRQ for the system
+    timer we write a 0 to the bit representing the appropriate register that has
+    been matched by the counter. Simply modifying the Interrupt Controller's
+    registers directly will result in not clearing the IRQ. The overall
+    structure for the system timer is given in Listing \ref{lst:systimer}, while
+    the Control/Status Register is given in Listing \ref{lst:ctrlreg}.
+
+    \lstset{language=c}
+    \begin{lstlisting}[caption={The System
+    Timer},captionpos=b,label={lst:systimer}]
+/* system timer peripheral register */
+struct sys_timer {
+    struct timer_ctrl control;
+    uint32_t counter_low;
+    uint32_t counter_high;
+    uint32_t compare0;
+    uint32_t compare1;
+    uint32_t compare2;
+    uint32_t compare3;
+};
+    \end{lstlisting}
+
+    \lstset{language=c}
+    \begin{lstlisting}[caption={The Control/Status
+    Register},captionpos=b,label={lst:ctrlreg}]
+/* system timer control/status register */
+struct timer_ctrl {
+    uint8_t matched0 : 1;
+    uint8_t matched1 : 1;
+    uint8_t matched2 : 1;
+    uint8_t matched3 : 1;
+    uint32_t reserved : 28;
+};
+    \end{lstlisting}
+
+    The final piece of functionality to implement for the system timer is the
+    ability to set the timer to go off in a number of microseconds. Recall that
+    compare registers 0 and 2 are used by the GPU and hence not available for
+    general use, meaning we may use registers 1 and 3; the project uses the
+    former, but it makes no difference which is chosen. The timer is set by
+    setting the \code{compare1} value to the current ``tick'' plus some number
+    of microseconds -- this value is compared each microsecond by the system
+    timer, and when the timer's counter and this register match, an IRQ is sent
+    by the \code{matched1} register. This functionality becomes particularly
+    useful in process scheduling, which is covered in Section
+    \ref{sec:RoundRobin}. We also use this to implement \code{uwait(usecs)},
+    analogous to the C standard library's \code{udelay()} -- while the
+    difference between the current ticks and the ticks on the counter when the
+    call to \code{uwait()} was made is less than the microseconds parameter
+    \code{usecs}, do nothing. This effectively waits for \code{usecs}
+    microseconds.
+
+    As a final note on the timer, recall from Table \ref{tab:SysTimer} that the
+    system timer is effectively a 64-bit counter, making use of two 32-bit
+    counters to represent the upper and lower 32 bits. The project only makes
+    use of the latter, making the assumption that the system will be running for
+    less than $2^{32} \mu s \approx 72$ minutes. This is perhaps too restrictive
+    for a real-world operating system, but attention can be focused on this
+    issue at a later date -- there are more significant problems which currently
+    affect its widespread adoption. Moreover, simply using the lower counter
+    illustrates the peripheral's use adequately enough.
+
 \subsection{Processes}
     \subsubsection{Handlers}
     \subsubsection{Reapers}
         \label{sec:cleanup}
     \subsubsection{Initialising Processes}
 \subsection{Scheduling}
-\subsection{Interacting with the Memory Management Unit}
+    \subsubsection{Round Robin}
+        \label{sec:RoundRobin}
+
+    \subsubsection{First Come First Served}
+
 \subsection{Synchronisation}
 \subsection{Inter-process Communication}
 \subsection{User interaction}
