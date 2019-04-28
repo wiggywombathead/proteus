@@ -50,7 +50,8 @@ void sched_round_robin(void) {
 
     if (size_proc_list(&ready_queue) == 0) {
         timer_set(QUANTUM);
-        enable_interrupts();
+        // enable_interrupts();
+        ENABLE_INTERRUPTS();
         return;
     }
 
@@ -62,7 +63,8 @@ void sched_round_robin(void) {
 
     switch_context(old_thread, new_thread);
 
-    enable_interrupts();
+    // enable_interrupts();
+    ENABLE_INTERRUPTS();
 }
 
 /**

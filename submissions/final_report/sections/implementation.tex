@@ -646,7 +646,7 @@ void __attribute__((interrupt("ABORT"))) reset_handler(void);
         \code{interrupt\_clearer} which, for a given device IRQ, modifies the
         device's registers in order to deal with the clearing the interrupt. For
         example, with the System Timer, we set the \code{matched1} register to 1
-        (see Section \ref{sec:SysTimer}), and do not touch the Interrupt
+        (see Section \ref{sec:SystemTimer}), and do not touch the Interrupt
         Controller pending bit itself. We then register the handler by making
         note of its IRQ number and set the function callbacks for its handler
         and clearer functions, using the function:
@@ -703,6 +703,7 @@ and r0, r0, #1
         \end{lstlisting}
 
 \subsection{System Timer}
+    \label{sec:SystemTimer}
     With the ability to generate and deal with interrupts sent to the CPU, we
     now focus on implementing the system timer, a peripheral which can keep time
     and send interrupts after a set amount of time. This is located at offset
@@ -828,21 +829,22 @@ struct proc {
 };
         \end{lstlisting}
 
-        Here, \code{struct proc\_state} simply contains data about the contents of
-        the CPU registers (\code{r0-r15}); \code{pid} is an identifying number;
-        \code{name} is an identifying string; \code{stack\_page} is the address of
-        the page which the process uses; and \code{DEFINE\_LINK(proc)} is a macro
-        declaring pointers to other processes, \code{next} and \code{prev}, for the
-        various process queues used later.
+        Here, \code{struct proc\_state} simply contains data about the contents
+        of the CPU registers (\code{r0-r15}); \code{pid} is an identifying
+        number (for the operating system's use); \code{name} is an identifying
+        string (for human use); \code{stack\_page} is the address of the page
+        which the process uses; and \code{DEFINE\_LINK(proc)} is a macro
+        declaring pointers to other processes, \code{next} and \code{prev}, for
+        the various process queues used later.
 
-        There are two vital pieces of functionality for processes to be of any use
-        -- creating a new process and bringing it into memory for execution, and
-        cleaning up after it has terminated. To this end we implement two functions,
-        \code{create\_kthread()} and \code{cleanup()}.
+        There are two vital pieces of functionality for processes to be of any
+        use -- creating a new process and bringing it into memory for execution,
+        and cleaning up after it has terminated. To this end we implement two
+        functions, \code{create\_kthread()} and \code{cleanup()}.
 
-    \subsubsection{Threads}
-        Creating a thread is done by defining each of the fields in Lisintg
-        \ref{PCB}. Each thread gets its own new page using the
+    \subsubsection{Creating a process}
+        A process is created by defining each of the fields in Listing
+        \ref{lst:PCB}. Each thread gets its own new page using the
         \code{alloc\_page()} function from Section \ref{sec:pages}, while the
         CPU state (the copy of each of the CPU registers) is zeroed and located
         at the last 60 bytes of this page. We then set three fields within the
@@ -857,21 +859,83 @@ struct proc {
         set to \code{0x13}, the code for Supervisor mode, as all threads
         currently run in kernel-space and therefore have no restrictions. Each
         time we create a new thread, we also add it to the job queue and ready
-        queue, for use in process scheduling.
+        queue, for use in process scheduling. Therefore, all the hobbyist
+        programmer must do to create a new process is specify the function it
+        will be executing and assign it a name to keep track of it in the
+        system.
 
     \subsubsection{Reapers}
         \label{sec:cleanup}
         Since we want to run multiple different processes throughout the
         execution of the operating system, it would not make sense to keep once
         which have finished executing in memory, taking up space that new ones
-        could use. Therefore, we define the \code{cleanup()} function 
+        could use. Therefore, we define the \code{cleanup()} function that frees
+        all the memory associated with the process, removes it from both the job
+        queue and the ready queue, and allows the next process in the ready
+        queue to use the CPU.
+
     \subsubsection{Initialising Processes}
+        To initialise processes we create an ``init'' process, \code{init}, just
+        as we would create any other process, then add it to both the job queue
+        and ready queue. Since at the time of its creation it is the only
+        process in the system, it will continue to execute and initialise the
+        rest of the processes. We also define a variable to specify the
+        currently executing process and set it to \code{init}, then set the
+        system timer to go off in a set amount of time (a \textit{quantum}) to
+        start off process scheduling.
 
 \subsection{Scheduling}
+    During execution, regular processes have no consideration for other
+    processes -- if they had their way they would use the CPU and keep it to
+    themselves until they had reached the end of their task. We therefore
+    implement an interface to allow for different process scheduling policies to
+    be followed, which follow different approaches to systematically passing
+    control of the CPU from one process to the next, and provide the ability to
+    configure this functionality at compile-time by passing command-line
+    directives to the Makefile.
+
+    \subsubsection{Context Switching}
+        Before we may write a scheduling policy by which our system will adhere,
+        we must define how the use of the CPU will be passed from one executing
+        process to another. Similarly to how interrupts are dealt with, in
+        order that we may eventually continue execution of the process we are
+        taking off of the CPU, we must save all of the registers in use by the
+        process onto the stack, and importantly we save its stack pointer so
+        that execution may resume from where it left off when control of the CPU
+        is eventually returned to the process.
+
+        A context switch comprises of two actions: a state save, where the
+        process is stored in memory; and a state restore, where a previously
+        saved process is loaded back into memory.
+
     \subsubsection{Round Robin}
         \label{sec:RoundRobin}
+        The first process scheduling policy we implement is the Round Robin
+        scheduler \cite[pg.~271]{DinosaurOS}. This sequentially gives each
+        process in the ready queue uninterrupted use of the CPU for one quantum,
+        after which use of the CPU is passed to the next process in the queue,
+        regardless of the process' progress. This policy is illustrated in
+        Figure \ref{fig:RoundRobin}.
+
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.8\textwidth]{round_robin.jpg}
+            \caption{The Round Robin scheduler}
+            \label{fig:RoundRobin}
+        \end{figure}
 
     \subsubsection{First Come First Served}
+        The project also implements the First Come First Served process
+        scheduler -- in contrast to the Round Robin scheduler, this gives a
+        process use of the CPU until it no longer needs it. While this seems
+        less ``fair'' (precise scheduling criteria can be found at
+        \cite[pg.~265]{DinosaurOS}), this scheduling policy may find use if it
+        is vital that processes are executed in the order they are received.
+        This algorithm is simple and provided largely to illustrate the use of
+        compile-time options to configure the system, one of the key goals of
+        the project.
+
+    \subsubsection{Extension}
 
 \subsection{Synchronisation}
 \subsection{Inter-process Communication}

@@ -128,7 +128,7 @@ tidy:
 	rm -f $(ELF)
 
 clean:
-	@echo "Removing $(OBJ_DIR), $(IMG).elf, $(IMG).img"
+	@echo "Removing $(OBJ_DIR), $(IMG), $(ELF)"
 	rm -rf $(OBJ_DIR)
 	rm -f $(ELF) $(IMG) $(MAP) $(LIST)
 

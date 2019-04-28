@@ -152,7 +152,6 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     /* KEYBOARD */
     puts("Initialising keyboard");
     kbd_init();
-    puts("Hello?");
 
     /*
      * SUCCESSFULLY INITIALISED
@@ -179,11 +178,11 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
     // mutex_init(&mutex);
 
-    create_kthread(flash, "flash");
+    // create_kthread(flash, "flash");
+    create_kthread(fib, "fib");
 
     // create_kthread(print1, "p1");
     // create_kthread(print2, "p2");
-    // create_kthread(fib, "fib");
     
     // create_kthread(producer, "prod");
     // create_kthread(consumer, "cons");

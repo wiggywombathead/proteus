@@ -25,25 +25,25 @@ static uint32_t current_pid = 1;
 /**
  * @brief Initialse ready queue and job queue, and start the init process
  *
- * The main process is created and added to the job queue, the current process
+ * The init process is created and added to the job queue, the current process
  * as this process, and the timer is set to go off in one quantum.
  */
 void proc_init(void) {
 
-    struct proc *main;
+    struct proc *init;
 
     INIT_LIST(ready_queue);
     INIT_LIST(job_queue);
 
-    main = kmalloc(sizeof(struct proc));
-    main->stack_page = (void *) &__end;
-    main->pid = current_pid++;
-    strcpy(main->name, "init");
+    init = kmalloc(sizeof(struct proc));
+    init->stack_page = (void *) &__end;
+    init->pid = current_pid++;
+    strcpy(init->name, "init");
 
-    append_proc_list(&job_queue, main);
-    append_proc_list(&ready_queue, main);
+    append_proc_list(&job_queue, init);
+    append_proc_list(&ready_queue, init);
 
-    current_process = main;
+    current_process = init;
 
     timer_set(QUANTUM);
 }
@@ -56,7 +56,10 @@ void proc_init(void) {
  * context so that the next ready process may execute.
  */
 static void cleanup(void) {
+
+    //disable_interrupts();
     DISABLE_INTERRUPTS();
+
     struct proc *old_thread, *new_thread;
 
     while (size_proc_list(&ready_queue) == 0)
@@ -154,7 +157,10 @@ void mutex_lock(mutex_t *mutex) {
 
     /* if lock unavailable, stop execution and go to wait queue */
     while (!try_lock(&mutex->lock)) {
+
+        // disable_interrupts();
         DISABLE_INTERRUPTS();
+
         new_thread = dequeue_proc_list(&ready_queue);
         old_thread = current_process;
         current_process = new_thread;
@@ -163,7 +169,8 @@ void mutex_lock(mutex_t *mutex) {
 
         /* perform context switch */
         switch_context(old_thread, new_thread);
-        enable_interrupts();
+        // enable_interrupts();
+        ENABLE_INTERRUPTS();
     }
 
     mutex->locker = current_process;

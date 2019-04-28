@@ -28,7 +28,8 @@ void interrupts_init(void) {
 
     // copy exception vector table to address 0
     move_exception_vector();
-    enable_interrupts();
+    //enable_interrupts();
+    ENABLE_INTERRUPTS();
 }
 
 /**
@@ -39,9 +40,11 @@ void irq_handler(void) {
     for (int i = 0; i < NUM_IRQS; i++) {
         if (IRQ_IS_PENDING(interrupt_regs, i) && (handlers[i] != 0)) {
             clearers[i]();
-            enable_interrupts();
+            // enable_interrupts();
+            ENABLE_INTERRUPTS();
             handlers[i]();
-            disable_interrupts();
+            // disable_interrupts();
+            DISABLE_INTERRUPTS();
             
             return;
         }

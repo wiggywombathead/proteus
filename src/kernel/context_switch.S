@@ -4,7 +4,7 @@
 
 /*
  * switch_context(struct proc *old, struct proc *new)
- *     take CPU use from old and give to new
+ *     give control of CPU from old to new
  *     old thread must be put back in queue before calling
  */
 
@@ -18,7 +18,7 @@ switch_context:
 
     /* load new process' state */
     ldr sp, [r1]
-    ldr r0, =#(10000)   /* quantum time of 10ms */
+    ldr r0, =#(20000)   /* quantum time of 20ms */
     bl timer_set        /* set timer to go off in one quantum */
     pop {r0-r12}
     msr cpsr_c, r12
