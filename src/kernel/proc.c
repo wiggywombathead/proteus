@@ -88,7 +88,7 @@ static void cleanup(void) {
  */
 void create_kthread(kthreadfn func, char *name) {
     struct proc *pcb;
-    struct proc_state *new_state;
+    struct cpu_state *new_state;
 
     pcb = kmalloc(sizeof(struct proc));
     pcb->pid = current_pid++;
@@ -97,13 +97,13 @@ void create_kthread(kthreadfn func, char *name) {
     size_t len = strlen(name);
     strncpy(pcb->name, name, len < 31 ? len : 31);
 
-    new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct proc_state);
+    new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct cpu_state);
     pcb->state = new_state;
 
-    bzero(new_state, sizeof(struct proc_state));
+    bzero(new_state, sizeof(struct cpu_state));
     new_state->lr = (uint32_t) func;
     new_state->sp = (uint32_t) cleanup;
-    new_state->cpsr = 0x13 | (8 << 1);
+    new_state->cpsr = 0x13;
 
     append_proc_list(&job_queue, pcb);
     append_proc_list(&ready_queue, pcb);

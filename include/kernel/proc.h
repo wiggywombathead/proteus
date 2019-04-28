@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <kernel/list.h>
 
-struct proc_state {
+struct cpu_state {
     uint32_t r0;
     uint32_t r1;
     uint32_t r2;
@@ -32,7 +32,7 @@ DEFINE_LIST(proc);
 
 /* process control block definition */
 struct proc {
-    struct proc_state *state;
+    struct cpu_state *state;
     uint32_t pid;
     char name[32];
     void *stack_page;

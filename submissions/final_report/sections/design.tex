@@ -194,15 +194,16 @@
         The Current Program Status Register (CPSR) contains code flags, status
         bits, and current mode bits.  Another register, the Saved Program Status
         Register (SPSR), is similar to the CPSR but is only available in
-        privileged modes. This contains the condition code flags, status bits,
-        and current mode bits saved as a result of the exception which prompted
-        the processor to enter the current mode.
+        privileged modes (see Section \ref{sec:CPU_modes}. This contains the
+        condition code flags, status bits, and current mode bits saved as a
+        result of the exception which prompted the processor to enter the
+        current mode.
 
-        The architecture asserts a full descending stack: full, meaning
-        the stack pointer points to the topmost entry in the
+        The architecture asserts a full descending stack: full, meaning the
+        stack pointer points to the topmost entry in the
         stack\footnote{Contrasted to empty, which points to the next free
-        location, i.e. the address at which the next item will be stored.};
-        and descending, meaning the stack grows downwards, starting from a high
+        location, i.e. the address at which the next item will be stored.}; and
+        descending, meaning the stack grows downwards, starting from a high
         memory address and progressing to lower addresses as items are pushed.
 
         As a final note on correctly interacting with the ARM environment, any

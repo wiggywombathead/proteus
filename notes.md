@@ -644,7 +644,7 @@ the stack of mode `0x13` (supervisor mode) and then uses that mode's stack
 pointer.
 
 N.B: When an exception occurs, the CPU switches from whatever mode it was in to
-IRQ mode - this has its own stack and its own versions of a few registters, such
+IRQ mode - this has its own stack and its own versions of a few registers, such
 as `sp` and `cpsr`, which are separate from normal registers.
 
 `cpsid if, #0x13` switches to supervisor mode with interrupts disabled.

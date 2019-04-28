@@ -86,11 +86,14 @@ _start:
             \item System performance monitoring
         \end{itemize}
 
-        As it stands, the project only makes use of the first two. The code
-        block itself reads the Multiprocessor Affinity Register \cite{MPIDR} for
-        the identifier of the current CPU it is testing, and if neither of the
-        two lower bits returned are 1, then the core is sent to halt
-        indefinitely in a low-power state.
+        As it stands, the project only makes use of the first two functions. The
+        code block itself reads the Multiprocessor Affinity Register
+        \cite{MPIDR} for the identifier of the current CPU it is testing, and if
+        neither of the two lower bits returned are 1, then the core is sent to
+        halt indefinitely in a low-power state. Using the system control
+        processor is simply a case of finding the desired functionlity from
+        \cite[pg.~3-14]{TRM} and copying the \code{mrc} or \code{mcr}
+        instruction it specifies.
 
         With just a single core to develop for, the next step is to set up the
         stack pointer at address \code{0x8000}. The program counter for the
@@ -447,7 +450,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
     \subsubsection{Exception Vector Table}
         In the Raspberry Pi, when an exception occurs, a specific address is
         loaded into the program counter and execution branches to this point in
-        the code.  Therefore, special handlers need to be written at these
+        the code. Therefore, special handlers need to be written at these
         locations in order for the kernel to branch to the correct
         exception-handling routine. This set of addresses is known as the
         Exception Vector Table, and begins at address \code{0x0}. The layout of
@@ -481,6 +484,46 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
                 \caption{The Exception Vector Table}
             \end{table}
         \end{savenotes}
+
+    \subsubsection{Processor Modes}
+        \label{sec:CPU_modes}
+        When an exception occurs, the CPU switches from whatever mode it was in
+        to a special interrupt mode for the type of exception which was
+        triggered (for example, Abort mode, IRQ mode, FIQ mode). Each of these
+        modes have their own set of alternative mode-specific registers mapped
+        to \code{r13} and \code{r14} \cite[pg.2-19]{TRM}, allowing for a private
+        stack pointer and link register for each mode. Each mode also contains
+        its own banked version of the SPSR, not available in the standard User
+        and System modes. Since, during and exception, we are interrupting code
+        which did not consent to calling a function, we must save all of the
+        registers it was using, in order that we can eventually return to its
+        execution with it effectively knowing nothing of the interrupt.
+        Therefore, when an exception is triggered we first switch to Supervisor
+        mode (mode \code{0x13}) and disable interrupts. We then save all of the
+        registers of the previously-executing function, so that we may return
+        control to it later; we then call the exception handler (see Section
+        \ref{sec:IRQs}), and once this terminates we restore the saved
+        registers, and return to the address stored in the link register,
+        continuing execution of the function that was interrupted. This is
+        detailed in Listing \ref{lst:IRQ_wrapper}.
+
+        \lstset{language=c}
+        \begin{lstlisting}[caption={The setup and cleanup for dealing with an
+        exception},captionpos=b,label={lst:IRQ_wrapper}]
+irq_handler_wrapper:
+    sub lr, lr, #4      
+    srsdb sp!, #0x13      // Store Return State
+    cpsid if, #0x13       // disable IRQs and FIQs in Supervisor mode
+    push {r0-r3, r12, lr} // save function's registers
+    and r1, sp, #4        
+    sub sp, sp, r1        // aligns stack to 8-bytes
+    push {r1}
+    bl irq_handler        // call exception handling routine
+    pop {r1}
+    add sp, sp, r1        // restores stack alignment
+    pop {r0-r3, r12, lr}  // restore saved registers
+    rfeia sp!             // Return From Exception
+        \end{lstlisting}
 
     \subsubsection{Function attributes}
         Important to note is that exception handlers are not regular functions
@@ -760,10 +803,70 @@ struct timer_ctrl {
     illustrates the peripheral's use adequately enough.
 
 \subsection{Processes}
-    \subsubsection{Handlers}
+    \subsubsection{Process Control Blocks}
+        We begin with our implementation of processes by defining for the operating
+        system what exactly a process looks like -- this may differ from system to
+        system, but in general will contain information such as the contents of the
+        CPU registers, the process' state (be it running, ready, waiting, etc.), a
+        unique identifier, a program counter, containing the address of the next
+        instruction to be executed, and any CPU scheduling information. The
+        representation of a process in an operating system is known as a Process
+        Control Block (PCB) \cite[pg.~105]{DinosaurOS}. In this project, since there
+        is currently little that they can do, processes are only defined by a few
+        fields, namely:
+
+        \lstset{language=c}
+        \begin{lstlisting}[caption={A Process Control Block}, captionpos=b,
+        label={lst:PCB}]
+/* process control block */
+struct proc {
+    struct cpu_state *state;
+    uint32_t pid;
+    char name[32];
+    void *stack_page;
+    DEFINE_LINK(proc);
+};
+        \end{lstlisting}
+
+        Here, \code{struct proc\_state} simply contains data about the contents of
+        the CPU registers (\code{r0-r15}); \code{pid} is an identifying number;
+        \code{name} is an identifying string; \code{stack\_page} is the address of
+        the page which the process uses; and \code{DEFINE\_LINK(proc)} is a macro
+        declaring pointers to other processes, \code{next} and \code{prev}, for the
+        various process queues used later.
+
+        There are two vital pieces of functionality for processes to be of any use
+        -- creating a new process and bringing it into memory for execution, and
+        cleaning up after it has terminated. To this end we implement two functions,
+        \code{create\_kthread()} and \code{cleanup()}.
+
+    \subsubsection{Threads}
+        Creating a thread is done by defining each of the fields in Lisintg
+        \ref{PCB}. Each thread gets its own new page using the
+        \code{alloc\_page()} function from Section \ref{sec:pages}, while the
+        CPU state (the copy of each of the CPU registers) is zeroed and located
+        at the last 60 bytes of this page. We then set three fields within the
+        CPU state structure: the link register, the stack pointer, and the CPSR.
+
+        The link register contains the address to which to jump when a function
+        call returns, and will therefore hold the address of the process' main
+        function, which is passed as a parameter to the function. We define the
+        new data type \code{kthreadfn} for this purpose. The stack pointer,
+        meanwhile, contains the address of the function \code{cleanup}, which is
+        responsible for clearing up after the process terminates. The CPSR is
+        set to \code{0x13}, the code for Supervisor mode, as all threads
+        currently run in kernel-space and therefore have no restrictions. Each
+        time we create a new thread, we also add it to the job queue and ready
+        queue, for use in process scheduling.
+
     \subsubsection{Reapers}
         \label{sec:cleanup}
+        Since we want to run multiple different processes throughout the
+        execution of the operating system, it would not make sense to keep once
+        which have finished executing in memory, taking up space that new ones
+        could use. Therefore, we define the \code{cleanup()} function 
     \subsubsection{Initialising Processes}
+
 \subsection{Scheduling}
     \subsubsection{Round Robin}
         \label{sec:RoundRobin}
