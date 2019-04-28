@@ -57,8 +57,7 @@ void proc_init(void) {
  */
 static void cleanup(void) {
 
-    //disable_interrupts();
-    DISABLE_INTERRUPTS();
+    disable_interrupts();
 
     struct proc *old_thread, *new_thread;
 
@@ -97,8 +96,8 @@ void create_kthread(kthreadfn func, char *name) {
     pcb->pid = current_pid++;
     pcb->stack_page = alloc_page();
 
-    size_t len = strlen(name);
-    strncpy(pcb->name, name, len < 31 ? len : 31);
+    // size_t len = strlen(name);
+    strncpy(pcb->name, name, 32);
 
     new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct cpu_state);
     pcb->state = new_state;
@@ -158,8 +157,7 @@ void mutex_lock(mutex_t *mutex) {
     /* if lock unavailable, stop execution and go to wait queue */
     while (!try_lock(&mutex->lock)) {
 
-        // disable_interrupts();
-        DISABLE_INTERRUPTS();
+        disable_interrupts();
 
         new_thread = dequeue_proc_list(&ready_queue);
         old_thread = current_process;
@@ -169,8 +167,8 @@ void mutex_lock(mutex_t *mutex) {
 
         /* perform context switch */
         switch_context(old_thread, new_thread);
-        // enable_interrupts();
-        ENABLE_INTERRUPTS();
+
+        enable_interrupts();
     }
 
     mutex->locker = current_process;

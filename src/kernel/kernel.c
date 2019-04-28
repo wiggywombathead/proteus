@@ -19,9 +19,8 @@
 mutex_t mutex;
 
 void flash(void) {
-    uint32_t hertz = 5;
-    int i = 0;
-    while (i++ < 10) {
+    uint32_t hertz = 1;
+    while (1) {
         act_on();
         uwait(500000 / hertz);
         act_off();
@@ -176,9 +175,9 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     // hexstring(mmio_read(0x00400000));
     // hexstring(mmio_read(0x00500000));
 
-    // mutex_init(&mutex);
+    mutex_init(&mutex);
 
-    // create_kthread(flash, "flash");
+    create_kthread(flash, "flash");
     create_kthread(fib, "fib");
 
     // create_kthread(print1, "p1");

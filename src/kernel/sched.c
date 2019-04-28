@@ -44,14 +44,13 @@ void sched_init(void) {
  */
 void sched_round_robin(void) {
 
-    DISABLE_INTERRUPTS();
+    disable_interrupts();
 
     struct proc *old_thread, *new_thread;
 
     if (size_proc_list(&ready_queue) == 0) {
         timer_set(QUANTUM);
-        // enable_interrupts();
-        ENABLE_INTERRUPTS();
+        enable_interrupts();
         return;
     }
 
@@ -63,8 +62,7 @@ void sched_round_robin(void) {
 
     switch_context(old_thread, new_thread);
 
-    // enable_interrupts();
-    ENABLE_INTERRUPTS();
+    enable_interrupts();
 }
 
 /**
