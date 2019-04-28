@@ -8,39 +8,8 @@
  * return 1 if lock acquired, else 0
  */
 try_lock:
-    /* check if locked */
-    // ldrex r1, [r0]
-    // cmp r1, #0x0
-    // beq try_lock
-
-    /* attempt to lock */
-    // mov r1, #0
-    // strex r2, r1, [r0]
-    // mov r0, r2
-    // blx lr
-
     /* swap r1 with location [r0], place [r0] in r2 */
     mov r1, #0
     swp r2, r1, [r0]
-    // strex r2, r1, [r0]
     mov r0, r2
     blx lr
-
-    /*
-    ldrex r1, [r0]
-    cmp r1, #0
-    beq fail$
-
-    mov r1, #0
-    strex r2, r1, [r0]
-    cmp r2, #0
-    bne fail$
-    mov r0, #1
-    b return$
-
-    fail$:
-        mov r0, #0
-
-    return$:
-        blx lr
-    */

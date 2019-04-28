@@ -66,26 +66,8 @@ typedef void (*interrupt_clearer)(void);
 void interrupts_init(void);
 void register_irq_handler(enum irq_no, interrupt_handler, interrupt_clearer);
 
-__inline__ int INTERRUPTS_ENABLED(void) {
-    int res;
-    __asm__ __volatile__("mrs %[res], cpsr": [res] "=r" (res)::);
-    return ((res >> 7) & 1) == 0;
-}
-
 extern int interrupts_enabled(void);
 extern void enable_interrupts(void);
 extern void disable_interrupts(void);
-
-__inline__ void ENABLE_INTERRUPTS(void) {
-    if (!INTERRUPTS_ENABLED()) {
-        __asm__ __volatile__("cpsie i");
-    }
-}
-
-__inline__ void DISABLE_INTERRUPTS(void) {
-    if (INTERRUPTS_ENABLED()) {
-        __asm__ __volatile__("cpsid i");
-    }
-}
 
 #endif

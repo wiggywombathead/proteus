@@ -897,16 +897,36 @@ struct proc {
     \subsubsection{Context Switching}
         Before we may write a scheduling policy by which our system will adhere,
         we must define how the use of the CPU will be passed from one executing
-        process to another. Similarly to how interrupts are dealt with, in
-        order that we may eventually continue execution of the process we are
-        taking off of the CPU, we must save all of the registers in use by the
-        process onto the stack, and importantly we save its stack pointer so
-        that execution may resume from where it left off when control of the CPU
-        is eventually returned to the process.
+        process to another. Similarly to how interrupts are dealt with, in order
+        that we may eventually continue execution of the process we are taking
+        off of the CPU, we must save all of the registers in use by the process
+        onto the stack, and importantly we save its stack pointer so that
+        execution may resume from where it left off when control of the CPU is
+        eventually returned to the process.  A context switch comprises of two
+        actions: a state save, where the process is stored in memory; and a
+        state restore, where a previously saved process is loaded back into
+        memory. This is illustrated in Listing \ref{lst:ContextSwitch}.
 
-        A context switch comprises of two actions: a state save, where the
-        process is stored in memory; and a state restore, where a previously
-        saved process is loaded back into memory.
+        \lstset{language=c}
+        \begin{lstlisting}[caption={Context switch}, captionpos=b,
+        label={lst:ContextSwitch}]
+.equ QUANTUM, 20000
+switch_context:
+    /* save current process' state */
+    push {lr}
+    push {sp}
+    mrs r12, cpsr   /* get current status register */
+    push {r0-r12}   /* save general purpose regs and state */
+    str sp, [r0]    /* store stack pointer */
+
+    /* load new process' state */
+    ldr sp, [r1]
+    ldr r0, =QUANTUM    /* quantum time of 20ms */
+    bl timer_set        /* set timer to go off in one quantum */
+    pop {r0-r12}
+    msr cpsr_c, r12
+    pop {lr, pc}
+        \end{lstlisting}
 
     \subsubsection{Round Robin}
         \label{sec:RoundRobin}
@@ -915,7 +935,15 @@ struct proc {
         process in the ready queue uninterrupted use of the CPU for one quantum,
         after which use of the CPU is passed to the next process in the queue,
         regardless of the process' progress. This policy is illustrated in
-        Figure \ref{fig:RoundRobin}.
+        Figure \ref{fig:RoundRobin}. The implementation itself is rather simple:
+        we first disable interrupts, in order to ensure the successful
+        completion of the context switch, then test whether there is another job
+        in the ready queue. If not, there will be nothing to switch context to,
+        so we set the system timer to go off in another quantum, which we set as
+        20$\mu s$, and re-enable interrupts. If there are other jobs, however,
+        we add the current one to the end of the ready queue and switch context
+        to the process that was at the head. We then finish by re-enabling
+        interrupts.
 
         \begin{figure}
             \centering
@@ -944,11 +972,96 @@ struct proc {
         add a policy to the system is to a) write the function that will be
         passing control to and taking control from the CPU, and b) add a case in
         the include guards to add this new scheduler as an option, so that the
-        correct scheduler is used. The interface is covered more in depth in
-        Section \ref{sec:Configuration}.
+        correct scheduler is used. A global function pointer, \code{void
+        (*schedule)(void)}, taking no arguments and returning nothing, is used
+        to set the scheduling policy of the system, and is set by testing which
+        command-line options have been passed by the Makefile. The interface is
+        covered more in depth in Section \ref{sec:Configuration}.
 
-        Overall this interface works well -- it allows
+        Overall this interface works well -- it allows for the different
+        schedulers to be switched between easily and with little effort. Its
+        ease of extension could, however, face challenges as the policies the
+        schedulers adopt become more complex. The scheduler the system uses is
+        innately tied to influences how a process is represented in that system;
+        for example, if one wanted to implement priority scheduling
+        \cite[pg.~210]{DinosaurOS}, the structure \code{struct proc} would need
+        to be extended to include how important it is that a given process is
+        executed, with potentially a field to describe how this may change over
+        time (aging). Therefore, changes will need to be made to at least the
+        files \code{proc.h}, \code{sched.h}, and \code{sched.c}. This could
+        eventually become cumbersome, and is not a consideration that the
+        project takes in its current form. Furthermore, when using the First
+        Come First Served scheduler, it does not disable the triggering of
+        interrupts after a quantum has passed, but rather just ignores them.
+        While this works, it is perhaps conceptually bad practise, and could
+        lead to confusion, which this project aims to explicitly avoid. While
+        there has not been the time or urgency to focus on this so far, it will
+        certainly be a consideration in the future.
 
 \subsection{Synchronisation}
+    Since the project is a concurrent system, there is the possibility for race
+    conditions -- the outcome of a computation being affected by the order in
+    which processes access data. For this, we implement two forms of locks:
+    spinlocks and semaphores. Both rely on the concept of an atomic operation,
+    which is a computation that is performed with the guarantee of not being
+    interrupted. For this purpose, ARM provides the \code{swp} instruction
+    \cite{OnlineARMGuide}, essentially allowing us to ``acquire'' the lock first
+    and then check that we have been successful, as opposed to the other way
+    around. The implementation of a such an operation is given in Listing
+    \ref{lst:Lock}.
+
+    \lstset{language=c}
+    \begin{lstlisting}[caption={Atomic lock
+    operation},captionpos=b,label={lst:Lock}]
+/* int try_lock(int *) */
+try_lock:
+    mov r1, #0
+    swp r2, r1, [r0]
+    mov r0, r2
+    blx lr
+    \end{lstlisting}
+
+    We use this to implement the most basic form of synchronisation, the
+    spinlock. This involves constantly trying to acquire the lock until it is
+    successful. We initialise the lock value to 1, and the lock only
+    successfully acquires it if it finds the result of \code{try\_lock()} is 1.
+
+    More useful is a semaphore, and in particular the project implements the
+    design outlined in \cite[pg.~265]{DinosaurOS}. To reduce the wastage of CPU
+    cycles caused by busy-waiting that spinlocks entail, we instead maintain a
+    list of processes that wish to acquire the semaphore: each process in this
+    queue will be placed in the waiting state, meaning that the CPU scheduler
+    can transfer control of the CPU to another process that is in the ready
+    queue. This greatly increases CPU usage as control is always given to a
+    process that can perform meaningful work with it, rather that simply waiting
+    for the lock variable. Later, when a process releases the lock, it uses this
+    wait queue to give the lock to the next process that was waiting for it.
+
+    The implementation of this synchronisation interface takes inspiration from
+    the POSIX mutex library \cite{POSIX_mutex}, albeit far more simplified,
+    requiring only one single-parameter function call to initialise a given
+    lock. When \code{mutex\_lock()} is called, a process tries acquire the lock
+    and is either given the lock or placed on the wait queue, while
+    \code{mutex\_unlock()} simply gives the lock to the next process in the
+    queue.
+
+\subsection{Configuration}
+    \label{sec:Configuration}
+    As mentioned, one of the key aims of the project was to present both an
+    extensible and configurable operating system in order to demystify certain
+    aspects about their development. While being clear to read and understand is
+    useful, the ability to actively change key systems at compile-time provides
+    a much more practical and hands-on opportunity to understand the key
+    concepts that underpin the system. The main aspect to system configuration
+    in this project is the use of Makefile directives, which provides an
+    intuitive interface to quickly compile the system to make use of different
+    approaches, and while not used extensively so far, it is an interface whose
+    simplicity to extend to more options in the future is helpful.
+
+    \subsubsection{Makefile}
+
 \subsection{Inter-process Communication}
+    A rudimentary form of inter-process communication is implemented via the
+    mechanism of shared-memory. This 
+    
 \subsection{User interaction}
