@@ -936,6 +936,18 @@ struct proc {
         the project.
 
     \subsubsection{Extension}
+        With ease of extension a key consideration of this project, especially
+        for a task such as process scheduling, care was taken in designing the
+        interface for adding new scheduling algorithms. In particular, as it
+        stands, all the code required for configuring the scheduling policy to
+        use is contained in the file \code{sched.h} -- all that is required to
+        add a policy to the system is to a) write the function that will be
+        passing control to and taking control from the CPU, and b) add a case in
+        the include guards to add this new scheduler as an option, so that the
+        correct scheduler is used. The interface is covered more in depth in
+        Section \ref{sec:Configuration}.
+
+        Overall this interface works well -- it allows
 
 \subsection{Synchronisation}
 \subsection{Inter-process Communication}

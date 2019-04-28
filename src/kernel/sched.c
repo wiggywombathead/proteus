@@ -69,6 +69,12 @@ void sched_round_robin(void) {
  * @brief Implementation of the First Come First Served scheduling algorithm
  */
 void sched_fcfs(void) {
-    while (1)
-        ;
+    
+    disable_interrupts();
+
+    struct proc *old_thread, *new_thread;
+
+    if (1);
+
+    enable_interrupts();
 }
