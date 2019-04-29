@@ -1,4 +1,9 @@
 \section{Testing and Issues}
+    As mentioned in Section \ref{sec:design_testing}, the project was tested
+    manually and consistently throughout its development. Detailed here are some
+    particular issues faced during the various testing phases, and how they were
+    dealt with.
+
 \subsection{Loading onto real hardware}
     Vital to ensuring that the system truly works is testing it on real
     hardware. As covered in Section \ref{sec:booting}, the Pi requires firmware
@@ -53,20 +58,65 @@ __aeabi_uidivmod:
     implementation of the atomic swap operation in Listing \ref{lst:Lock}. It
     was discovered that the Load Register Exclusive and Store Register Exclusive
     instructions, \code{ldrex} and \code{strex} respectively, were preferred for
-    this operation. It was further discovered \cite{CacheEnable} that these instructions were
-    available with both caches and the MMU enabled. While the project does not
-    work when using these exclusive loads and stores, causing a data abort when
-    attempting to do so, it does succeed in initialising the MMU, allowing the
-    programmer to define their own map from virtual to physical memory using the
-    \code{mmu\_section()} interface. Much of this code is, however, accredited
-    to David Welch, having been largely lifted from \cite{dwelch67}. Not being a
-    primary objective of the project, however, and having been initially with
-    the intention simply to use these non-deprecated instructions, the use of
-    this code was judged to be permissible.
+    this operation. It was further discovered \cite{CacheEnable} that these
+    instructions were available only with both caches and the MMU enabled. While
+    the project does not work when using these exclusive loads and stores,
+    causing a data abort when attempting to do so, it does succeed in
+    initialising the MMU, allowing the programmer to define their own map from
+    virtual to physical memory using the \code{mmu\_section()} interface. This
+    is done through a sequence of \code{mrc} and \code{mcr} instructions, the
+    exact details of which were found at \cite[pg.~3-14]{TRM} -- it includes,
+    for example, first invalidating the caches and Translation Lookaside Buffer
+    (TLB), followed by setting the Translation Table base address. The memory
+    map is then performed by setting various flags, which control whether
+    portions of memory are buffered and/or cached, and defining the physical
+    addresses to which virtual addresses should map. Much of this code is,
+    however, accredited to David Welch, having been largely lifted from
+    \cite{dwelch67}. Not being a primary objective of the project, and having
+    been initially with the intention simply to make use of the non-deprecated
+    atomic swap instructions, the use of this code was judged to be permissible.
+    The option to use the MMU is, however, available for use if desired.
 
 \subsection{ACT debugging}
     Lastly, the most notable and rewarding phase of testing was performed via
     the GPIO -- after loading onto real hardware, but before getting framebuffer
     initialisation working, there was no means of getting visual feedback from
     the real-world (i.e. non-emulated) system, other than by blinking the ACT
-    LED. 
+    LED. Initially this was done in assembly, however as this was cumbersome to
+    control the number of times to blink the LED, an interface was soon
+    developed in C to achieve the same goal. Furthermore, it uses the same
+    interface developed for initialising the UART, namely that of
+    \code{mmio\_read()} and \code{mmio\_write()}, to write to the correct
+    GPIO registers to firstly initialise the LED, and then turn it on and off.
+    Turning the ACT LED on, for example, is given by the simple interface in
+    Listing \ref{lst:ACT_on}, requiring only one write to the General Purpose
+    Set Register, which on the Pi 1 is address \code{0x20200020}.
+
+    \lstset{language=c}
+    \begin{lstlisting}[caption={Interface for controlling the
+    ACT},captionpos=b,label={lst:ACT_on}]
+void act_on(void) {
+    mmio_write(ACT_GPSET, 1 << ACT_GPBIT);
+}
+    \end{lstlisting}
+
+    The ACT was initially used to highlight when the code was reaching certain
+    points in the kernel, and placing various calls to \code{act\_on()} and
+    \code{act\_off()} around blocks of code could allow for errors, which would
+    otherwise be hard to detect, be located relatively easily. Its utility
+    further increased when the system timer was implemented -- this allowed for
+    programming of the ACT to blink in different intervals, and lends itself to
+    defining certain patterns of blinks to signify various states that the code
+    is in (similarly to motherboard beep codes, for example).
+
+    Soon after HDMI output worked correctly, focus was paid on implementing
+    helpful debugging functions, in particular \code{printf()}. Several other
+    functions from the C standard library are implemented in the files
+    \code{stdio.h}, \code{stdlib.h}, and \code{string.h}. Recall that since we
+    are only in a freestanding environment, the project implements almost the
+    entire C standard library itself -- the only files it initially has access
+    to are \code{<float.h>}, \code{<iso646.h>}, \code{<limits.h>},
+    \code{<stdalign.h>}, \code{<stdarg.h>}, \code{<stdbool.h>},
+    \code{<stddef.h>}, \code{<stdint.h>}, and \code{<stdnoreturn.h>}. ACT
+    debugging still found its use later, but where possible the more efficient
+    method of \code{printf()} was preferred.

@@ -1,7 +1,7 @@
 # proteus checklist
 ## Todo
 ### Write-up
-- [ ] Abstract
+- [x] Abstract
 - [x] Motivation
   - [x] Introduction
 - [x] Background
@@ -17,17 +17,17 @@
 - [ ] Implementation
     - [x] Booting
     - [x] Organising Memory
-    - [ ] Interacting with the GPU
-    - [ ] Interrupts and Exceptions
-    - [ ] System Timer
-    - [ ] Processes
-    - [ ] Scheduling
-    - [ ] Interacting with the Memory Management Unit
-    - [ ] Synchronisation
-    - [ ] Inter-process Communication
-    - [ ] User interaction
+    - [x] Interacting with the GPU
+    - [x] Interrupts and Exceptions
+    - [x] System Timer
+    - [x] Processes
+    - [x] Scheduling
+    - [x] Synchronisation
+    - [x] Inter-process Communication
 - [ ] Testing
-- [ ] Evaluation
+    - [x] Interacting with the Memory Management Unit
+    - [x] User interaction
+- [x] Evaluation
   - [ ] Achievements/Results
   - [ ] Limitations
   - [ ] Further work
@@ -35,9 +35,9 @@
 Sections to add:
 - [x] sec:LinkerSection
 - [x] sec:evaluation
-- [ ] sec:GPIO
-- [ ] sec:IRQs
-- [ ] sec:directives
+- [x] sec:GPIO
+- [x] sec:IRQs
+- [x] sec:directives
 - [ ] app:timetable (revised)
 ### Functional
 - [x] Enable MMU

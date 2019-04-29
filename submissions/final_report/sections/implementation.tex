@@ -1059,6 +1059,7 @@ try_lock:
     simplicity to extend to more options in the future is helpful.
 
     \subsubsection{Makefile}
+        \label{sec:directives}
         Compile-time configuration is performed by sending command-line
         directives to the Makefile. In particular, the project makes use of the
         \code{-D} flag to define certain variables within the source code. For
@@ -1125,6 +1126,7 @@ DIRECTIVES = -DRPIBPLUS -DSCHED_ROUNDROBIN
         with extra checks for validity of access.
 
     \subsubsection{Keyboard input}
+        \label{StaticLibrary}
         Keyboard input is generally done via USB keyboard on the Raspberry Pi,
         although we may use the UART peripheral to receive input from a keyboard
         using a USB-to-TTL adapter. Since the USB standard is designed to
