@@ -1,17 +1,100 @@
-% good - learnt loads
-% shift from modularity to educational
-% good compile-time configuration (like modularity ish), and truly modular much
-% harder
-% difficulty adhering to schedule - underestimation of workload
-% not entirely correct in how scheduler chosen - timer still generates
-% interrupts, just ignored
-% could have used user acceptance testing - just not enough time!
-
 \section{Evaluation}
     \label{sec:evaluation}
     Overall the project has been a success, not only in terms of the goals set
     out in the specification and progress report, but as an educational
-    process and as a first experience in systems programming.
+    process and as a first experience in systems programming. The project has
+    achieved what it was initially designed to do in providing an operating
+    system that was capable of functioning on real-world hardware, and
+    furthermore implements key features such as memory management, exception
+    handling, and multiprocessing. Although this list seems initially
+    underwhelming, a much greater appreciation was gained for the significant
+    level of work required to make these systems work -- while, effectively, all
+    the operating system does is print two sequences of letters in order
+    (testing synchronisation), then print Fibonacci numbers at the same time as
+    flashing its LED (testing multiprocessing), in all the lines of code total
+    roughly 3,000. Furthermore, there is more work that has gone into it
+    ``behind-the-scenes'', such as reading through the pages of technical
+    documentation for details about addresses, offsets, and registers. This is
+    to say that the project has been an enjoyable window into the previously
+    unknown and quite unique low-level systems programming, and greatly
+    increased the author's appreciation of such a discipline. Furthermore, the
+    project has been a good challenge; it is true that the documentation for
+    some of the mechanisms on the Pi, especially with regards to the BCM2835
+    chip, is sometimes lacking, despite the existence of the technical reference
+    manuals. The sense of satisfaction for finally making a piece of code work
+    correctly, however, is all the more rewarding because of it.
+
+    The initial goal was to create a modular kernel for the Raspberry Pi --
+    since the project still does not implement all the functionality it set out
+    to in the specification, it was (in hindsight) a good decision to switch
+    focus to its educational value, as building an interface for dynamic module
+    loading and linking would have entailed much more complexity. The
+    compile-time configuration options do, however, simulate this modularity to
+    an extent, albeit if more cumbersome. The project therefore does have value
+    as a hobbyist operating system, to an extent, and the foundations have been
+    laid for this to increase with further work.
+
 \subsection{Achievements}
+    As mentioned, one of the key achievements of the project is the delivering
+    of an operating system that functions on real hardware, along with the
+    features that it implements, most rewarding of which has been seeing the
+    success of multiprocessing and process scheduling. More implicit
+    achievements have come in the form of skills such as project management and
+    software engineering skills. Being the largest individual project undertaken
+    since starting university, it has required that much more organisation and
+    planning, especially regarding processes such as timetabling, detailing the
+    project specification, and carefully designing each component of the
+    software. Furthermore, competency in both the C programming language and the
+    ARM assembly instruction set has greatly increased, and in particular using
+    them both in conjunction -- future projects can now focus on applying the
+    competencies learned, without the need to learn them first (as has been the
+    case on this project). Confidence was also gained in the build process in
+    general and the management of a relatively large codebase. Carefully
+    defining Makefile targets to accelerate the build process has been useful,
+    and indeed the project would have been impossible without a working
+    knowledge of this. Useful features such as conditional compilation have
+    also been explored. Finally, the requirement of proficiency with digesting
+    technical documentation has been an achievement of the project, and the deep
+    working knowledge that this builds of the platform has been a rewarding one
+    to see grow.
+    
 \subsection{Limitations}
+    The project is not without its limitations, chief of which has been the
+    number of systems initially desired to have implemented. In particular, the
+    specification and progress reports both outline features such as filesystems
+    and a command prompt to have been implemented, when in reality these are
+    still far from being written -- the process lacks any user interaction at
+    all. Although this oversight is not a failure, to a certain extent forgiven
+    by the lack of prior experience in such software development, it is still
+    the most significant limitation of the project, and care must be taken in
+    the future to avoid this case of underestimation.  Furthermore, it would
+    have been desirable to implement several other process schedulers; while
+    this was judged to be non-urgent in lieu of other more pressing features,
+    using the compile-time configuration to its full extent would have been
+    satisfying. On a more technical note, while the implementation of the First
+    Come First Served scheduler is functional and correctly schedules processes,
+    it does so ungracefully -- specifically, the interface using the \code{void
+    (*schedule)(void)} must be slightly redesigned, as at present it still
+    triggers a system timer interrupt every quantum. The FCFS scheduler simply
+    ignores this, so while it works, it is perhaps not ideal. Finally, a further
+    limitation regarding the project management of the project has been the lack
+    of user-acceptance testing -- this would certainly have helped in adjusting
+    the interfaces to be more user-friendly, and while they are intuitive to the
+    author they may not be so to someone who has not spent as much time
+    entrenched in its development. These features were, however, implemented
+    late in the project's lifetime, meaning there was simply little time to do
+    such testing and have it make a meaningful difference. It instead should
+    have been allotted for earlier on in the planning phase of the project, and
+    was an oversight.
+    
 \subsection{Further work}
+    The lack of user-interaction at present is perhaps the most pressing of
+    features to implement, especially now that the project presents an
+    environment that would warrant such a feature. In particular, this entails
+    writing a working interface with the USB controller on the Pi and using this
+    to interact with an interrupt-driven keyboard driver -- only then would a
+    shell be a useful feature. Furthermore, shared memory must be refined and
+    make use of greater memory protection, little more than a text buffer
+    currently. Finally, an interface for the EMMC should be implemented in order
+    to provide permanent storage options, by interacting with the SD and some
+    implementation of a filesystem.
