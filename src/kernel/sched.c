@@ -70,11 +70,9 @@ void sched_round_robin(void) {
  */
 void sched_fcfs(void) {
     
-    disable_interrupts();
-
-    struct proc *old_thread, *new_thread;
-
-    if (1);
-
-    enable_interrupts();
+    /* 
+     * do nothing - wwe simply wait for the currently executing process to
+     * terminate, in doing so executing its cleanup() function and switching to
+     * the next process in the ready queue
+     */
 }
