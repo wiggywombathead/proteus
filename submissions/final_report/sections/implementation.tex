@@ -128,8 +128,8 @@ _start:
         execution of the operating system, computations will require memory and
         since the project functions entirely in kernel-space, any and all memory
         is available to use. To impose some structure on the memory and manage
-        it effectively, however, we organise it into 4kiB pages, allowing for
-        equal-sized blocks of memory, which are neither insignificantly nor
+        it effectively, we organise it into 4kiB pages, allowing for equal-sized
+        blocks of memory, which are neither insignificantly small nor
         prohibitively large, to be allocated and tracked. Therefore, the most
         important piece of information among the atags is the total system
         memory, which the project uses in its implementation of a dynamic memory
@@ -161,16 +161,16 @@ _start:
         to place the page metadata list directly after the end of the kernel
         image.
 
-        To allocate a page, we need of knowledge of which ones are free to do
-        so, for which we create a linked list of all such pages. Then all that
-        is needed is to return a pointer to its location in memory and zero it
-        (for security), modify the appropriate flags in the page array, and
-        remove it from our free pages list. When a page's use is no longer
-        required, it makes sense to make it available for future allocations,
-        for example when a process has finished executing (see Section
-        \ref{sec:cleanup}). Thus, to free a page we use its physical address to
-        index into the array containing all pages, set the \code{allocated} to
-        0, and add it back to the list of free pages.
+        To allocate a page, we need knowledge of which ones are free to do so,
+        for which we create a linked list of all such pages. Then all that is
+        needed is to return a pointer to its location in memory and zero it (for
+        security), modify the appropriate flags in the page array, and remove it
+        from our free pages list. When a page's use is no longer required, it
+        makes sense to make it available for future allocations, for example
+        when a process has finished executing (see Section \ref{sec:cleanup}).
+        Thus, to free a page we use its physical address to index into the array
+        containing all pages, set the \code{allocated} to 0, and add it back to
+        the list of free pages.
 
     \subsubsection{Dynamic memory allocator}
         To allocate memory dynamically, and less restrictively than entire pages
@@ -239,9 +239,8 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         Model B+, this is located at address \code{0x20000000}, and the physical
         address for peripherals span from this base address up to
         \code{0x20ffffff}. The peripheral itself contains a collection of
-        registers which may be read and written, and these are defined at
-        offsets from that specific peripheral's base address (see Table
-        \ref{tab:UART} for clarification).
+        registers which may be read and written, defined at offsets from that
+        peripheral's base address (see Table \ref{tab:UART} for clarification).
 
         \begin{table}
             \centering
@@ -341,9 +340,9 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         interface was written for this version, however since it is a much
         simpler process on the Pi 1 Model B+, after some weeks debugging and
         making little progress, the decision to switch the target platform was
-        switched at this point. Within the source code are both methods,
-        and both are guarded by macros (see Section \ref{sec:directives} on
-        Makefile directives) which will prevent compilation of the wrong one.
+        taken at this point. Within the source code are both methods, and both
+        are guarded by macros (see Section \ref{sec:directives} on Makefile
+        directives) which will prevent compilation of the wrong one.
 
     \subsubsection{Initialising the framebuffer}
         We therefore require two functions to initialise the framebuffer: one to
@@ -454,7 +453,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
         locations in order for the kernel to branch to the correct
         exception-handling routine. This set of addresses is known as the
         Exception Vector Table, and begins at address \code{0x0}. The layout of
-        the table is as follows \cite[pg.~A2-16]{ARMARM}:
+        the table \cite[pg.~A2-16]{ARMARM} is shown in Table \ref{tab:vector}.
         \begin{savenotes}
             \begin{table}[h]
                 \centering
@@ -482,6 +481,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
                     context switch overhead \cite{OnlineARMGuide}.} \\ \hline
                 \end{tabular}
                 \caption{The Exception Vector Table}
+                \label{tab:vector}
             \end{table}
         \end{savenotes}
 
@@ -741,12 +741,13 @@ and r0, r0, #1
     each place signifying that this register has triggered an IRQ
     \cite[pg.~173]{BCM2835}. To access these bits, we define a structure that
     makes use of bit-fields so that we may easily read and write these flags. As
-    touched upon in \ref{sec:IRQ_clearing}, to clear the IRQ for the system
-    timer we write a 0 to the bit representing the appropriate register that has
-    been matched by the counter. Simply modifying the Interrupt Controller's
-    registers directly will result in not clearing the IRQ. The overall
-    structure for the system timer is given in Listing \ref{lst:systimer}, while
-    the Control/Status Register is given in Listing \ref{lst:ctrlreg}.
+    touched upon in Section \ref{sec:IRQ_clearing}, to clear the IRQ for the
+    system timer we write a 0 to the bit representing the appropriate register
+    that has been matched by the counter. Simply modifying the Interrupt
+    Controller's registers directly will result in not clearing the IRQ. The
+    overall structure for the system timer is given in Listing
+    \ref{lst:systimer}, while the Control/Status Register is given in Listing
+    \ref{lst:ctrlreg}.
 
     \lstset{language=c}
     \begin{lstlisting}[caption={The System
@@ -1126,7 +1127,7 @@ DIRECTIVES = -DRPIBPLUS -DSCHED_ROUNDROBIN
         with extra checks for validity of access.
 
     \subsubsection{Keyboard input}
-        \label{StaticLibrary}
+        \label{sec:StaticLibrary}
         Keyboard input is generally done via USB keyboard on the Raspberry Pi,
         although we may use the UART peripheral to receive input from a keyboard
         using a USB-to-TTL adapter. Since the USB standard is designed to
