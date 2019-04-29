@@ -91,7 +91,7 @@ _start:
         \cite{MPIDR} for the identifier of the current CPU it is testing, and if
         neither of the two lower bits returned are 1, then the core is sent to
         halt indefinitely in a low-power state. Using the system control
-        processor is simply a case of finding the desired functionlity from
+        processor is simply a case of finding the desired functionality from
         \cite[pg.~3-14]{TRM} and copying the \code{mrc} or \code{mcr}
         instruction it specifies.
 
@@ -365,7 +365,7 @@ while (seg->prev != NULL && !seg->prev->allocated) {
         \frac{8}{d}$, where $p$ and $d$ are the values for pitch and depth,
         respectively. To calculate memory address $a$ of a pixel located at
         coordinate $(x,y)$ we have $a = p * y + (\frac{d}{8}) x$. To initialise
-        the framebuffer, we make define the values we wish to set in a temporary
+        the framebuffer, we define the values we wish to set in a temporary
         structure representing the request, send this request to the GPU through
         the mailbox via the framebuffer channel, and, if successful, write these
         values to the framebuffer.
@@ -494,7 +494,7 @@ void write_pixel(uint32_t x, uint32_t y, const struct pixel *color) {
         to \code{r13} and \code{r14} \cite[pg.2-19]{TRM}, allowing for a private
         stack pointer and link register for each mode. Each mode also contains
         its own banked version of the SPSR, not available in the standard User
-        and System modes. Since, during and exception, we are interrupting code
+        and System modes. Since, during an exception, we are interrupting code
         which did not consent to calling a function, we must save all of the
         registers it was using, in order that we can eventually return to its
         execution with it effectively knowing nothing of the interrupt.
@@ -1059,9 +1059,85 @@ try_lock:
     simplicity to extend to more options in the future is helpful.
 
     \subsubsection{Makefile}
+        Compile-time configuration is performed by sending command-line
+        directives to the Makefile. In particular, the project makes use of the
+        \code{-D} flag to define certain variables within the source code. For
+        example, when the target model was switched to the Pi 1 Model B+ from
+        the Pi 2 Model B as a result of difficulties with the framebuffer, the
+        code that dealt with shutting down three of the four cores was simply
+        wrapped in C preprocessor \code{\#if defined} tests, meaning it would
+        only get executed if it is explicitly specified that we are compiling
+        for the Raspberry Pi 2 Model B. If not, it is assumed that we compile
+        for the Raspberry Pi 1. This solution was particularly useful as it
+        makes the codebase more portable to other models, without breaking its
+        functionality on the current model and without requiring to delete the
+        code entirely.
 
-\subsection{Inter-process Communication}
-    A rudimentary form of inter-process communication is implemented via the
-    mechanism of shared-memory. This 
-    
-\subsection{User interaction}
+        Even more useful, considering the initial goals of the project, is the
+        ability to load different process schedulers at compile-time. This is
+        achieved in much the same way as how the model of Raspberry Pi is
+        targeted -- we simply wrap the blocks of code corresponding to the
+        different options available in preprocessor expressions, and set the
+        \code{void (*schedule)(void)} function accordingly. Listing
+        \ref{lst:Make_example} gives an example issue of the \code{make} command
+        with command-line directives sent to the preprocessor, and shows which
+        directives they define. Listing \ref{lst:schedulefn} shows how this
+        interface is used to determine which scheduling function to compile.
+        Just as the model requires a default value, we assume the default
+        scheduler to use is the Round Robin algorithm.
+
+        \begin{lstlisting}[caption={An example \code{make} command, and the
+        directives it defines},captionpos=b,label={lst:Make_example}]
+make model=1 sched=robin
+DIRECTIVES = -DRPIBPLUS -DSCHED_ROUNDROBIN
+        \end{lstlisting}
+
+        \begin{lstlisting}[caption={Configuring the scheduling algorithm at
+        compile-time},captionpos=b,label={lst:schedulefn}]
+#if defined ( SCHED_FCFS )
+    schedule = sched_fcfs;
+    strcpy(sch_str, "FCFS");
+#elif defined ( SCHED_ROUNDROBIN )
+    schedule = sched_round_robin;
+    strcpy(sch_str, "Round Robin");
+#else
+    schedule = sched_round_robin;
+    strcpy(sch_str, "Round Robin");
+#endif
+        \end{lstlisting}
+
+\subsection{Ongoing development}
+    The project, while functional in what it implements, is not in an entirely
+    complete state. Two systems in particular have been developed to an extent,
+    but work is required to integrate them fully into the operating system --
+    these are the tasks of inter-process communication and user interaction via
+    a keyboard.
+
+    \subsubsection{Inter-process Communication}
+        The project implements a functional but rudimentary form of the
+        shared-memory model of inter-process communication. This involves
+        declaring a new structure, \code{struct shm\_section}, which contains
+        fields describing its address in memory, an identifying name, and a
+        character array to storo data written to it. We create a new shared
+        memory section by allocating a new page, with the \code{shared} bit set.
+        Another process may then use the data in this page with calls to
+        \code{shm\_read()} and \code{shm\_write()}, which simply perform MMIO
+        with extra checks for validity of access.
+
+    \subsubsection{Keyboard input}
+        Keyboard input is generally done via USB keyboard on the Raspberry Pi,
+        although we may use the UART peripheral to receive input from a keyboard
+        using a USB-to-TTL adapter. Since the USB standard is designed to
+        accommodate a wide variety of hardware devices, with USB ports
+        themselves containing only 4 pins, this means much of the functionality
+        must be implemented in hardware. However, the time frame of the project
+        did not allow for such a task as implementing a USB keyboard driver from
+        scratch. Instead, it was opted to use a static library to provide the
+        functionality of user interaction. In particular, Rene Stange provides
+        such a driver \cite{USPi}, whose compilation may be tweaked depending on
+        the target environment. This is then archived into a static library,
+        whose functions may be accessed by supplying it to the linker at
+        compile-time. In the case of this project, this is done by specifying
+        \code{-luspi} as a linker flag in the Makefile. However, this solution
+        still too remains in the process of being developed to be entirely
+        functional.

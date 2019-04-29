@@ -1,7 +1,72 @@
 \section{Testing and Issues}
 \subsection{Loading onto real hardware}
-    \subsubsection{Integer division on the ARM CPU}
-\subsection{Switch to the Raspberry Pi 1}
+    Vital to ensuring that the system truly works is testing it on real
+    hardware. As covered in Section \ref{sec:booting}, the Pi requires firmware
+    containing its three bootloaders in order to bring a kernel image into
+    memory and begin execution. The most simple way to acquire this was to
+    download an existing operating system for the Pi, since this would already
+    contain all the files required, and simply replace the \code{kernel.img}
+    with that generated during compilation. We use the toolchain utility
+    \code{arm-none-eabi-objcopy} to copy the generated ELF file to a raw binary
+    image. The image is then copied to the SD card to replace that of Raspbian,
+    meaning the project's operating system will run in its place.
+
+\subsubsection{Integer division on the ARM CPU}
+    When compiling, GCC raised the error of an unrecognised symbol within the
+    compiled object files, \code{\_\_aeabi\_uidivmod}, and after debugging it
+    was discovered to have originated from use of the modulo operator. The cause
+    of this is the fact that the ARM family of CPUs does not implement a native
+    integer division instruction \cite{ARM_udiv}, and thus requires a custom
+    implementation. A solution, at least early on, was to link against the
+    \code{-lgcc} flag, as GCC provides its own implementation in this library.
+    However, since an important, if implicit, personal requirement of the
+    project is that it is self-sufficient wherever possible, it was decided to
+    write the long division algorithm in assembly. The \code{\_\_aeabi\_*div*}
+    family of functions require that the quotient of the division is stored in
+    \code{r0} by the time the function returns, and that the remainder is in
+    \code{r1}. Listing \ref{lst:uidiv} shows the implementation of
+    \code{\_\_aeabi\_divmod(numerator, denominator)}, which allows for unsigned
+    integer division and modulo operations. The implementation for
+    \code{\_\_aeabi\_uidiv()} simply calls \code{\_\_aeabi\_uidivmod()}, as both
+    have the same requirements regarding the contents of registers 0 and 1.
+        
+    \lstset{language=c}
+    \begin{lstlisting}[caption={Implementation of unsigned integer division and
+    modulo in ARM assembly},captionpos=b,label={lst:uidiv}]
+__aeabi_uidivmod:
+    mov r2, #0  // quotient
+    loop:
+        cmp r0, r1
+        blo return
+        sub r0, r0, r1
+        add r2, r2, #1
+        b loop
+    return:
+        mov r1, r0
+        mov r0, r2
+        bx lr
+    \end{lstlisting}
+
 \subsection{Interacting with the Memory Management Unit}
+    Another issue during testing was the compiler warning of the deprecation of
+    the \code{swp} instruction in ARMv6 and higher, as used in the
+    implementation of the atomic swap operation in Listing \ref{lst:Lock}. It
+    was discovered that the Load Register Exclusive and Store Register Exclusive
+    instructions, \code{ldrex} and \code{strex} respectively, were preferred for
+    this operation. It was further discovered \cite{CacheEnable} that these instructions were
+    available with both caches and the MMU enabled. While the project does not
+    work when using these exclusive loads and stores, causing a data abort when
+    attempting to do so, it does succeed in initialising the MMU, allowing the
+    programmer to define their own map from virtual to physical memory using the
+    \code{mmu\_section()} interface. Much of this code is, however, accredited
+    to David Welch, having been largely lifted from \cite{dwelch67}. Not being a
+    primary objective of the project, however, and having been initially with
+    the intention simply to use these non-deprecated instructions, the use of
+    this code was judged to be permissible.
+
 \subsection{ACT debugging}
-\subsection{Static libraries}
+    Lastly, the most notable and rewarding phase of testing was performed via
+    the GPIO -- after loading onto real hardware, but before getting framebuffer
+    initialisation working, there was no means of getting visual feedback from
+    the real-world (i.e. non-emulated) system, other than by blinking the ACT
+    LED. 

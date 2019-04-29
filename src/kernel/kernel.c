@@ -19,7 +19,7 @@
 mutex_t mutex;
 
 void flash(void) {
-    uint32_t hertz = 1;
+    uint32_t hertz = 2;
     while (1) {
         act_on();
         uwait(500000 / hertz);
@@ -29,7 +29,6 @@ void flash(void) {
 }
 
 void fib(void) {
-    mutex_lock(&mutex);
     int a, b, c;
 
     a = 0, b = 1;
@@ -49,7 +48,6 @@ void fib(void) {
         printf("[%d]: %d\n", i, c);
         uwait(1000000);
     }
-    mutex_unlock(&mutex);
     puts("Done!\n");
 }
 
@@ -70,20 +68,6 @@ void print2(void) {
     }
     mutex_unlock(&mutex);
 }
-
-void test(void) {
-    int i = 0;
-    while (1) {
-        printf("test %d\n", i++);
-        uwait(1000000);
-    }
-}
-
-struct data {
-    int v1;
-    int v2;
-    char s[16];
-};
 
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
 
@@ -158,35 +142,30 @@ void kernel_main(uint32_t r0, uint32_t r1, uint32_t atags) {
     act_blink(3);
     printf("\n"
             "=====================================\n"
-            "*      Welcome to proteus v0.1      *\n"
+            "*      Welcome to bloomOS v0.1      *\n"
             "=====================================\n"
             "\n"
         );
     uwait(3000000);
 
-    // uint32_t addr = shm_open() +1;
-    // struct data d = {1,2,"hello"};
-    // shm_write(addr, &d, sizeof(struct data));
+    // show that the MMU is working
+    hexstring(mmio_read(0x00300000));
+    hexstring(mmio_read(0x00400000));
+    hexstring(mmio_read(0x00500000));
 
-    // struct data *r = (struct data *) shm_read(addr);
-    // printf("Read: {%d, %d, %s}\n", r->v1, r->v2, r->s);
-
-    // hexstring(mmio_read(0x00300000));
-    // hexstring(mmio_read(0x00400000));
-    // hexstring(mmio_read(0x00500000));
-
+    // create processes accessing the same mutex
     mutex_init(&mutex);
-
+    create_kthread(print1, "p1");
+    create_kthread(print2, "p2");
+    
+    // create some more processes
     create_kthread(flash, "flash");
     create_kthread(fib, "fib");
 
-    // create_kthread(print1, "p1");
-    // create_kthread(print2, "p2");
-    
-    // create_kthread(producer, "prod");
-    // create_kthread(consumer, "cons");
-
     while (1) {
+        int c;
+        if ((c = getc()))
+            putc(c);
     }
     
     puts("\nGoodbye!");

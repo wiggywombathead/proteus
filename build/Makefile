@@ -74,7 +74,7 @@ HEADERS = $(wildcard $(INC)/*.h)
 
 LINKER = linker.ld
 
-NAME = proteus
+NAME = bloom
 ELF = $(NAME).elf
 IMG = $(NAME).img
 MAP = $(NAME).map

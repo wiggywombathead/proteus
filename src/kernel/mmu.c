@@ -13,11 +13,6 @@ void mmu_init(void) {
         if (i == 0xfff00000) break;
     }
 
-    /* make RAM available - 512MiB => 0x20000000 in 1MiB sections */
-    // for (uint32_t i = 0x00000000; i < PERIPHERAL_BASE; i += 0x00100000)
-    //     mmu_section(i, i, BUFFERABLE | CACHEABLE);
-
-    // TODO : why these flags?
     mmu_start(MMU_TTABLE_BASE, 0x1000|0x4|0x1);
 }
 

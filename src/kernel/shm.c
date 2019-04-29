@@ -27,7 +27,7 @@ void *shm_read(void *addr) {
     page = all_pages + ((uint32_t) addr / PAGE_SIZE);
 
     if (!page->flags.allocated) {
-        puts("SegFault: page not allocated");
+        puts("Error: page not allocated");
         return NULL;
     }
 
