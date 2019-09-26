@@ -10,9 +10,9 @@
 #include <stddef.h>
 
 struct shm_section {
-    void *addr;
-    char name[32];
-    char *data;
+	void *addr;
+	char name[32];
+	char *data;
 };
 
 void *shm_open(void);

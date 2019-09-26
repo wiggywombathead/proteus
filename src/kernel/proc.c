@@ -30,22 +30,22 @@ static uint32_t current_pid = 1;
  */
 void proc_init(void) {
 
-    struct proc *init;
+	struct proc *init;
 
-    INIT_LIST(ready_queue);
-    INIT_LIST(job_queue);
+	INIT_LIST(ready_queue);
+	INIT_LIST(job_queue);
 
-    init = kmalloc(sizeof(struct proc));
-    init->stack_page = (void *) &__end;
-    init->pid = current_pid++;
-    strcpy(init->name, "init");
+	init = kmalloc(sizeof(struct proc));
+	init->stack_page = (void *) &__end;
+	init->pid = current_pid++;
+	strcpy(init->name, "init");
 
-    append_proc_list(&job_queue, init);
-    append_proc_list(&ready_queue, init);
+	append_proc_list(&job_queue, init);
+	append_proc_list(&ready_queue, init);
 
-    current_process = init;
+	current_process = init;
 
-    timer_set(QUANTUM);
+	timer_set(QUANTUM);
 }
 
 /**
@@ -57,26 +57,26 @@ void proc_init(void) {
  */
 static void cleanup(void) {
 
-    disable_interrupts();
+	disable_interrupts();
 
-    struct proc *old_thread, *new_thread;
+	struct proc *old_thread, *new_thread;
 
-    while (size_proc_list(&ready_queue) == 0)
-        ;
+	while (size_proc_list(&ready_queue) == 0)
+		;
 
-    new_thread = dequeue_proc_list(&ready_queue);
-    old_thread = current_process;
-    current_process = new_thread;
+	new_thread = dequeue_proc_list(&ready_queue);
+	old_thread = current_process;
+	current_process = new_thread;
 
-    /* free resources used by process */
-    free_page(old_thread->stack_page);
-    kfree(old_thread);
+	/* free resources used by process */
+	free_page(old_thread->stack_page);
+	kfree(old_thread);
 
-    remove_proc_list(&job_queue, old_thread);
-    remove_proc_list(&ready_queue, old_thread);
+	remove_proc_list(&job_queue, old_thread);
+	remove_proc_list(&ready_queue, old_thread);
 
-    /* context switch */
-    switch_context(old_thread, new_thread);
+	/* context switch */
+	switch_context(old_thread, new_thread);
 }
 
 /**
@@ -89,26 +89,26 @@ static void cleanup(void) {
  * and ready queue.
  */
 void create_kthread(kthreadfn func, char *name) {
-    struct proc *pcb;
-    struct cpu_state *new_state;
+	struct proc *pcb;
+	struct cpu_state *new_state;
 
-    pcb = kmalloc(sizeof(struct proc));
-    pcb->pid = current_pid++;
-    pcb->stack_page = alloc_page();
+	pcb = kmalloc(sizeof(struct proc));
+	pcb->pid = current_pid++;
+	pcb->stack_page = alloc_page();
 
-    // size_t len = strlen(name);
-    strncpy(pcb->name, name, 32);
+	// size_t len = strlen(name);
+	strncpy(pcb->name, name, 32);
 
-    new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct cpu_state);
-    pcb->state = new_state;
+	new_state = pcb->stack_page + PAGE_SIZE - sizeof(struct cpu_state);
+	pcb->state = new_state;
 
-    bzero(new_state, sizeof(struct cpu_state));
-    new_state->lr = (uint32_t) func;
-    new_state->sp = (uint32_t) cleanup;
-    new_state->cpsr = 0x13;
+	bzero(new_state, sizeof(struct cpu_state));
+	new_state->lr = (uint32_t) func;
+	new_state->sp = (uint32_t) cleanup;
+	new_state->cpsr = 0x13;
 
-    append_proc_list(&job_queue, pcb);
-    append_proc_list(&ready_queue, pcb);
+	append_proc_list(&job_queue, pcb);
+	append_proc_list(&ready_queue, pcb);
 }
 
 /**
@@ -116,7 +116,7 @@ void create_kthread(kthreadfn func, char *name) {
  * @param lock Address to initialise as lock variable
  */
 void spin_init(spinlock_t *lock) {
-    *lock = 1;
+	*lock = 1;
 }
 
 /**
@@ -124,8 +124,8 @@ void spin_init(spinlock_t *lock) {
  * @param lock Lock variable to poll
  */
 void spin_lock(spinlock_t *lock) {
-    while (!try_lock(lock))
-        ;
+	while (!try_lock(lock))
+		;
 }
 
 /**
@@ -133,7 +133,7 @@ void spin_lock(spinlock_t *lock) {
  * @param lock Lock to acquire
  */
 void spin_unlock(spinlock_t *lock) {
-    *lock = 1;
+	*lock = 1;
 }
 
 /**
@@ -142,9 +142,9 @@ void spin_unlock(spinlock_t *lock) {
  * @param mutex Pointer to a mutex lock to initialise
  */
 void mutex_init(struct mutex *mutex) {
-    mutex->lock = 1;
-    mutex->locker = 0;
-    INIT_LIST(mutex->wait_queue);
+	mutex->lock = 1;
+	mutex->locker = 0;
+	INIT_LIST(mutex->wait_queue);
 }
 
 /**
@@ -152,26 +152,26 @@ void mutex_init(struct mutex *mutex) {
  * @param mutex Mutex to lock
  */
 void mutex_lock(mutex_t *mutex) {
-    struct proc *old_thread, *new_thread;
+	struct proc *old_thread, *new_thread;
 
-    /* if lock unavailable, stop execution and go to wait queue */
-    while (!try_lock(&mutex->lock)) {
+	/* if lock unavailable, stop execution and go to wait queue */
+	while (!try_lock(&mutex->lock)) {
 
-        disable_interrupts();
+		disable_interrupts();
 
-        new_thread = dequeue_proc_list(&ready_queue);
-        old_thread = current_process;
-        current_process = new_thread;
+		new_thread = dequeue_proc_list(&ready_queue);
+		old_thread = current_process;
+		current_process = new_thread;
 
-        append_proc_list(&mutex->wait_queue, old_thread);
+		append_proc_list(&mutex->wait_queue, old_thread);
 
-        /* perform context switch */
-        switch_context(old_thread, new_thread);
+		/* perform context switch */
+		switch_context(old_thread, new_thread);
 
-        enable_interrupts();
-    }
+		enable_interrupts();
+	}
 
-    mutex->locker = current_process;
+	mutex->locker = current_process;
 }
 
 /**
@@ -179,14 +179,14 @@ void mutex_lock(mutex_t *mutex) {
  * @param mutex Mutex to unlock
  */
 void mutex_unlock(mutex_t *mutex) {
-    struct proc *proc;
+	struct proc *proc;
 
-    mutex->lock = 1;
-    mutex->locker = 0;
+	mutex->lock = 1;
+	mutex->locker = 0;
 
-    /* if a process was waiting for this, put them on the run queue */
-    if (size_proc_list(&mutex->wait_queue)) {
-        proc = dequeue_proc_list(&mutex->wait_queue);
-        prepend_proc_list(&ready_queue, proc);
-    }
+	/* if a process was waiting for this, put them on the run queue */
+	if (size_proc_list(&mutex->wait_queue)) {
+		proc = dequeue_proc_list(&mutex->wait_queue);
+		prepend_proc_list(&ready_queue, proc);
+	}
 }

@@ -4,9 +4,9 @@
 #include <kernel/proc.h>
 
 struct mutex {
-    int lock;
-    struct proc *locker;    // process that locked lock
-    struct proc_list wait_queue;
+	int lock;
+	struct proc *locker;    // process that locked lock
+	struct proc_list wait_queue;
 };
 
 typedef struct mutex mutex_t;

@@ -12,14 +12,14 @@ static uint32_t delay;
  * Handler for the timer IRQ - this is called each time the timer reaches 0
  */
 static void timer_irq_handler(void) {
-    schedule();
+	schedule();
 
-    uptime += delay;
-    delay = 0;
+	uptime += delay;
+	delay = 0;
 }
 
 static void timer_irq_clearer(void) {
-    systimer->control.matched1 = 1;
+	systimer->control.matched1 = 1;
 }
 
 /**
@@ -27,8 +27,8 @@ static void timer_irq_clearer(void) {
  * as the system timer IRQ's handler function
  */
 void timer_init(void) {
-    systimer = (struct sys_timer *) SYSTIMER_BASE;
-    register_irq_handler(SYS_TIMER1, timer_irq_handler, timer_irq_clearer);
+	systimer = (struct sys_timer *) SYSTIMER_BASE;
+	register_irq_handler(SYS_TIMER1, timer_irq_handler, timer_irq_clearer);
 }
 
 /**
@@ -36,8 +36,8 @@ void timer_init(void) {
  * @param usecs Microseconds to wait before firing the next IRQ
  */
 void timer_set(uint32_t usecs) {
-    systimer->compare1 = systimer->counter_low + usecs;
-    delay = usecs;
+	systimer->compare1 = systimer->counter_low + usecs;
+	delay = usecs;
 }
 
 /**
@@ -45,9 +45,9 @@ void timer_set(uint32_t usecs) {
  * @param usecs Microseconds for which to do nothing
  */
 void OPTIMIZE(0) uwait(uint32_t usecs) {
-    volatile uint32_t curr = systimer->counter_low;
-    volatile uint32_t t = systimer->counter_low - curr;
-    while (t < usecs) {
-        t = systimer->counter_low - curr;
-    }
+	volatile uint32_t curr = systimer->counter_low;
+	volatile uint32_t t = systimer->counter_low - curr;
+	while (t < usecs) {
+		t = systimer->counter_low - curr;
+	}
 }

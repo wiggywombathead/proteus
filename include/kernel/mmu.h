@@ -11,8 +11,8 @@
 
 #define MMU_TTABLE_BASE 0x00004000
 
-#define BUFFERABLE  0x04
-#define CACHEABLE   0x08
+#define BUFFERABLE	0x04
+#define CACHEABLE	0x08
 
 extern void mmu_start(uint32_t, uint32_t);
 extern void mmu_stop(void);

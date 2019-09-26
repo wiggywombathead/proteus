@@ -12,9 +12,9 @@
 #define CHAR_HEIGHT 8
 
 struct pixel {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
 };
 
 int gpu_init(void);

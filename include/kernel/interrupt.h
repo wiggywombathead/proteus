@@ -16,48 +16,48 @@
 #define IRQ_IS_GPU2(x) (( x >= 32 && x < 64 ))
 
 #define IRQ_IS_PENDING(registers, num) \
-    ((IRQ_IS_BASIC(num) && ((1 << (num - 64)) & registers->irq_basic_pending)) || \
-     (IRQ_IS_GPU1(num) && ((1 << (num)) & registers->irq_gpu_pending_1)) || \
-     (IRQ_IS_GPU2(num) && ((1 << (num - 32)) & registers->irq_gpu_pending_2)))
+	((IRQ_IS_BASIC(num) && ((1 << (num - 64)) & registers->irq_basic_pending)) || \
+	 (IRQ_IS_GPU1(num) && ((1 << (num)) & registers->irq_gpu_pending_1)) || \
+	 (IRQ_IS_GPU2(num) && ((1 << (num - 32)) & registers->irq_gpu_pending_2)))
 
 enum {
-    /* interrupt register base address, 0x2000b000 */
-    INTERRUPTS_BASE = PERIPHERAL_BASE + INTERRUPTS_OFFSET,
+	/* interrupt register base address, 0x2000b000 */
+	INTERRUPTS_BASE = PERIPHERAL_BASE + INTERRUPTS_OFFSET,
 
-    IRQ_PENDING         = (INTERRUPTS_BASE + 0x200),
-    IRQ_GPU_PENDING1    = (INTERRUPTS_BASE + 0x204),
-    IRQ_GPU_PENDING2    = (INTERRUPTS_BASE + 0x208),
-    FIQ_CONTROL         = (INTERRUPTS_BASE + 0x20c),
-    IRQ_GPU_ENABLE1     = (INTERRUPTS_BASE + 0x210),
-    IRQ_GPU_ENABLE2     = (INTERRUPTS_BASE + 0x214),
-    IRQ_ENABLE          = (INTERRUPTS_BASE + 0x218),
-    IRQ_GPU_DISABLE1    = (INTERRUPTS_BASE + 0x21c),
-    IRQ_GPU_DISABLE2    = (INTERRUPTS_BASE + 0x220),
-    IRQ_DISABLE         = (INTERRUPTS_BASE + 0x224)
+	IRQ_PENDING         = (INTERRUPTS_BASE + 0x200),
+	IRQ_GPU_PENDING1    = (INTERRUPTS_BASE + 0x204),
+	IRQ_GPU_PENDING2    = (INTERRUPTS_BASE + 0x208),
+	FIQ_CONTROL         = (INTERRUPTS_BASE + 0x20c),
+	IRQ_GPU_ENABLE1     = (INTERRUPTS_BASE + 0x210),
+	IRQ_GPU_ENABLE2     = (INTERRUPTS_BASE + 0x214),
+	IRQ_ENABLE          = (INTERRUPTS_BASE + 0x218),
+	IRQ_GPU_DISABLE1    = (INTERRUPTS_BASE + 0x21c),
+	IRQ_GPU_DISABLE2    = (INTERRUPTS_BASE + 0x220),
+	IRQ_DISABLE         = (INTERRUPTS_BASE + 0x224)
 };
 
 enum irq_no {
-    GPU_TIMER1     = 0,
-    SYS_TIMER1     = 1,
-    GPU_TIMER2     = 2,
-    SYS_TIMER2     = 3,
-    USB_CONTROLLER = 9,
-    PCM_AUDIO      = 55,
-    SD_CONTROLLER  = 62,
-    ARM_TIMER      = 64
+	GPU_TIMER1     = 0,
+	SYS_TIMER1     = 1,
+	GPU_TIMER2     = 2,
+	SYS_TIMER2     = 3,
+	USB_CONTROLLER = 9,
+	PCM_AUDIO      = 55,
+	SD_CONTROLLER  = 62,
+	ARM_TIMER      = 64
 };
 
 struct interrupt_register {
-    uint32_t irq_basic_pending;
-    uint32_t irq_gpu_pending_1;
-    uint32_t irq_gpu_pending_2;
-    uint32_t fiq_control;
-    uint32_t irq_gpu_enable_1;
-    uint32_t irq_gpu_enable_2;
-    uint32_t irq_basic_enable;
-    uint32_t irq_gpu_disable_1;
-    uint32_t irq_gpu_disable_2;
-    uint32_t irq_basic_disable;
+	uint32_t irq_basic_pending;
+	uint32_t irq_gpu_pending_1;
+	uint32_t irq_gpu_pending_2;
+	uint32_t fiq_control;
+	uint32_t irq_gpu_enable_1;
+	uint32_t irq_gpu_enable_2;
+	uint32_t irq_basic_enable;
+	uint32_t irq_gpu_disable_1;
+	uint32_t irq_gpu_disable_2;
+	uint32_t irq_basic_disable;
 };
 
 typedef void (*interrupt_handler)(void);
