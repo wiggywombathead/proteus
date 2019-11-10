@@ -110,7 +110,7 @@ $(OBJ_DIR)/%.o: $(KERN_SRC)/$(ARCHDIR)/%.c
 $(OBJ_DIR)/%.o: $(KERN_SRC)/%.S
 	@echo "Compiling $<"
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(COMMON_SRC)/%.c
 	@echo "Compiling $<"

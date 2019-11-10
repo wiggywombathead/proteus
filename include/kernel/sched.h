@@ -8,6 +8,7 @@
 
 #define QUANTUM 20000
 
+#if !defined(__ASSEMBLER__)
 /* scheduler to use */
 void (*schedule)(void);
 
@@ -16,5 +17,6 @@ void sched_init(void);
 /* scheduling algorithms */
 void sched_round_robin(void);
 void sched_fcfs(void);
+#endif /* __ASSEMBLER__ */
 
 #endif

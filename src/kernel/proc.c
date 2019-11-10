@@ -23,7 +23,7 @@ struct proc *current_process;
 static uint32_t current_pid = 1;
 
 /**
- * @brief Initialse ready queue and job queue, and start the init process
+ * @brief Initialise ready queue and job queue, and start the init process
  *
  * The init process is created and added to the job queue, the current process
  * as this process, and the timer is set to go off in one quantum.

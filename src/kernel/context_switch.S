@@ -1,5 +1,6 @@
 .section .rodata
-.equ QUANTUM, 20000
+
+#include <kernel/sched.h>
 
 .section .text
 
